@@ -1,6 +1,9 @@
 #!/bin/bash
 
-## Colored highlighting is awesome
+## Adds username on prompt PS1
+export PS1="\[\033[36m\]\u\[\033[m\]@${PS1}"
+
+## Colors
 if [ "$TERM" != "dumb" ] && [ `which dircolors` ]; then
     eval "`dircolors -b ~/.dircolors`"
 fi
