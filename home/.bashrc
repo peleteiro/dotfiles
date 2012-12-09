@@ -13,9 +13,6 @@ export HOMEBREW_LLVM=true
 : ${LOGNAME=$(id -un)}
 : ${UNAME=$(uname)}
 
-# RCov fdp
-ulimit -n 1000
-
 # Compilation
 export ARCHFLAGS="-arch x86_64"
 
