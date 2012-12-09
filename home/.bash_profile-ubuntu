@@ -1,1 +1,4 @@
 #!/bin/bash
+
+## Alias
+alias ls='ls --color=auto'
