@@ -27,7 +27,7 @@ aptitude update
 aptitude -y full-upgrade
 
 ## Pacotes básicos
-aptitude -y install build-essential
+aptitude -y install build-essential texinfo # texinfo contem o maketext que alguns usam, inclusive o magit
 aptitude -y install libxml2-dev libxslt1-dev libssl-dev libreadline-dev git
 aptitude -y install libmysql++-dev
 aptitude -y install tmux wget htop curl vim-nox whois links
