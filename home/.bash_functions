@@ -1,3 +1,5 @@
+#!/bin/bash
+
 function __bundler_ps1 {
   if [ -n "${BUNDLE_GEMFILE-}" ]; then
     project_path="${BUNDLE_GEMFILE%/Gemfile}"
