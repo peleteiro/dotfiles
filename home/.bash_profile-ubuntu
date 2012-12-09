@@ -1,4 +1,11 @@
 #!/bin/bash
 
-## Alias
+## Colored highlighting is awesome
+if [ "$TERM" != "dumb" ] && [ `which dircolors` ]; then
+    eval "`dircolors -b ~/.dircolors`"
+fi
+
 alias ls='ls --color=auto'
+alias grep='grep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias egrep='egrep --color=auto'
