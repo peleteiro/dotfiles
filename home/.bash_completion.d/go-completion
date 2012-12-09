@@ -1,0 +1,32 @@
+#!/bin/bash
+_go()
+{
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    commands="build clean doc env fix fmt get install list run test tool version vet"
+
+    if [ $COMP_CWORD == 1 ]
+    then
+      COMPREPLY=($(compgen -W "${commands}" -- ${cur}))
+      return 0
+    fi
+
+    if [ $COMP_CWORD == 2 ]
+    then
+        case "$prev" in
+            "build" | "clean" | "doc" | "fix" | "fmt" | "get" | "install" | "list" | "run" | "test" | "vet")
+              COMPREPLY=( $(compgen -f ${cur}) )
+              return 0
+            ;;
+            "help")
+              COMPREPLY=($(compgen -W "${commands}" -- ${cur}))
+              return 0
+            ;;
+            *)
+            ;;
+        esac
+    fi
+
+}
+complete -F _go go
+

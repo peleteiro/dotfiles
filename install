@@ -1,0 +1,28 @@
+#!/usr/bin/env ruby
+require 'fileutils'
+
+files = Dir[File.expand_path("../home/.*", __FILE__)] + Dir[File.expand_path("../home/*", __FILE__)]
+
+files.each do |file|
+  next if file.end_with?(".")
+
+  file_to_be = File.expand_path(File.join("~", File.basename(file)))
+
+  puts "Copying #{File.basename(file)} to #{file_to_be}"
+
+  if ARGV.include?('--clean')
+    FileUtils.rm_rf file_to_be rescue nil
+    FileUtils.cp_r file, file_to_be
+  else
+    if File.directory?(file)
+      system "rsync -r '#{file}/' '#{file_to_be}/'"
+    else
+      system "rsync -r '#{file}' '#{file_to_be}'"
+    end
+  end
+
+  FileUtils.rm_rf "~/.bash_profile"
+
+end
+
+puts "Finished."
