@@ -34,15 +34,11 @@
                                    (inf-ruby-keys)
                                    (require 'ruby-compilation))))))
 
-(add-to-list 'el-get-sources
-  '(:name rvm
-    :type git
-    :url "http://github.com/djwhitt/rvm.el.git"
-    :load "rvm.el"
-    :post-init (progn
-      (rvm-use-default))))
-
-
-
-
-
+(if (executable-find "rvm")
+    (add-to-list 'el-get-sources
+                 '(:name rvm
+                   :type git
+                   :url "http://github.com/djwhitt/rvm.el.git"
+                   :load "rvm.el"
+                   :post-init (progn
+                                (rvm-use-default)))))
