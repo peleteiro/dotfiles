@@ -6,8 +6,8 @@ CODENAME=`lsb_release --codename --short`
 ## Timezone
 ln -sf /usr/share/zoneinfo/America/Sao_Paulo /etc/localtime # dpkg-reconfigure tzdata
 
-## Aptitude
-apt-get -y install aptitude
+## Aptitude && add-apt-repository
+apt-get -y install aptitude python-software-properties
 
 ## Se tiver usando precise (último LTS) adiciona emacs24 e 2 repos que normalmente uso em servidores.
 if [ $CODENAME == "precise" ]; then
