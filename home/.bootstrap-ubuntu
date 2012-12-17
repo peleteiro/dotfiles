@@ -34,7 +34,7 @@ aptitude -y install tmux wget htop curl vim-nox whois links
 aptitude -y install emacs24
 
 ## Instala python
-aptitude -y install python virtualenvwrapper
+aptitude -y install python python-virtualenv virtualenvwrapper
 
 ## Instala ruby
 aptitude -y install ruby1.9.3
