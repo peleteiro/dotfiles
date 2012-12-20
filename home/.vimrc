@@ -69,5 +69,5 @@ Bundle "https://github.com/bbommarito/vim-slim.git"
 " Jedi
 Bundle "https://github.com/davidhalter/jedi-vim.git"
 
-
-
+" VCL
+Bundle "https://github.com/pkufranky/vcl-vim-plugin.git"
