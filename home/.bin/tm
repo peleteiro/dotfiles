@@ -1,4 +1,6 @@
 #!/bin/bash
-[[ -z "$1" ]] && { echo "usage: tm <session>" >&2; exit 1; }
 
-tmux has -t $1 && tmux attach -t $1 || tmux new -s $1
+SESSION_NAME=$1
+if [[ -z "$SESSION_NAME" ]]; then SESSION_NAME=0; fi
+
+tmux has -t $SESSION_NAME && tmux attach -t $SESSION_NAME || tmux new -s $SESSION_NAME
