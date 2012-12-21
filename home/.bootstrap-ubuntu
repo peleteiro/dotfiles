@@ -15,7 +15,7 @@ if [ $CODENAME == "precise" ]; then
     add-apt-repository -y ppa:cassou/emacs
 
     ## Varnish
-    curl http://repo.varnish-cache.org/debian/GPG-key.txt | apt-key add -
+    curl http://repo.varnish-cache.org/ubuntu/GPG-key.txt | apt-key add -
     echo "deb http://repo.varnish-cache.org/ubuntu/ ${CODENAME} varnish-3.0" > /etc/apt/sources.list.d/varnish.list
 
     ## Repositório do Passenger
