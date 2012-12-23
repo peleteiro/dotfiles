@@ -19,4 +19,11 @@
                  (require 'auto-complete-config)
                  (setq ac-auto-start nil)
                  (ac-set-trigger-key "TAB")
+                 ;;(define-key ac-mode-map (kbd "M-TAB") 'auto-complete)
+                 (define-key ac-mode-map [C-tab] 'auto-complete)
                  (ac-config-default))))
+
+
+
+
+

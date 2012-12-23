@@ -1,11 +1,17 @@
-(add-to-list 'el-get-sources '(:name Enhanced-Ruby-Mode))
+(add-to-list 'el-get-sources '(:name ruby-compilation))
 
 (add-to-list 'el-get-sources '(:name inf-ruby))
 
 (add-to-list 'el-get-sources '(:name ruby-compilation))
 
+(add-to-list 'el-get-sources '(:name auto-complete-ruby))
+
+(add-to-list 'el-get-sources '(:name flymake-ruby))
+
+;;(add-to-list 'el-get-sources '(:name ruby-electric))
+
 (add-to-list 'el-get-sources
-  '(:name ruby-compilation
+  '(:name ruby-mode
     :post-init (progn
       (autoload 'ruby-mode "ruby-mode" nil t)
       (add-to-list 'auto-mode-alist '("Capfile" . ruby-mode))

@@ -1,6 +1,5 @@
 (add-to-list 'el-get-sources
   '(:name find-file-in-project
-    :type elpa
     :post-init (progn
       (require 'find-file-in-project)
       (setq ffip-patterns
