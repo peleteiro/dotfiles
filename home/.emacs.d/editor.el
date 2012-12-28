@@ -34,7 +34,6 @@
 
 (setq make-backup-files nil)
 (setq auto-save-default nil)
-(setq c-basic-offset 1)
 (setq inhibit-startup-message t)
 
 (setq-default word-wrap nil)
@@ -42,6 +41,11 @@
 (setq-default tab-width 2)
 (setq-default indent-tabs-mode nil)
 (setq-default fill-column 140)
+
+(setq-default basic-offset 2)
+(setq-default identation 2)
+(setq-default sh-basic-offset 2)
+(setq-default sh-indentation 2)
 
 (fset 'yes-or-no-p 'y-or-n-p)
 
