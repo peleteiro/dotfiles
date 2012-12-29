@@ -14,18 +14,9 @@ function __bundler_ps1 {
 }
 
 function proj() {
-  if [ -z "$*" ]; then
-    [ `pwd` == '/' ] && return
-    [ -e .git ] && return
+  [ `pwd` == '/' ] && return
+  [ -e .git ] && return
 
-    cd ..
-    proj
-
-    return
-  fi
-
-  proj_dir=`find ~/Projects -path "*/$*/.git"`
-  [ -z $proj_dir ] && echo "Projeto $* não encontrado" && return 1
-
-  cd $proj_dir/..
+  cd ..
+  proj
 }
