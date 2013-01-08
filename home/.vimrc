@@ -64,7 +64,7 @@ nnoremap <C-m> :FufMruFile<CR>
 nnoremap <C-b> :FufBuffer<CR>
 
 " Slim
-Bundle "https://github.com/bbommarito/vim-slim.git"
+Bundle "git://github.com/slim-template/vim-slim.git"
 
 " Jedi
 Bundle "https://github.com/davidhalter/jedi-vim.git"
