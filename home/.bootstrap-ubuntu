@@ -41,7 +41,7 @@ aptitude -y install git tmux wget htop curl vim-nox whois links tree
 aptitude -y install emacs24
 
 ## Instala python
-aptitude -y install python python-virtualenv virtualenvwrapper
+aptitude -y install python python-dev python-virtualenv virtualenvwrapper
 
 ## Instala ruby
 aptitude -y install ruby1.9.1-full # It's actually ruby 1.9.3 on > precise
