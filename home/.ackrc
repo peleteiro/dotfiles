@@ -6,6 +6,8 @@
 --type-set=less=.less
 --type-set=slim=.slim
 
+# Add
+--type-add=el=rcp
 
 # Don't search
 --ignore-dir=log
