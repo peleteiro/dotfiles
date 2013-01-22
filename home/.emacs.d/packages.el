@@ -8,6 +8,8 @@
                 (goto-char (point-max))
                 (eval-print-last-sexp)))))
 
+(add-to-list 'el-get-recipe-path "~/.emacs.d/recipes")
+
 (add-to-list 'load-path "~/.emacs.d/modules/")
 (mapc 'load (directory-files "~/.emacs.d/modules/" nil "^[^#].*el$"))
 

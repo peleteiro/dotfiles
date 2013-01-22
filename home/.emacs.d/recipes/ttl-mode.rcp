@@ -1,0 +1,15 @@
+(:name ttl-mode
+  :type hg
+  :website "https://bitbucket.org/nxg/ttl-mode/overview"
+  :description "This is an Emacs mode for editing Turtle (RDF) files."
+  :url "https://bitbucket.org/nxg/ttl-mode"
+  :post-init (progn
+               (autoload 'ttl-mode "ttl-mode" "Major mode for OWL or Turtle files" t)
+               (setq auto-mode-alist
+                 (append
+                   (list
+                     '("\\.n3" . ttl-mode)
+                     '("\\.ttl" . ttl-mode))
+                   auto-mode-alist))
+               )
+  :features ttl-mode)
