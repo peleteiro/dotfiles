@@ -11,5 +11,4 @@
                      '("\\.n3" . ttl-mode)
                      '("\\.ttl" . ttl-mode))
                    auto-mode-alist))
-               )
-  :features ttl-mode)
+               ))
