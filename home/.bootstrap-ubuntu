@@ -37,7 +37,8 @@ aptitude -y full-upgrade
 aptitude -y install build-essential texinfo # texinfo contem o maketext que alguns usam, inclusive o magit
 aptitude -y install libxml2-dev libxslt1-dev libssl-dev libreadline-dev libbz2-dev libcurl4-openssl-dev
 aptitude -y install libmysql++-dev
-aptitude -y install git tmux wget htop curl vim-nox whois links tree
+aptitude -y install tmux wget htop curl vim-nox whois links tree
+aptitude -y install git mercurial subversion
 aptitude -y install emacs24
 
 ## Instala python
