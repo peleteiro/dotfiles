@@ -10,6 +10,14 @@
 (require 'windmove)
 (windmove-default-keybindings 'super)
 
+;; enable cua mode
+(cua-mode 1)
+
+;; enable recent files
+(recentf-mode 1)
+(setq recentf-max-menu-items 25)
+(global-set-key "\C-x\ \C-r" 'recentf-open-files)
+
 ;; fuzzy selection
 (require 'ido)
 (ido-mode t)
@@ -57,11 +65,6 @@
 (column-number-mode t)
 (set-fringe-style -1)
 (tooltip-mode -1)
-
-;; enable recent files
-(recentf-mode 1)
-(setq recentf-max-menu-items 25)
-(global-set-key "\C-x\ \C-r" 'recentf-open-files)
 
 ;; smart indenting and pairing for all
 ;;(electric-pair-mode t)
