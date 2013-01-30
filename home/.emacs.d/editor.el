@@ -14,16 +14,16 @@
 (require 'ido)
 (ido-mode t)
 (setq ido-enable-prefix nil
-      ido-enable-flex-matching t
-      ido-create-new-buffer 'always
-      ido-use-filename-at-point 'guess
-      ido-max-prospects 10
-      ido-default-file-method 'selected-window)
+  ido-enable-flex-matching t
+  ido-create-new-buffer 'always
+  ido-use-filename-at-point 'guess
+  ido-max-prospects 10
+  ido-default-file-method 'selected-window)
 
-(setq ido-ignore-buffers '("*scratch*" "\\` " "^\\*ESS\\*" "^\\*Messages\\*" "^\\*Help\\*" "^\\*Buffer" 
-                           "^\*.*\*$"
-                           "^\\*.*Completions\\*$" "^\\*Ediff" "^\\*tramp" "^\\*cvs-" "_region_" " output\\*$" 
-                           "^TAGS$" "^\*Ido"))
+(setq ido-ignore-buffers '("*scratch*" "\\` " "^\\*ESS\\*" "^\\*Messages\\*" "^\\*Help\\*" "^\\*Buffer"
+                            "^\*.*\*$"
+                            "^\\*.*Completions\\*$" "^\\*Ediff" "^\\*tramp" "^\\*cvs-" "_region_" " output\\*$"
+                            "^TAGS$" "^\*Ido"))
 
 (icomplete-mode +1)
 (set-default 'imenu-auto-rescan t)
@@ -58,6 +58,11 @@
 (set-fringe-style -1)
 (tooltip-mode -1)
 
+;; enable recent files
+(recentf-mode 1)
+(setq recentf-max-menu-items 25)
+(global-set-key "\C-x\ \C-r" 'recentf-open-files)
+
 ;; smart indenting and pairing for all
 ;;(electric-pair-mode t)
 ;;(electric-indent-mode t)
@@ -78,8 +83,8 @@
 
 ;; flyspell-mode does spell-checking on the fly as you type
 (setq ispell-program-name "aspell" ; use aspell instead of ispell
-      ispell-extra-args '("--sug-mode=ultra"))
-      (autoload 'flyspell-mode "flyspell" "On-the-fly spelling checker." t)
+  ispell-extra-args '("--sug-mode=ultra"))
+(autoload 'flyspell-mode "flyspell" "On-the-fly spelling checker." t)
 
 (defun insert-empty-line ()
   "Insert an empty line after the current line and positon the curson at its beginning, according to the current mode."
@@ -110,13 +115,3 @@
 (global-set-key [(meta shift down)] 'move-line-down)
 
 (define-key global-map (kbd "RET") 'newline-and-indent)
-
-
-
-
-
-
-
-
-
-
