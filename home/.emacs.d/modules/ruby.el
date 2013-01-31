@@ -6,6 +6,8 @@
 
 (add-to-list 'el-get-sources '(:name flymake-ruby))
 
+(add-to-list 'el-get-sources '(:name ruby-test-mode))
+
 ;;(add-to-list 'el-get-sources '(:name ruby-electric))
 
 (add-to-list 'el-get-sources
