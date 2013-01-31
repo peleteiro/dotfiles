@@ -12,6 +12,9 @@
   (local-comment-auto-fill)
   (add-watchwords)
 
+  (yas-minor-mode-on)
+  (auto-complete-mode)
+
   ;; keep the whitespace decent all the time
   (add-hook 'before-save-hook 'whitespace-cleanup nil t))
 
@@ -30,12 +33,3 @@
   (indent-buffer)
   (untabify-buffer)
   (whitespace-cleanup))
-
-
-
-
-
-
-
-
-

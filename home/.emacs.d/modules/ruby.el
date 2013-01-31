@@ -6,7 +6,7 @@
 
 (add-to-list 'el-get-sources '(:name auto-complete-ruby))
 
-(add-to-list 'el-get-sources '(:name flymake-ruby))
+;;(add-to-list 'el-get-sources '(:name flymake-ruby))
 
 ;;(add-to-list 'el-get-sources '(:name ruby-electric))
 
