@@ -1,12 +1,10 @@
-(add-to-list 'el-get-sources '(:name ruby-compilation))
-
 (add-to-list 'el-get-sources '(:name inf-ruby))
 
 (add-to-list 'el-get-sources '(:name ruby-compilation))
 
 (add-to-list 'el-get-sources '(:name auto-complete-ruby))
 
-;;(add-to-list 'el-get-sources '(:name flymake-ruby))
+(add-to-list 'el-get-sources '(:name flymake-ruby))
 
 ;;(add-to-list 'el-get-sources '(:name ruby-electric))
 
@@ -28,7 +26,6 @@
       (add-to-list 'completion-ignored-extensions ".rbc")
 
       (autoload 'run-ruby "inf-ruby" "Run an inferior Ruby process")
-      (autoload 'inf-ruby-keys "inf-ruby" "Set local key defs for inf-ruby in ruby-mode")
 
       (setq ruby-block-highlight-toggle 'overlay)
 
@@ -37,7 +34,6 @@
                                    (setq ruby-deep-arglist t)
                                    (setq ruby-deep-indent-paren nil)
                                    (setq c-tab-always-indent nil)
-                                   (inf-ruby-keys)
                                    (require 'ruby-compilation))))))
 
 (if (executable-find "rvm")
