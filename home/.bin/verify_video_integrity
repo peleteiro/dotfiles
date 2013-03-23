@@ -2,6 +2,7 @@
 
 export RESULT=`AV_LOG_FORCE_NO_COLOR=true ffmpeg -v warning -i "$1" -acodec copy -vcodec copy -f null - 2>&1`
 if [ -z "$RESULT" ] ; then
+  echo ok
   exit 0
 else
   echo "$RESULT"
