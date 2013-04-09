@@ -25,7 +25,7 @@ export ANDROID_SDK_ROOT=`brew --prefix android-sdk`
 
 # AWS
 export EC2_HOME=`brew --prefix ec2-api-tools`/jars
-export AWS_AUTO_SCALING_HOME=`brew --prefix as-api-tools`/
+export AWS_AUTO_SCALING_HOME=`brew --prefix aws-as`/jars
 export AWS_CLOUDWATCH_HOME=`brew --prefix cloud-watch`/jars
 export EC2_AMITOOL_HOME=`brew --prefix ec2-ami-tools`/jars
 export AWS_ELB_HOME=`brew --prefix elb-tools`/jars
