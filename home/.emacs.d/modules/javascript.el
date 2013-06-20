@@ -12,5 +12,13 @@
 
 
 (add-to-list 'el-get-sources
-  '(:name coffee-mode))
+  '(:name coffee-mode
+    :post-init (progn 
+                  (autoload 'coffee-mode "coffee-mode")
+                  (add-hook 'coffee-mode-hook (lambda ()
+                                              (coding-hook)
+                                              (auto-complete-mode))))))
+
+
+
 

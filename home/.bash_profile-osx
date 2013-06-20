@@ -6,7 +6,7 @@ source /usr/local/bin/virtualenvwrapper.sh
 
 # npm setup
 export NODE_PATH=/usr/local/lib/node
-export PATH=$PATH:./node_modules/.bin:~/node_modules/.bin
+export PATH=$PATH:./node_modules/.bin:/usr/local/share/npm/bin
 
 # go setup
 export PATH=$PATH:`brew --prefix go`/bin
