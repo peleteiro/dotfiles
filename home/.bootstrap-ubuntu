@@ -1,5 +1,5 @@
 #!/bin/bash
-# \curl -L https://raw.github.com/peleteiro/dotfiles/master/home/.bootstrap-ubuntu | bash
+# \curl -k -L https://raw.github.com/peleteiro/dotfiles/master/home/.bootstrap-ubuntu | bash
 
 ## Utils
 CODENAME=`lsb_release --codename --short`
