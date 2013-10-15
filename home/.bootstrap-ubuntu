@@ -11,7 +11,7 @@ ln -sf /usr/share/zoneinfo/America/Sao_Paulo /etc/localtime # dpkg-reconfigure t
 locale-gen en_US.UTF-8
 
 ## Aptitude && add-apt-repository
-apt-get -y install aptitude python-software-properties
+apt-get -y install aptitude python-software-properties software-properties-common
 
 ## Whoopsie remove
 aptitude -y purge whoopsie
