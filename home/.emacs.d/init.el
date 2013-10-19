@@ -3,9 +3,14 @@
 (add-to-list 'load-path "~/.emacs.d")
 
 (load "core.el")
-(load "editor.el")
 (load "window.el")
+
+(load "editor.el")
+
+(load "coding.el")
+
 (load "packages.el")
+
 (load "keybindings.el")
 (load "ui.el")
 

@@ -60,13 +60,13 @@
 
    ;; UI related
    `(link ((t (:foreground ,blue-1 :background ,blue-1bg))))
-   `(fringe ((t (:background ,gray-1bg))))
+   `(fringe ((t (:background ,background))))
    `(mode-line ((t (:foreground ,blue-1 :background ,blue-2bg))))
    `(mode-line-inactive ((t (:foreground ,blue-4 :background ,gray-4))))
    `(vertical-border ((t (:background ,background :foreground ,gray-5))))
 
    ;; Linum
-   `(linum ((t (:foreground ,gray-2 :background ,gray-1bg))))
+   `(linum ((t (:foreground ,gray-2 :background ,background))))
 
    ;; show-paren-mode
    `(show-paren-match ((t (:foreground ,orange-1 :background ,orange-1bg))))
