@@ -7,7 +7,7 @@
               "*.hbs" "*.handlebars" "*.coffee" "*.json"
               "*.pl" "*.sh" "*.erl" "*.hs" "*.ml" "*.css" "*.scss" "*.sass" "*.haml" "*.slim" "Gemfile" "*.erb"))
 
-      (setq ffip-find-options "-not -regex \".*/node_modules/.*\" -not -regex \".*/vendor/.*\" -not -regex \".*/public/system/.*\"")
+      (setq ffip-find-options "-not -regex \".*/\.tmp/.*\" -not -regex \".*/bower_components/.*\" -not -regex \".*/node_modules/.*\" -not -regex \".*/vendor/.*\" -not -regex \".*/public/system/.*\"")
 
       (global-set-key (kbd "C-x f") 'find-file-in-project)
     )))
