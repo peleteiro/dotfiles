@@ -1,4 +1,3 @@
-(add-to-list 'el-get-sources '(:name css-mode))
 (add-to-list 'el-get-sources '(:name auto-complete-css))
 
 (autoload 'css-mode "css-mode" nil t)
