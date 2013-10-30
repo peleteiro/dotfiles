@@ -32,6 +32,9 @@ export AWS_CLOUDWATCH_HOME=`brew --prefix cloud-watch`/jars
 export EC2_AMITOOL_HOME=`brew --prefix ec2-ami-tools`/jars
 export AWS_ELB_HOME=`brew --prefix elb-tools`/jars
 
+# Vagrant
+export VAGRANT_DEFAULT_PROVIDER=vmware_fusion
+
 # Alias ###################################################################
 alias vim='mvim -v'
 
