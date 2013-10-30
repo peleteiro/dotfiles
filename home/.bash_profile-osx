@@ -1,6 +1,8 @@
 #!/bin/bash
 
 # virtualenv
+export PIP_REQUIRE_VIRTUALENV=true
+export VIRTUALENVWRAPPER_PYTHON=`brew --prefix python`/bin/python
 export WORKON_HOME=$HOME/.virtualenv
 source /usr/local/bin/virtualenvwrapper.sh
 
