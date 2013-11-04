@@ -2,8 +2,6 @@
   '(:name web-mode
     :post-init (progn
 
-      (add-hook 'sgml-mode-hook 'web-mode)
-
       (add-hook 'web-mode-hook (lambda ()
                             (coding-hook)))
 
