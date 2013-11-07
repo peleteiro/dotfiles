@@ -7,6 +7,11 @@ MOCKITO_VERSION="1.9.5"
 
 SBT_IDEA_VERSION="1.5.2"
 
+if [ -z $PROJECT_NAME ]; then
+  echo Usage: bootstrap-scala project-name
+  exit 1
+fi
+
 mkdir $PROJECT_NAME
 cd $PROJECT_NAME
 
