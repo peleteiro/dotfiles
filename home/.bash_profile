@@ -64,7 +64,6 @@ export INPUTRC='~/.inputrc'
 # Alias ###################################################################
 alias cdd='cd - ' # goto last dir cd'ed from
 alias ts='date +%Y%m%d%H%M%S'
-alias http-server='python -m SimpleHTTPServer'
 
 # OS bash_profile
 source ~/.bash_profile-${OS}
