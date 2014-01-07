@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# z.sh
+. `brew --prefix`/etc/profile.d/z.sh
+
 # virtualenv
 export PIP_REQUIRE_VIRTUALENV=true
 export VIRTUALENVWRAPPER_PYTHON=`brew --prefix python`/bin/python
