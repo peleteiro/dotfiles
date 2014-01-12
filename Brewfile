@@ -1,3 +1,5 @@
+# brew bundle Brewfile
+
 update
-install z
+install z aria2
 
