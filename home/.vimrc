@@ -6,11 +6,9 @@ set clipboard=unnamed
 let mapleader=","
 
 set nocompatible               " be iMproved
-filetype off                   " required!
 
-syntax enable
 set number
-filetype plugin indent on
+set numberwidth=4
 
 set wildmode=list:longest
 set hidden
@@ -40,10 +38,20 @@ set listchars=tab:>.,trail:.,extends:#
 set tw=140
 nnoremap ; :
 
+" Treat <li> and <p> tags like the block tags they are
+let g:html_indent_tags = 'li\|p'
+
+" Open new split panes to right and bottom, which feels more natural
+set splitbelow
+set splitright
+
 set rtp+=~/.vim/bundle/vundle/
 call vundle#rc()
 
 Bundle 'gmarik/vundle'
+
+" Rename file
+Bundle 'danro/rename.vim'
 
 " Slim
 Bundle "git://github.com/slim-template/vim-slim.git"
@@ -57,17 +65,35 @@ Bundle "https://github.com/pkufranky/vcl-vim-plugin.git"
 " Vim rooter
 Bundle "airblade/vim-rooter"
 
-" FuzzyFinder
-Bundle 'L9'
-Bundle 'FuzzyFinder'
+Bundle 'kchmck/vim-coffee-script'
 
-" CMD-T like navigation
-let g:fuf_coveragefile_exclude = '\v\~$|\.(class|png|gif|jpg|jar|o|exe|dll|bak|orig|swp)$|(^|[/\\])(\.(hg|git|bzr|svn|DS_Store)|(bytecode|classes|node_modules|bower_components|build|target))($|[/\\])'
+Bundle 'kien/ctrlp.vim'
 
-" File and directory navigation
-let g:fuf_file_exclude = '\v\~$|\.(o|exe|dll|bak|orig|swp|class|png|gif|jpg|jar|gz)$|(^|[/\\])(\.(hg|git|bzr|svn)|(bytecode|node_modules|classes|exports|gef.*|perspectives.*|gsr.*|jacf.*))($|[/\\])'
+set wildignore+=*/bower_components/*
 
-let g:fuf_dir_exclude = '\v\~$|(^|[/\\])(\.(hg|git|bzr|svn|DS_Store)|(build|bower_components|target|bytecode|node_modules|classes|exports|gef.*|perspectives.*|gsr.*|jacf.*))($|[/\\])'
+if executable('ag')
+  " Use Ag over Grep
+  set grepprg=ag\ --nogroup\ --nocolor
 
-map <C-o> :FufCoverageFile<CR>
+  " Use ag in CtrlP for listing files. Lightning fast and respects .gitignore
+  let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
 
+  " ag is fast enough that CtrlP doesn't need to cache
+  let g:ctrlp_use_caching = 0
+endif
+
+Bundle 'tpope/vim-endwise'
+Bundle 'tpope/vim-surround'
+
+" Snippets are activated by Shift+Tab
+let g:snippetsEmu_key = "<S-Tab>"
+
+
+" Get off my lawn
+"nnoremap <Left> :echoe "Use h"<CR>
+"nnoremap <Right> :echoe "Use l"<CR>
+"nnoremap <Up> :echoe "Use k"<CR>
+"nnoremap <Down> :echoe "Use j"<CR>
+
+syntax enable
+filetype plugin indent on
