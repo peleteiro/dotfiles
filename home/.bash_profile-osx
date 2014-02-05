@@ -27,6 +27,7 @@ export ZOOKEEPER_INSTALL=`brew --prefix zookeeper`/libexec
 
 # Android
 export ANDROID_SDK_ROOT=`brew --prefix android-sdk`
+export ANDROID_HOME=`brew --prefix android-sdk`
 
 # AWS
 export EC2_HOME=`brew --prefix ec2-api-tools`/jars
