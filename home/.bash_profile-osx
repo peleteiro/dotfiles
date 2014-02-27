@@ -10,7 +10,7 @@ export WORKON_HOME=$HOME/.virtualenv
 source /usr/local/bin/virtualenvwrapper.sh
 
 # npm setup
-export NODE_PATH=/usr/local/lib/node
+export NODE_PATH=/usr/local/lib/node_modules
 export PATH=$PATH:./node_modules/.bin:/usr/local/share/npm/bin
 
 # go setup
