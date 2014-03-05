@@ -70,3 +70,7 @@ source ~/.bash_profile-${OS}
 
 # PATH
 export PATH=~/.bin:$PATH
+
+if [ -f ~/.bash_private ]; then
+  source ~/.bash_private
+fi
