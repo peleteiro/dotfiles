@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# fzf
+source ~/.fzf.bash
+
 # z.sh
 . `brew --prefix`/etc/profile.d/z.sh
 
@@ -28,6 +31,9 @@ export ZOOKEEPER_INSTALL=`brew --prefix zookeeper`/libexec
 # Android
 export ANDROID_SDK_ROOT=`brew --prefix android-sdk`
 export ANDROID_HOME=`brew --prefix android-sdk`
+
+# AppEngine
+export APPENGINE_SDK_HOME=`brew --prefix app-engine-java-sdk`
 
 # AWS
 export EC2_HOME=`brew --prefix ec2-api-tools`/jars
