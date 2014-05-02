@@ -3,6 +3,11 @@
 # fzf
 source ~/.fzf.bash
 
+# bash_completion
+if [ -f $(brew --prefix)/etc/bash_completion ]; then
+  . $(brew --prefix)/etc/bash_completion
+fi
+
 # z.sh
 . `brew --prefix`/etc/profile.d/z.sh
 
