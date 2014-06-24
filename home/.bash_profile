@@ -36,6 +36,9 @@ if [ -d ~/.bash_completion.d ]; then
   done
 fi
 
+# Cheat
+export CHEATCOLORS=true
+
 # rvm
 [[ -s $HOME/.rvm/scripts/rvm ]] && source $HOME/.rvm/scripts/rvm
 [[ -r $rvm_path/scripts/completion ]] && . $rvm_path/scripts/completion

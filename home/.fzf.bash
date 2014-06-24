@@ -2,13 +2,13 @@
 # ------------------
 unalias fzf 2> /dev/null
 fzf() {
-  /usr/bin/ruby --disable-gems /usr/local/Cellar/fzf/0.8.3/fzf "$@"
+  /usr/bin/ruby --disable-gems `brew --prefix fzf`/fzf "$@"
 }
 export -f fzf > /dev/null
 
 # Auto-completion
 # ---------------
-[[ $- =~ i ]] && source /usr/local/Cellar/fzf/0.8.3/fzf-completion.bash
+[[ $- =~ i ]] && source `brew --prefix fzf`/fzf-completion.bash
 
 # Key bindings
 # ------------
@@ -51,11 +51,11 @@ if [ -z "$(set -o | grep '^vi.*on')" ]; then
   if [ $__use_tmux -eq 1 ]; then
     bind '"\C-t": " \C-u \C-a\C-k$(__fsel_tmux)\e\C-e\C-y\C-a\C-d\C-y\ey\C-h"'
   else
-    bind '"\C-t": " \C-u \C-a\C-k$(__fsel)\e\C-e\C-y\C-a\C-y\ey\C-h\C-e\er"'
+    bind '"\C-t": " \C-u \C-a\C-k$(__fsel)\e\C-e\C-y\C-a\C-y\ey\C-h\C-e\er \C-h"'
   fi
 
   # CTRL-R - Paste the selected command from history into the command line
-  bind '"\C-r": " \C-e\C-u$(HISTTIMEFORMAT= history | fzf +s | sed \"s/ *[0-9]* *//\")\e\C-e\er"'
+  bind '"\C-r": " \C-e\C-u$(HISTTIMEFORMAT= history | fzf +s +m -n..,1,2.. | sed \"s/ *[0-9]* *//\")\e\C-e\er"'
 
   # ALT-C - cd into the selected directory
   bind '"\ec": " \C-e\C-u$(__fcd)\e\C-e\er\C-m"'
@@ -68,11 +68,11 @@ else
   if [ $__use_tmux -eq 1 ]; then
     bind '"\C-t": "\e$a \eddi$(__fsel_tmux)\C-x\C-e\e0P$xa"'
   else
-    bind '"\C-t": "\e$a \eddi$(__fsel)\C-x\C-e\e0Px$a \C-x\C-r"'
+    bind '"\C-t": "\e$a \eddi$(__fsel)\C-x\C-e\e0Px$a \C-x\C-r\exa "'
   fi
 
   # CTRL-R - Paste the selected command from history into the command line
-  bind '"\C-r": "\eddi$(HISTTIMEFORMAT= history | fzf +s | sed \"s/ *[0-9]* *//\")\C-x\C-e\e$a\C-x\C-r"'
+  bind '"\C-r": "\eddi$(HISTTIMEFORMAT= history | fzf +s +m -n..,1,2.. | sed \"s/ *[0-9]* *//\")\C-x\C-e\e$a\C-x\C-r"'
 
   # ALT-C - cd into the selected directory
   bind '"\ec": "\eddi$(__fcd)\C-x\C-e\C-x\C-r\C-m"'
