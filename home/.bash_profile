@@ -43,9 +43,6 @@ export CHEATCOLORS=true
 [[ -s $HOME/.rvm/scripts/rvm ]] && source $HOME/.rvm/scripts/rvm
 [[ -r $rvm_path/scripts/completion ]] && . $rvm_path/scripts/completion
 
-# Git
-alias __git_ps1="git branch 2>/dev/null | grep '*' | sed 's/* \(.*\)/(\1)/'"
-
 # tmxu
 alias tmux="TERM=xterm-256color tmux"
 
