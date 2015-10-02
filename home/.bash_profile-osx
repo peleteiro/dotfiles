@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# fzf
-source ~/.fzf.bash
-
 # bash_completion
 if [ -f $(brew --prefix)/etc/bash_completion ]; then
   . $(brew --prefix)/etc/bash_completion
@@ -11,11 +8,14 @@ fi
 # z.sh
 . `brew --prefix`/etc/profile.d/z.sh
 
+
 # virtualenv
-export PIP_REQUIRE_VIRTUALENV=true
 export VIRTUALENVWRAPPER_PYTHON=`brew --prefix python`/bin/python
 export WORKON_HOME=$HOME/.virtualenv
 source /usr/local/bin/virtualenvwrapper.sh
+export PIP_VIRTUALENV_BASE=$WORKON_HOME
+export PIP_RESPECT_VIRTUALENV=true
+export PIP_REQUIRE_VIRTUALENV=true
 
 # npm setup
 export NODE_PATH=/usr/local/lib/node_modules
@@ -51,10 +51,12 @@ export AWS_ELB_HOME=`brew --prefix elb-tools`/jars
 export VAGRANT_DEFAULT_PROVIDER=parallels
 
 # Alias ###################################################################
-alias vim='mvim -v'
+alias vim="mvim -v"
+alias subl="/Applications/Sublime\ Text.app/Contents/SharedSupport/bin/subl"
+
 
 # Mongodb
-alias mongo-start='mongod run --config /usr/local/etc/mongod.conf'
+alias mongo-start="mongod run --config /usr/local/etc/mongod.conf"
 
 # Virtuoso
 alias virtuoso-start='cd `brew --prefix virtuoso`/var/lib/virtuoso/db; virtuoso-t -f'
