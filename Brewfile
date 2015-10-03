@@ -1,5 +1,5 @@
 # brew bundle Brewfile
 
 update
-install z aria2 fzf app-engine-java-sdk bash-completion cheat
+install aria2 bash-completion python pyenv
 

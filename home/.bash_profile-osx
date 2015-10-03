@@ -4,19 +4,11 @@
 if [ -f $(brew --prefix)/etc/bash_completion ]; then
   . $(brew --prefix)/etc/bash_completion
 fi
-
-# z.sh
-. `brew --prefix`/etc/profile.d/z.sh
-
-
-# virtualenv
-export VIRTUALENVWRAPPER_PYTHON=`brew --prefix python`/bin/python
-export WORKON_HOME=$HOME/.virtualenv
-source /usr/local/bin/virtualenvwrapper.sh
-export PIP_VIRTUALENV_BASE=$WORKON_HOME
-export PIP_RESPECT_VIRTUALENV=true
-export PIP_REQUIRE_VIRTUALENV=true
-
+  
+# pyenv
+if which pyenv > /dev/null; then eval "$(pyenv init -)"; fi
+if which pyenv-virtualenv-init > /dev/null; then eval "$(pyenv virtualenv-init -)"; fi
+	
 # npm setup
 export NODE_PATH=/usr/local/lib/node_modules
 export PATH=$PATH:./node_modules/.bin:/usr/local/share/npm/bin
