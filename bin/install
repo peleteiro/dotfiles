@@ -36,6 +36,7 @@ imagemagick \
 graphicsmagick \
 
 brew cask install \
+macvim \
 anybar \
 atom \
 hammerspoon \
@@ -45,6 +46,10 @@ transmission \
 vlc \
 spotify \
 winbox \
+sketch \
+kodi \
+netspot \
+
 
 # install sshfs
 brew cask install sshfs
@@ -67,6 +72,7 @@ brew cask install java
 brew install
 ant \
 maven \
+gradle \
 selenium-server-standalone \
 
 # install android
