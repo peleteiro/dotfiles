@@ -1,0 +1,86 @@
+#!/bin/bash
+
+# install homebrew
+ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+
+brew install git
+
+brew update
+
+# install homebrew cask
+brew tap caskroom/cask
+
+# install essential
+brew install \
+aria2 \
+git \
+automake \
+tree \
+ssh-copy-id \
+wget \
+colordiff \
+sift \
+autoconf \
+automake \
+bash-completion \
+desk \
+z \
+openssl \
+exiftool \
+sqlite \
+zopfli \
+wget \
+jpegoptim \
+pngcrush \
+imagemagick \
+graphicsmagick \
+
+brew cask install \
+anybar \
+atom \
+hammerspoon \
+github-desktop \
+iterm2 \
+
+# install sshfs
+brew cask install sshfs
+
+# install python
+brew install \
+pyenv \
+pyenv-virtualenv \
+python \
+
+# install ruby
+\curl -sSL https://get.rvm.io | bash -s stable
+
+# install ios / cocoapods
+sudo gem install cocoapods
+
+# install java
+brew cask install java
+
+brew install
+ant \
+maven \
+selenium-server-standalone \
+
+# install android
+brew install \
+android-sdk \
+android-ndk \
+gradle \
+exiftool \
+
+brew cask install inkscape
+
+# install scala
+brew install \
+scala \
+sbt \
+
+# install node
+brew install node
+
+# install go
+brew install go

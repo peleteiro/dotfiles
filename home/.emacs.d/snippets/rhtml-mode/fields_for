@@ -1,5 +1,0 @@
-#name : <%= fields_for ... do |...| %>
-# --
-<%= fields_for @${1:model}.${2:submodel} do |${3:var}| %>
-  $0
-<% end %>

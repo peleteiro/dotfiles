@@ -1,5 +1,0 @@
-#name : <% form_tag "...", :method => "..." %>
-# --
-<%= form_tag "${1:/search}" :method => "${2:get}" %>
-  $0
-<% end %>
