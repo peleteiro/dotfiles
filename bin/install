@@ -36,6 +36,7 @@ imagemagick \
 graphicsmagick \
 
 brew cask install \
+notational-velocity \
 macvim \
 anybar \
 atom \
