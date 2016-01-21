@@ -1,5 +1,5 @@
 #!/bin/bash
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 
 # Copy dotfiles
 find home -name .\* -maxdepth 1 -type f -execdir cp "$DIR/home/{}" "$HOME/{}" \;

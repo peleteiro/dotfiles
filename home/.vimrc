@@ -55,5 +55,7 @@ Plug 'airblade/vim-rooter'
 Plug 'Shougo/vimproc.vim', { 'do': 'make' }
 Plug 'Shougo/unite.vim'
 
+Plug 'Valloric/YouCompleteMe', { 'do': './install.py' }
+
 " Add plugins to &runtimepath
 call plug#end()

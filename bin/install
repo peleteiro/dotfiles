@@ -41,6 +41,10 @@ atom \
 hammerspoon \
 github-desktop \
 iterm2 \
+transmission \
+vlc \
+spotify \
+winbox \
 
 # install sshfs
 brew cask install sshfs
@@ -72,7 +76,9 @@ android-ndk \
 gradle \
 exiftool \
 
-brew cask install inkscape
+brew cask install \
+xquartz \
+inkscape \
 
 # install scala
 brew install \
