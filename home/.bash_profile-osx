@@ -28,6 +28,7 @@ export ZOOKEEPER_INSTALL=`brew --prefix zookeeper`/libexec
 # Android
 export ANDROID_SDK_ROOT=`brew --prefix android-sdk`
 export ANDROID_HOME=`brew --prefix android-sdk`
+export ANDROID_NDK_ROOT=`brew --prefix android-ndk`
 
 # AppEngine
 export APPENGINE_SDK_HOME=`brew --prefix app-engine-java-sdk`
