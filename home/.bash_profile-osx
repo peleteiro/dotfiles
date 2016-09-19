@@ -5,6 +5,9 @@ if [ -f $(brew --prefix)/etc/bash_completion ]; then
   . $(brew --prefix)/etc/bash_completion
 fi
 
+# direnv
+eval "$(direnv hook bash)"
+
 # aws cli
 complete -C aws_completer aws
   
