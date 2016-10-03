@@ -1,3 +1,0 @@
-cd ~/Projects/peleteiro/dotfiles
-
-

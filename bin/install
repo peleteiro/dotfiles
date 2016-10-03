@@ -1,24 +1,12 @@
 #!/bin/bash
 
-# build tools
-is_xcode_installed() {
-    xcode-select --print-path &> /dev/null
-}
-
-xcode-select --install
-
-until is_xcode_installed; do
-	sleep 5
-done
-
 # install homebrew
 ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 
-brew install git
-
+# Update homebrew
+brew install bash-completion git
 brew update
-
-brew install bash-completion
+brew upgrade
 
 # install homebrew cask
 brew tap caskroom/cask
@@ -26,49 +14,57 @@ brew tap caskroom/cask
 # install mas
 brew install mas
 
-# install essential
+# install essentials
 brew install \
 aria2 \
-git \
-direnv \
-automake \
-tree \
-ssh-copy-id \
-wget \
-colordiff \
-sift \
 autoconf \
 automake \
-bash-completion \
-desk \
-z \
-openssl \
+colordiff \
+direnv \
 exiftool \
-sqlite \
-zopfli \
-wget \
-jpegoptim \
-pngcrush \
-imagemagick \
 graphicsmagick \
-google-drive \
+imagemagick \
+jpegoptim \
+openssl \
+pngcrush \
+sift \
+sqlite \
+ssh-copy-id \
+tree \
+wget \
+z \
+zopfli \
+
+# install "out of appstore" apps
 
 brew cask install \
-droplr \
-notational-velocity \
-macvim \
 atom \
-hammerspoon \
+droplr \
 github-desktop \
+google-drive \
+hammerspoon \
 iterm2 \
-transmission \
-vlc \
-spotify \
-winbox \
+kodi \
+macvim \
+microsoft-office \
+netspot \
+notational-velocity \
 sketch \
 slack \
-kodi \
-netspot \
+spotify \
+transmission \
+vlc \
+winbox \
+
+# install apps
+mas install 937984704 # Amphetamine
+mas install 1078184147 # Capto
+mas install 969418666 # ColorSnapper2
+mas install 975937182 # Fantastical 2
+mas install 926036361 # LastPass
+mas install 409183694 # Keynote
+mas install 1010557319 # Marboo Pro
+mas install 425424353 # The Unarchiver
 
 # install sshfs
 brew cask install sshfs
