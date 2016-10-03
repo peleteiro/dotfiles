@@ -1,5 +1,16 @@
 #!/bin/bash
 
+# build tools
+is_xcode_installed() {
+    xcode-select --print-path &> /dev/null
+}
+
+xcode-select --install
+
+until is_xcode_installed; do
+	sleep 5
+done
+
 # install homebrew
 ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 
@@ -7,13 +18,19 @@ brew install git
 
 brew update
 
+brew install bash-completion
+
 # install homebrew cask
 brew tap caskroom/cask
+
+# install mas
+brew install mas
 
 # install essential
 brew install \
 aria2 \
 git \
+direnv \
 automake \
 tree \
 ssh-copy-id \
@@ -34,11 +51,12 @@ jpegoptim \
 pngcrush \
 imagemagick \
 graphicsmagick \
+google-drive \
 
 brew cask install \
+droplr \
 notational-velocity \
 macvim \
-anybar \
 atom \
 hammerspoon \
 github-desktop \
@@ -48,9 +66,9 @@ vlc \
 spotify \
 winbox \
 sketch \
+slack \
 kodi \
 netspot \
-
 
 # install sshfs
 brew cask install sshfs
@@ -58,19 +76,15 @@ brew cask install sshfs
 # install python
 brew install \
 pyenv \
-pyenv-virtualenv \
-python \
+pyenv-virtualenv
 
 # install ruby
 \curl -sSL https://get.rvm.io | bash -s stable
 
-# install ios / cocoapods
-sudo gem install cocoapods
-
 # install java
 brew cask install java
 
-brew install
+brew install \
 ant \
 maven \
 gradle \
