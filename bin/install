@@ -11,6 +11,9 @@ brew upgrade
 # install homebrew cask
 brew tap caskroom/cask
 
+# install homebrew bash-completion
+brew tap homebrew/completions
+
 # install mas
 brew install mas
 
@@ -34,6 +37,13 @@ tree \
 wget \
 z \
 zopfli \
+docker-completion \
+docker-compose-completion \
+packer-completion \
+packer \
+terraform \
+pip-completion \
+
 
 # install "out of appstore" apps
 
@@ -83,6 +93,7 @@ brew cask install java
 brew install \
 ant \
 maven \
+maven-completion \
 gradle \
 selenium-server-standalone \
 

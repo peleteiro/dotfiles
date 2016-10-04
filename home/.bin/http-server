@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 import sys
 import SimpleHTTPServer
 
@@ -65,4 +64,3 @@ if __name__ == "__main__":
 
     print "serving at port", PORT
     httpd.serve_forever()
-

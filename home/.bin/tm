@@ -1,5 +1,4 @@
 #!/bin/bash
-
 SESSION_NAME=$1
 if [[ -z "$SESSION_NAME" ]]; then SESSION_NAME=0; fi
 

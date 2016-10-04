@@ -1,6 +1,6 @@
 #OS
 if [[ "$OSTYPE" == "linux-gnu" ]]; then
-    export OS="ubuntu"
+    export OS="linux"
 elif [[ "$OSTYPE" == "darwin"* ]]; then
     export OS="osx"
 else
@@ -54,7 +54,7 @@ export VISUAL='vim'
 export HISTCONTROL=ignoredups
 export CLICOLOR=true
 export LSCOLORS=gxfxcxdxbxegedabagacad
-export PS1='\[\033[01;32m\]\w\[\e[m\]\[\e[1;34m\]$(__bundler_ps1 " [%s]")$(__git_ps1 )\[\e[m\]\[\e[m\]\$ '
+export PS1='\[\033[01;32m\]\w\[\e[m\]\[\e[1;34m\]$(__git_ps1 )\[\e[m\]\[\e[m\]\$ '
 
 # Misc
 export PAGER='less'

@@ -10,11 +10,11 @@ eval "$(direnv hook bash)"
 
 # aws cli
 complete -C aws_completer aws
-  
+
 # pyenv
 if which pyenv > /dev/null; then eval "$(pyenv init -)"; fi
 if which pyenv-virtualenv-init > /dev/null; then eval "$(pyenv virtualenv-init -)"; fi
-	
+
 # npm setup
 export NODE_PATH=/usr/local/lib/node_modules
 export PATH=$PATH:./node_modules/.bin:/usr/local/share/npm/bin
@@ -25,12 +25,6 @@ export PATH=$PATH:`brew --prefix go`/bin
 # Java
 export JAVA_HOME=$(/usr/libexec/java_home)
 
-# Hadoop
-export HADOOP_INSTALL=`brew --prefix hadoop`/libexec
-export HBASE_INSTALL=`brew --prefix hbase`
-export PIG_INSTALL=`brew --prefix pig`
-export ZOOKEEPER_INSTALL=`brew --prefix zookeeper`/libexec
-
 # Android
 export ANDROID_SDK_ROOT=`brew --prefix android-sdk`
 export ANDROID_HOME=`brew --prefix android-sdk`
@@ -39,13 +33,6 @@ export ANDROID_NDK_ROOT=`brew --prefix android-ndk`
 # AppEngine
 export APPENGINE_SDK_HOME=`brew --prefix app-engine-java-sdk`
 
-# AWS
-export EC2_HOME=`brew --prefix ec2-api-tools`/jars
-export AWS_AUTO_SCALING_HOME=`brew --prefix aws-as`/jars
-export AWS_CLOUDWATCH_HOME=`brew --prefix cloud-watch`/jars
-export EC2_AMITOOL_HOME=`brew --prefix ec2-ami-tools`/jars
-export AWS_ELB_HOME=`brew --prefix elb-tools`/jars
-
 # Vagrant
 export VAGRANT_DEFAULT_PROVIDER=parallels
 
@@ -53,12 +40,8 @@ export VAGRANT_DEFAULT_PROVIDER=parallels
 alias vim="mvim -v"
 alias subl="/Applications/Sublime\ Text.app/Contents/SharedSupport/bin/subl"
 
-
 # Mongodb
 alias mongo-start="mongod run --config /usr/local/etc/mongod.conf"
-
-# Virtuoso
-alias virtuoso-start='cd `brew --prefix virtuoso`/var/lib/virtuoso/db; virtuoso-t -f'
 
 # ElasticSearch
 alias elasticsearch.start='elasticsearch -f -D es.config=`brew --prefix elasticsearch`/config/elasticsearch.yml'
@@ -70,3 +53,6 @@ alias pg-stop='pg_ctl -D /usr/local/var/postgres stop -s -m fast'
 # Emacs
 alias em='/Applications/Emacs.app/Contents/MacOS/bin/emacsclient -q -n'
 alias emacs='/Applications/Emacs.app/Contents/MacOS/Emacs -nw'
+
+# IntelliJ
+alias xidea='/Applications/IntelliJ\ IDEA.app/Contents/MacOS/idea'
