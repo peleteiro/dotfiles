@@ -98,7 +98,7 @@ pyenv-virtualenv
 
 # install ruby
 brew install chruby ruby-install
-ruby-install ruby
+ruby-install ruby --no-reinstall
 brew install --HEAD https://raw.github.com/postmodern/gem_home/master/homebrew/gem_home.rb
 
 # install java
