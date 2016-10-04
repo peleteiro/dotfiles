@@ -24,25 +24,25 @@ autoconf \
 automake \
 colordiff \
 direnv \
+docker-completion \
+docker-compose-completion \
 exiftool \
 graphicsmagick \
 imagemagick \
 jpegoptim \
 openssl \
+packer \
+packer-completion \
+pip-completion \
 pngcrush \
 sift \
 sqlite \
 ssh-copy-id \
+terraform \
 tree \
 wget \
 z \
 zopfli \
-docker-completion \
-docker-compose-completion \
-packer-completion \
-packer \
-terraform \
-pip-completion \
 
 
 # install "out of appstore" apps
@@ -70,10 +70,21 @@ winbox \
 mas install 937984704 # Amphetamine
 mas install 1078184147 # Capto
 mas install 969418666 # ColorSnapper2
+mas install 576421334 # Converto - The Unit Converter
+mas install 449589707 # Dash 3
+mas install 411643860 # DaisyDisk
 mas install 975937182 # Fantastical 2
-mas install 926036361 # LastPass
+mas install 685096913 # Hyper 3
+mas install 408981434 # iMovie
+mas install 587512244 # Kaleidoscope
 mas install 409183694 # Keynote
+mas install 926036361 # LastPass
 mas install 1010557319 # Marboo Pro
+mas install 409203825 # Numbers
+mas install 409201541 # Pages
+mas install 429449079 # Patterns - The Regex App
+mas install 407963104 # Pixelmator
+mas install 403388562 # Transmit
 mas install 425424353 # The Unarchiver
 
 # install sshfs
