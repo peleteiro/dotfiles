@@ -35,10 +35,10 @@ packer \
 packer-completion \
 pip-completion \
 pngcrush \
-sift \
 sqlite \
 ssh-copy-id \
 terraform \
+the_platinum_searcher \
 tree \
 wget \
 z \
@@ -46,11 +46,12 @@ zopfli \
 
 
 # install "out of appstore" apps
-
 brew cask install \
 atom \
 droplr \
+firefox \
 github-desktop \
+google-chrome \
 google-drive \
 hammerspoon \
 iterm2 \
@@ -62,30 +63,30 @@ notational-velocity \
 sketch \
 slack \
 spotify \
+the-unarchiver \
 transmission \
 vlc \
 winbox \
 
-# install apps
-mas install 937984704 # Amphetamine
-mas install 1078184147 # Capto
-mas install 969418666 # ColorSnapper2
-mas install 576421334 # Converto - The Unit Converter
-mas install 449589707 # Dash 3
-mas install 411643860 # DaisyDisk
-mas install 975937182 # Fantastical 2
-mas install 685096913 # Hyper 3
-mas install 408981434 # iMovie
-mas install 587512244 # Kaleidoscope
-mas install 409183694 # Keynote
-mas install 926036361 # LastPass
-mas install 1010557319 # Marboo Pro
-mas install 409203825 # Numbers
-mas install 409201541 # Pages
-mas install 429449079 # Patterns - The Regex App
-mas install 407963104 # Pixelmator
-mas install 403388562 # Transmit
-mas install 425424353 # The Unarchiver
+# install appstore apps
+echo "💿 Amphetamine" && mas install 937984704
+echo "💿 Capto" && mas install 1078184147
+echo "💿 ColorSnapper2" && mas install 969418666
+echo "💿 Converto - The Unit Converter" && mas install 576421334
+echo "💿 DaisyDisk" && mas install 411643860
+echo "💿 Dash 3" && mas install 449589707
+echo "💿 Fantastical 2" && mas install 975937182
+echo "💿 Hyper 3" && mas install 685096913
+echo "💿 iMovie" && mas install 408981434
+echo "💿 Kaleidoscope" && mas install 587512244
+echo "💿 Keynote" && mas install 409183694
+echo "💿 LastPass" && mas install 926036361
+echo "💿 Marboo Pro" && mas install 1010557319
+echo "💿 Numbers" && mas install 409203825
+echo "💿 Pages" && mas install 409201541
+echo "💿 Patterns - The Regex App" && mas install 429449079
+echo "💿 Pixelmator" && mas install 407963104
+echo "💿 Transmit" && mas install 403388562
 
 # install sshfs
 brew cask install sshfs
@@ -96,7 +97,9 @@ pyenv \
 pyenv-virtualenv
 
 # install ruby
-\curl -sSL https://get.rvm.io | bash -s stable
+brew install chruby ruby-install
+ruby-install ruby
+brew install --HEAD https://raw.github.com/postmodern/gem_home/master/homebrew/gem_home.rb
 
 # install java
 brew cask install java

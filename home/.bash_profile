@@ -16,14 +16,10 @@ fi
 export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 export LC_CTYPE=en_US.UTF-8
-export HOMEBREW_LLVM=true
 
 : ${HOME=~}
 : ${LOGNAME=$(id -un)}
 : ${UNAME=$(uname)}
-
-# Compilation
-export ARCHFLAGS="-arch x86_64"
 
 # bash-completion
 if [[ "$OS" == "osx" && -f `brew --prefix`/etc/bash_completion ]]; then
@@ -35,13 +31,6 @@ if [ -d ~/.bash_completion.d ]; then
     source $file
   done
 fi
-
-# Cheat
-export CHEATCOLORS=true
-
-# rvm
-[[ -s $HOME/.rvm/scripts/rvm ]] && source $HOME/.rvm/scripts/rvm
-[[ -r $rvm_path/scripts/completion ]] && . $rvm_path/scripts/completion
 
 # tmxu
 alias tmux="TERM=xterm-256color tmux"

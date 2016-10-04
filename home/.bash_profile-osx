@@ -11,16 +11,15 @@ eval "$(direnv hook bash)"
 # aws cli
 complete -C aws_completer aws
 
-# pyenv
+# Ruby
+source /usr/local/opt/chruby/share/chruby/chruby.sh
+
+# Python
 if which pyenv > /dev/null; then eval "$(pyenv init -)"; fi
 if which pyenv-virtualenv-init > /dev/null; then eval "$(pyenv virtualenv-init -)"; fi
 
-# npm setup
-export NODE_PATH=/usr/local/lib/node_modules
+# Node
 export PATH=$PATH:./node_modules/.bin:/usr/local/share/npm/bin
-
-# go setup
-export PATH=$PATH:`brew --prefix go`/bin
 
 # Java
 export JAVA_HOME=$(/usr/libexec/java_home)
@@ -50,9 +49,5 @@ alias elasticsearch.start='elasticsearch -f -D es.config=`brew --prefix elastics
 alias pg-start='pg_ctl -D /usr/local/var/postgres -l /usr/local/var/postgres/server.log start'
 alias pg-stop='pg_ctl -D /usr/local/var/postgres stop -s -m fast'
 
-# Emacs
-alias em='/Applications/Emacs.app/Contents/MacOS/bin/emacsclient -q -n'
-alias emacs='/Applications/Emacs.app/Contents/MacOS/Emacs -nw'
-
 # IntelliJ
-alias xidea='/Applications/IntelliJ\ IDEA.app/Contents/MacOS/idea'
+alias idea='/Applications/IntelliJ\ IDEA.app/Contents/MacOS/idea'
