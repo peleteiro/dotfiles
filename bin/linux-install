@@ -1,0 +1,13 @@
+#!/bin/bash
+
+if [[ -e `which apt` ]]; then
+
+  # debian / readynas
+  apt install aptitude
+  aptitude update
+  aptitude upgrade -y
+  aptitude install -y bash-completion tmux vim-nox build-essential p7zip-full
+
+else
+  exit
+fi

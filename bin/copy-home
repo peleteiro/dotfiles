@@ -2,6 +2,5 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 
 # Copy dotfiles
-find home -name .\* -maxdepth 1 -type f -execdir cp "$DIR/home/{}" "$HOME/{}" \;
-find home -name .\* -maxdepth 1 -type d -execdir rsync -r "$DIR/home/{}/" "$HOME/{}/" \;
-
+find home -maxdepth 1 -type f -name .\* -execdir cp "$DIR/home/{}" "$HOME/{}" \;
+find home -maxdepth 1 -type d -name .\* -execdir rsync -r "$DIR/home/{}/" "$HOME/{}/" \;

@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# Given a path of a rar file, it goes to it's directory and unrar.
+# Handy when you want to execute ```find . -name game\*.rar -exec cdunrar {} \;```
+
+cd `dirname $1`
+7z x `basename $1`
