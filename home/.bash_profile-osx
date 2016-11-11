@@ -12,7 +12,7 @@ eval "$(direnv hook bash)"
 complete -C aws_completer aws
 
 # Ruby
-source /usr/local/opt/chruby/share/chruby/chruby.sh
+export RBENV_ROOT=/usr/local/var/rbenv
 
 # Python
 if which pyenv > /dev/null; then eval "$(pyenv init -)"; fi

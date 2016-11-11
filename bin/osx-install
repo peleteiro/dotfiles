@@ -28,6 +28,7 @@ docker-completion \
 docker-compose-completion \
 exiftool \
 graphicsmagick \
+gron \
 imagemagick \
 jpegoptim \
 openssl \
@@ -98,9 +99,8 @@ pyenv \
 pyenv-virtualenv
 
 # install ruby
-brew install chruby ruby-install
-ruby-install ruby --no-reinstall
-brew install --HEAD https://raw.github.com/postmodern/gem_home/master/homebrew/gem_home.rb
+brew install rbenv rbenv-gemset
+rbenv install 2.3.1 --skip-existing
 
 # install java
 brew cask install java
