@@ -87,6 +87,7 @@ echo "💿  Numbers" && mas install 409203825
 echo "💿  Pages" && mas install 409201541
 echo "💿  Patterns - The Regex App" && mas install 429449079
 echo "💿  Pixelmator" && mas install 407963104
+echo "💿  Proxy - Web Interception Proxy" && mas install 874920950
 echo "💿  Slack" && mas install 803453959
 echo "💿  Transmit" && mas install 403388562
 
