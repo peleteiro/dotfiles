@@ -56,6 +56,7 @@ google-chrome \
 google-drive \
 hammerspoon \
 iterm2 \
+keycastr \
 kodi \
 macvim \
 microsoft-office \
@@ -86,6 +87,7 @@ echo "💿  Marboo Pro" && mas install 1010557319
 echo "💿  Numbers" && mas install 409203825
 echo "💿  Pages" && mas install 409201541
 echo "💿  Patterns - The Regex App" && mas install 429449079
+echo "💿  Pixa" && mas install 527618971
 echo "💿  Pixelmator" && mas install 407963104
 echo "💿  Proxy - Web Interception Proxy" && mas install 874920950
 echo "💿  Slack" && mas install 803453959
