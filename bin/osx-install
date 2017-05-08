@@ -84,6 +84,7 @@ echo "💿  Kaleidoscope" && mas install 587512244
 echo "💿  Keynote" && mas install 409183694
 echo "💿  LastPass" && mas install 926036361
 echo "💿  Marboo Pro" && mas install 1010557319
+echo "💿  Navicat Premium Essentials" && mas install 466416967
 echo "💿  Numbers" && mas install 409203825
 echo "💿  Pages" && mas install 409201541
 echo "💿  Patterns - The Regex App" && mas install 429449079
