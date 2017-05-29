@@ -27,6 +27,7 @@ direnv \
 docker-completion \
 docker-compose-completion \
 exiftool \
+git-extras \
 graphicsmagick \
 gron \
 imagemagick \

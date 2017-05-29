@@ -36,7 +36,8 @@ elif [ -n "$(uname -a | grep Ubuntu)" ]; then
 
   sudo aptitude update
   sudo aptitude install -y build-essential pkg-config dh-autoreconf nasm curl git python \
-                           bash-completion tmux vim-nox git p7zip-full \
+                           bash-completion tmux vim-nox p7zip-full \
+                           git git-extras \
                            docker-ce \
                            nodejs yarn libpng-dev \
                            openjdk-8-jdk sbt
