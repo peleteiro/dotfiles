@@ -35,7 +35,7 @@ elif [ -n "$(uname -a | grep Ubuntu)" ]; then
   echo "deb https://dl.bintray.com/sbt/debian /" | sudo tee /etc/apt/sources.list.d/sbt.list
 
   sudo aptitude update
-  sudo aptitude install -y build-essential pkg-config dh-autoreconf nasm curl git python \
+  sudo aptitude install -y build-essential pkg-config dh-autoreconf nasm curl python \
                            bash-completion tmux vim-nox p7zip-full \
                            git git-extras \
                            docker-ce \
@@ -57,9 +57,7 @@ elif [ -n "$(uname -a | grep Ubuntu)" ]; then
     echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/chrome.list
 
     sudo aptitude update
-    sudo aptitude install -y ubuntu-gnome-desktop \
-                             atom google-chrome-stable
-
+    sudo aptitude install -y atom google-chrome-stable
   fi
 
   printf "\n\nYou MUST reboot your system in order to changes to take effect.\n\n"
