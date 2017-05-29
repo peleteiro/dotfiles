@@ -14,7 +14,7 @@ if [[ -d "/proc/readynas" ]]; then
 elif [ -n "$(uname -a | grep Ubuntu)" ]; then
   echo "Installing packages for Ubuntu..."
 
-  sudo apt-get install aptitude apt-transport-https ca-certificates curl software-properties-common
+  sudo apt-get install -y aptitude apt-transport-https ca-certificates curl software-properties-common
   sudo aptitude update
   sudo aptitude full-upgrade -y
 
@@ -40,7 +40,7 @@ elif [ -n "$(uname -a | grep Ubuntu)" ]; then
                            git git-extras \
                            docker-ce \
                            nodejs yarn libpng-dev \
-                           openjdk-8-jdk sbt
+                           openjdk-8-jdk sbt=0.13.15.2
 
   # Docker Post Install
   sudo groupadd docker
