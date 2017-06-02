@@ -1,4 +1,4 @@
-#!/bin/bash
+	#!/bin/bash
 
 # install homebrew
 ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
@@ -92,6 +92,7 @@ echo "💿  Patterns - The Regex App" && mas install 429449079
 echo "💿  Pixa" && mas install 527618971
 echo "💿  Pixelmator" && mas install 407963104
 echo "💿  Proxy - Web Interception Proxy" && mas install 874920950
+echo "💿  QuickLens" && mas install 827686482
 echo "💿  Slack" && mas install 803453959
 echo "💿  Transmit" && mas install 403388562
 
@@ -134,7 +135,7 @@ scala \
 sbt \
 
 # install node
-brew install node
+brew install node yarn
 
 # install go
 brew install go
