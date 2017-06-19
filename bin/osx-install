@@ -78,7 +78,6 @@ echo "💿  Capto" && mas install 1078184147
 echo "💿  ColorSnapper2" && mas install 969418666
 echo "💿  Converto - The Unit Converter" && mas install 576421334
 echo "💿  DaisyDisk" && mas install 411643860
-echo "💿  Dash 3" && mas install 449589707
 echo "💿  Fantastical 2" && mas install 975937182
 echo "💿  Hyper 3" && mas install 685096913
 echo "💿  iMovie" && mas install 408981434
@@ -98,16 +97,18 @@ echo "💿  Slack" && mas install 803453959
 echo "💿  Transmit" && mas install 403388562
 
 # install sshfs
-brew cask install sshfs
+brew cask install osxfuse
+brew install sshfs
 
 # install python
 brew install \
+app-engine-python \
 pyenv \
 pyenv-virtualenv
 
 # install ruby
 brew install rbenv rbenv-gemset
-rbenv install 2.3.1 --skip-existing
+rbenv install 2.4.1 --skip-existing
 
 # install java
 brew cask install java
@@ -121,10 +122,12 @@ selenium-server-standalone \
 
 # install android
 brew install \
-android-sdk \
-android-ndk \
 gradle \
 exiftool \
+
+brew cask install \
+android-sdk \
+android-ndk \
 
 brew cask install \
 xquartz \

@@ -19,8 +19,3 @@ endif
 
 copy:
 	@./bin/copy-home
-
-dev-domain:
-ifeq ($(OS), Darwin)
-	@./bin/osx-setup-dev-domains
-endif

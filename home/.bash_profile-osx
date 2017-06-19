@@ -1,9 +1,7 @@
 #!/bin/bash
 
 # bash_completion
-if [ -f $(brew --prefix)/etc/bash_completion ]; then
-  . $(brew --prefix)/etc/bash_completion
-fi
+[ -f /usr/local/etc/bash_completion ] && . /usr/local/etc/bash_completion
 
 # direnv
 eval "$(direnv hook bash)"
@@ -25,12 +23,8 @@ export PATH=$PATH:./node_modules/.bin:/usr/local/share/npm/bin
 export JAVA_HOME=$(/usr/libexec/java_home)
 
 # Android
-# export ANDROID_SDK_ROOT=`brew --prefix android-sdk`
-# export ANDROID_HOME=`brew --prefix android-sdk`
-# export ANDROID_NDK_ROOT=`brew --prefix android-ndk`
-
-# AppEngine
-export APPENGINE_SDK_HOME=`brew --prefix app-engine-java-sdk`
+export ANDROID_SDK_ROOT=/usr/local/share/android-sdk
+export ANDROID_NDK_HOME=/usr/local/share/android-ndk
 
 # Vagrant
 export VAGRANT_DEFAULT_PROVIDER=parallels
@@ -38,12 +32,6 @@ export VAGRANT_DEFAULT_PROVIDER=parallels
 # Alias ###################################################################
 alias vim="mvim -v"
 alias subl="/Applications/Sublime\ Text.app/Contents/SharedSupport/bin/subl"
-
-# Mongodb
-alias mongo-start="mongod run --config /usr/local/etc/mongod.conf"
-
-# ElasticSearch
-alias elasticsearch.start='elasticsearch -f -D es.config=`brew --prefix elasticsearch`/config/elasticsearch.yml'
 
 # Postgresql
 alias pg-start='pg_ctl -D /usr/local/var/postgres -l /usr/local/var/postgres/server.log start'

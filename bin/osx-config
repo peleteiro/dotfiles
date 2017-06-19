@@ -6,6 +6,10 @@
 scutil --set ComputerName "peleteiro"
 scutil --set HostName "peleteiro"
 scutil --set LocalHostName "peleteiro"
+sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server NetBIOSName -string "peleteiro"
+
+# Disable sudden motion sensor. (Not useful for SSDs).
+sudo pmset -a sms 0
 
 # Set language and text formats
 defaults write NSGlobalDomain AppleLanguages -array "en" "pt"
@@ -26,19 +30,34 @@ defaults write com.apple.screencapture location -string "$HOME/Desktop"
 defaults write com.apple.screencapture type -string "png"
 
 
-## Keyboard
+## App Store
 
-# Enable full keyboard access for all controls (e.g. enable Tab in modal dialogs)
-defaults write NSGlobalDomain AppleKeyboardUIMode -int 3
+# Enable Mac App Store automatic updates
+defaults write com.apple.SoftwareUpdate AutomaticCheckEnabled -bool true
+
+# Check for Mac App Store updates daily
+defaults write com.apple.SoftwareUpdate ScheduleFrequency -int 1
+
+# Download Mac App Store updates in the background
+defaults write com.apple.SoftwareUpdate AutomaticDownload -int 1
+
+# Install Mac App Store system data files & security updates
+defaults write com.apple.SoftwareUpdate CriticalUpdateInstall -int 1
+
+# Turn on Mac App Store auto-update
+defaults write com.apple.commerce AutoUpdate -bool true
+
+
+## Keyboard
 
 # Disable press-and-hold for keys in favor of key repeat
 defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
 
-# Set a shorter Delay until key repeat
-defaults write NSGlobalDomain InitialKeyRepeat -int 10
-
 # Set a blazingly fast keyboard repeat rate
 defaults write NSGlobalDomain KeyRepeat -int 1
+
+# Set a shorter Delay until key repeat
+defaults write NSGlobalDomain InitialKeyRepeat -int 25
 
 
 ## Trackpad
@@ -64,11 +83,11 @@ defaults write com.apple.finder NewWindowTargetPath -string "file://${HOME}"
 # Expand save panel by default
 defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode -bool true
 
-# Disable ext change warning
-defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
-
 # Show all filename extensions
 defaults write NSGlobalDomain AppleShowAllExtensions -bool true
+
+# Disable ext change warning
+defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
 
 # Use current directory as default search scope in Finder
 defaults write com.apple.finder FXDefaultSearchScope -string "SCcf"
