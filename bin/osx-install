@@ -50,6 +50,8 @@ zopfli \
 # install "out of appstore" apps
 brew cask install \
 atom \
+dask \
+docker \
 droplr \
 firefox \
 github-desktop \
