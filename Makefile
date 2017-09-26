@@ -3,7 +3,7 @@
 
 OS := $(shell uname)
 
-all: config install copy dev-domain
+all: config install copy
 
 config:
 ifeq ($(OS), Darwin)

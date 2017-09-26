@@ -50,13 +50,13 @@ zopfli \
 # install "out of appstore" apps
 brew cask install \
 atom \
-dask \
+dash \
 docker \
 droplr \
 firefox \
 github-desktop \
+google-backup-and-sync \
 google-chrome \
-google-drive \
 hammerspoon \
 iterm2 \
 keycastr \
@@ -69,6 +69,7 @@ notational-velocity \
 parallels-desktop \
 sketch \
 spotify \
+sublime-text \
 the-unarchiver \
 transmission \
 vlc \
@@ -95,9 +96,9 @@ echo "💿  Patterns - The Regex App" && mas install 429449079
 echo "💿  Pixa" && mas install 527618971
 echo "💿  Pixelmator" && mas install 407963104
 echo "💿  Proxy - Web Interception Proxy" && mas install 874920950
-echo "💿  QuickLens" && mas install 827686482
 echo "💿  Slack" && mas install 803453959
 echo "💿  Transmit" && mas install 403388562
+echo "💿  xScope 4" && mas install 889428659
 
 # install sshfs
 brew cask install osxfuse
