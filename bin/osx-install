@@ -1,4 +1,4 @@
-	#!/bin/bash
+#!/bin/bash
 
 # install homebrew
 ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
@@ -32,6 +32,7 @@ graphicsmagick \
 gron \
 imagemagick \
 jpegoptim \
+jq \
 openssl \
 packer \
 packer-completion \

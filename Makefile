@@ -16,6 +16,7 @@ ifeq ($(OS), Darwin)
 else
 	@./bin/linux-install
 endif
+	@./bin/atom-config
 
 copy:
 	@./bin/copy-home
