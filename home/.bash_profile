@@ -67,3 +67,9 @@ export PATH=~/.bin:$PATH
 if [ -f ~/.bash_private ]; then
   source ~/.bash_private
 fi
+
+# Docker
+alias dkc=docker-compose
+if [ `command -v _docker_compose` ]; then
+	complete -F _docker_compose dkc
+fi
