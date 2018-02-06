@@ -13,10 +13,10 @@ endif
 install:
 ifeq ($(OS), Darwin)
 	@./bin/osx-install
+	@./bin/atom-config
 else
 	@./bin/linux-install
 endif
-	@./bin/atom-config
 
 copy:
 	@./bin/copy-home
