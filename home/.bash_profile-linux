@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Add pip to path
+export PATH=~/.local/bin:$PATH
+
 # enable programmable completion features
 if ! shopt -oq posix; then
   if [ -f /usr/share/bash-completion/bash_completion ]; then
