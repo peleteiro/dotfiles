@@ -11,9 +11,6 @@ brew upgrade
 # install homebrew cask
 brew tap caskroom/cask
 
-# install homebrew bash-completion
-brew tap homebrew/completions
-
 # install mas
 brew install mas
 
@@ -23,6 +20,7 @@ aria2 \
 autoconf \
 automake \
 colordiff \
+coreutils \
 direnv \
 docker-completion \
 docker-compose-completion \
@@ -51,6 +49,7 @@ zopfli \
 # install "out of appstore" apps
 brew cask install \
 atom \
+aws-vault \
 dash \
 docker \
 droplr \
@@ -83,6 +82,7 @@ winbox \
 echo "💿  Affinity Designer" && mas install 824171161
 echo "💿  Amphetamine" && mas install 937984704
 echo "💿  Capto" && mas install 1078184147
+echo "💿  Cardhop" && mas install 1290358394
 echo "💿  ColorSnapper2" && mas install 969418666
 echo "💿  Converto - The Unit Converter" && mas install 576421334
 echo "💿  DaisyDisk" && mas install 411643860
@@ -95,6 +95,7 @@ echo "💿  LastPass" && mas install 926036361
 echo "💿  Marboo Pro" && mas install 1010557319
 echo "💿  Navicat Premium Essentials" && mas install 466416967
 echo "💿  Numbers" && mas install 409203825
+echo "💿  Orion Label Maker" && mas install 994189084
 echo "💿  Pages" && mas install 409201541
 echo "💿  Patterns - The Regex App" && mas install 429449079
 echo "💿  Pixa" && mas install 527618971

@@ -6,6 +6,9 @@
 # direnv
 eval "$(direnv hook bash)"
 
+# coreutils
+export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
+
 # aws cli
 complete -C aws_completer aws
 

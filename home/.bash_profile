@@ -73,3 +73,6 @@ alias dkc=docker-compose
 if [ `command -v _docker_compose` ]; then
 	complete -F _docker_compose dkc
 fi
+
+# aws-vault
+export AWS_VAULT_BACKEND=file
