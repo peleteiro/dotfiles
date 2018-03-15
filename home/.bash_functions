@@ -2,6 +2,7 @@
 
 function proj() {
   [ `pwd` == '/' ] && return
+  [ -e .editorconfig ] && return
   [ -e .git ] && return
 
   cd ..

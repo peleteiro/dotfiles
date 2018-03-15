@@ -6,12 +6,6 @@
 # direnv
 eval "$(direnv hook bash)"
 
-# coreutils
-export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
-
-# aws cli
-complete -C aws_completer aws
-
 # Ruby
 export RBENV_ROOT=/usr/local/var/rbenv
 
@@ -36,10 +30,6 @@ export VAGRANT_DEFAULT_PROVIDER=parallels
 # Alias ###################################################################
 alias vim="mvim -v"
 alias subl="/Applications/Sublime\ Text.app/Contents/SharedSupport/bin/subl"
-
-# Postgresql
-alias pg-start='pg_ctl -D /usr/local/var/postgres -l /usr/local/var/postgres/server.log start'
-alias pg-stop='pg_ctl -D /usr/local/var/postgres stop -s -m fast'
 
 # IntelliJ
 alias idea='/Applications/IntelliJ\ IDEA.app/Contents/MacOS/idea'
