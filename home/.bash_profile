@@ -67,7 +67,6 @@ shopt -s checkwinsize
 # Colors
 export TERM=xterm-color
 export CLICOLOR=1
-export GREP_OPTIONS='--color=auto'
 alias ls='ls --color=auto'
 alias grep='grep --color=auto'
 alias fgrep='fgrep --color=auto'
