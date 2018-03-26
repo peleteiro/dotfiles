@@ -10,6 +10,7 @@ fi
 # coreutils if osx
 if [[ "$OS" == "osx" ]]; then
   export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
+  alias sed=gsed
 fi
 
 # Bash functions
