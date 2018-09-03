@@ -11,7 +11,7 @@ export RBENV_ROOT=/usr/local/var/rbenv
 
 # Python
 if which pyenv > /dev/null; then eval "$(pyenv init -)"; fi
-if which pyenv-virtualenv-init > /dev/null; then eval "$(pyenv virtualenv-init -)"; fi
+if which pipenv > /dev/null; then eval "$(pipenv --completion)"; fi
 
 # Node
 export PATH=$PATH:./node_modules/.bin:/usr/local/share/npm/bin

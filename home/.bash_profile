@@ -46,8 +46,9 @@ stty werase undef
 bind '\C-w:unix-filename-rubout'
 
 # editor
-export EDITOR='vim'
-export VISUAL='vim'
+export EDITOR=vim
+export VISUAL=vim
+export BAT_PAGER=never
 
 # bash prompt
 export PS1='\[\033[01;32m\]\w\[\e[m\]\[\e[1;34m\]$(__git_ps1 )\[\e[m\]\[\e[m\]\$ '
