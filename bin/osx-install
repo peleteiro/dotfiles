@@ -92,6 +92,7 @@ echo "💿  DaisyDisk" && mas install 411643860
 echo "💿  Fantastical 2" && mas install 975937182
 echo "💿  House Design Pro" && mas install 748218986
 echo "💿  Hyper 3" && mas install 685096913
+echo "💿  Icon Slate" && mas install 439697913
 echo "💿  iMovie" && mas install 408981434
 echo "💿  Kaleidoscope" && mas install 587512244
 echo "💿  Keynote" && mas install 409183694
