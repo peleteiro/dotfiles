@@ -120,7 +120,7 @@ brew cask install osxfuse
 brew install sshfs
 
 # install python
-brew install app-engine-python pipenv
+brew install app-engine-python pipenv pyenv
 
 # install ruby
 brew install rbenv rbenv-gemset
