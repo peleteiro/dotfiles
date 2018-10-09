@@ -46,6 +46,7 @@ the_platinum_searcher \
 tree \
 wget \
 z \
+zlib \
 zopfli \
 
 # install "out of appstore" apps
@@ -160,3 +161,6 @@ brew install node yarn
 
 # install go
 brew install go
+
+# Fix Mojave
+sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg -target /
