@@ -13,10 +13,10 @@ endif
 install:
 ifeq ($(OS), Darwin)
 	@./bin/osx-install
-	@./bin/atom-config
 else
 	@./bin/linux-install
 endif
+	@./bin/vscode-install
 
 copy:
 	@./bin/copy-home

@@ -5,59 +5,135 @@ if [[ -d "/proc/readynas" ]]; then
   echo 'Installing packages for ReadyNas linux... '
 
   # debian / readynas
-  apt install aptitude
-  aptitude update
-  aptitude upgrade -y
-  aptitude install -y bash-completion tmux vim-nox build-essential p7zip-full
+  apt update
+  apt upgrade -y
+  apt install -y bash-completion tmux vim-nox build-essential p7zip-full
 
 # Ubuntu
 elif [ -n "$(uname -a | grep Ubuntu)" ]; then
   echo "Installing packages for Ubuntu..."
 
-  sudo apt-get install -y aptitude apt-transport-https ca-certificates curl software-properties-common
-  sudo aptitude update
-  sudo aptitude full-upgrade -y
+  sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+  sudo add-apt-repository multiverse
+  sudo apt update
+  sudo apt full-upgrade -y
 
-  # Docker repo
-  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-  echo "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list
+  # Essentials
+  sudo apt install -y build-essential pkg-config dh-autoreconf nasm curl vim-nox \
+                      bash-completion tmux p7zip-full git
 
-  # Node repo
-  sudo apt-key adv --keyserver keyserver.ubuntu.com --recv 68576280
-  echo "deb https://deb.nodesource.com/node_7.x $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/node.list
+  # python
+  sudo apt install python3.6 python3.6-dev python3.6-venv python3.6-doc binfmt-support python3-pip
+  pip3 install --user --upgrade pipenv
 
-  # Yarn repo
-  curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
-  echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
-
-  # Scala SBT Repo
+  # java
   sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 2EE0EA64E40A89B84B2DF73499E82A75642AC823
   echo "deb https://dl.bintray.com/sbt/debian /" | sudo tee /etc/apt/sources.list.d/sbt.list
+  sudo apt -y install openjdk-11-jdk ant maven gradle sbt
 
-  sudo aptitude update
-  sudo aptitude install -y build-essential pkg-config dh-autoreconf nasm curl python \
-                           bash-completion tmux vim-nox p7zip-full \
-                           git git-extras \
-                           docker-ce \
-                           nodejs yarn libpng-dev \
-                           openjdk-8-jdk sbt=0.13.15.2
+  # golang
+  sudo add-apt-repository -y ppa:longsleep/golang-backports
+  sudo apt update
+  sudo apt install -y golang-go
 
-  # Docker Post Install
+  # node
+  sudo apt-key adv --keyserver keyserver.ubuntu.com --recv 68576280
+  echo "deb https://deb.nodesource.com/node_11.x $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/node.list
+  curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+  echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+  sudo apt update
+  sudo apt install -y nodejs yarn
+
+  # docker
+  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+  echo "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list
+  sudo apt update
+  sudo apt install -y docker-ce
   sudo groupadd docker
   sudo usermod -aG docker $USER
   sudo systemctl enable docker
 
+  # Android-skd
+  curl -o /tmp/sdk-tools-linux-4333796.zip https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip
+  sudo mkdir -p /srv/android
+  sudo unzip -n /tmp/sdk-tools-linux-4333796.zip -d /srv/android/
+  sudo rm /tmp/sdk-tools-linux-4333796.zip
+
+  # Tooling
+  sudo apt install -y \
+                      aria2 \
+                      colordiff \
+                      direnv \
+                      exiftool \
+                      ffmpeg \
+                      git-extras \
+                      hashdeep \
+                      htop \
+                      imagemagick \
+                      inkscape \
+                      jpegoptim \
+                      jq \
+                      parallel \
+                      pngcrush \
+                      pngnq \
+                      pngquant \
+                      sqlite3 \
+                      sshfs \
+                      tree \
+                      zopfli
+
+  # The Platium Search
+  curl -L https://github.com/monochromegane/the_platinum_searcher/releases/download/v2.2.0/pt_linux_amd64.tar.gz | sudo tar -xz -C /usr/local/bin/ --strip-components 1 pt_linux_amd64/pt
+  sudo chmod +x /usr/local/bin/pt
+
+  # Terraform
+  __LATEST_VER=$(curl -s https://checkpoint-api.hashicorp.com/v1/check/terraform | jq -r -M '.current_version')
+  curl -L -o /tmp/tf.zip "https://releases.hashicorp.com/terraform/${__LATEST_VER}/terraform_${__LATEST_VER}_linux_amd64.zip"
+  sudo unzip -u /tmp/tf.zip -d /usr/local/bin/
+  sudo chmod +x /usr/local/bin/terraform
+  rm /tmp/tf.zip
+  unset __LATEST_VER
+
   # Ubuntu Desktop
   if dpkg -l ubuntu-desktop 2> /dev/null; then
-    # Atom
-    sudo add-apt-repository -y ppa:webupd8team/atom
+    # gnome-shell
+    sudo apt-get install -y chrome-gnome-shell
+
+    # terminator
+    sudo apt install -y terminator
+
+    # Snaps
+    sudo snap install code
+    sudo snap install intellij-idea-ultimate --classic --edge
+    sudo snap install sublime-text
+    sudo snap install spotify
+    sudo snap install vlc
 
     # Chrome
     curl -fsSL https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-    echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/chrome.list
+    echo "deb http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/chrome.list
+    sudo apt update
+    sudo apt install -y google-chrome-stable
 
-    sudo aptitude update
-    sudo aptitude install -y atom google-chrome-stable
+    # Opera
+    curl -fsSL https://deb.opera.com/archive.key | sudo apt-key add -
+    echo "deb https://deb.opera.com/opera-stable/ stable non-free #Opera Browser (final releases)" | sudo tee /etc/apt/sources.list.d/opera-stable.list 
+    sudo apt update
+    printf "opera-stable opera-stable/add-deb-source boolean false\n" | sudo debconf-set-selections
+    sudo apt install -y opera-stable
+
+    # Virtualbox
+    echo "deb https://download.virtualbox.org/virtualbox/debian $(lsb_release -cs) contrib" | sudo tee /etc/apt/sources.list.d/virtualbox.list
+    curl -fsSL https://www.virtualbox.org/download/oracle_vbox_2016.asc | sudo apt-key add -
+    curl -fsSL https://www.virtualbox.org/download/oracle_vbox.asc | sudo apt-key add -
+    sudo apt update
+    sudo apt install -y virtualbox-6.0
+
+    # Insync Google Drive
+    sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys ACCAF35C
+    echo "deb http://apt.insynchq.com/ubuntu $(lsb_release -cs) non-free contrib" | sudo tee /etc/apt/sources.list.d/insync.list
+    sudo apt update
+    sudo apt install -y insync
   fi
 
   printf "\n\nYou MUST reboot your system in order to changes to take effect.\n\n"
