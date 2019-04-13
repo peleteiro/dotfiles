@@ -29,7 +29,7 @@ elif [ -n "$(uname -a | grep Ubuntu)" ]; then
   # java
   sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 2EE0EA64E40A89B84B2DF73499E82A75642AC823
   echo "deb https://dl.bintray.com/sbt/debian /" | sudo tee /etc/apt/sources.list.d/sbt.list
-  sudo apt -y install openjdk-11-jdk ant maven gradle sbt
+  sudo apt -y install openjdk-8-jdk ant maven gradle sbt
 
   # golang
   sudo add-apt-repository -y ppa:longsleep/golang-backports
@@ -55,9 +55,9 @@ elif [ -n "$(uname -a | grep Ubuntu)" ]; then
 
   # Android-skd
   curl -o /tmp/sdk-tools-linux-4333796.zip https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip
-  sudo mkdir -p /srv/android
-  sudo unzip -n /tmp/sdk-tools-linux-4333796.zip -d /srv/android/
-  sudo rm /tmp/sdk-tools-linux-4333796.zip
+  mkdir -p ~/.local/share/android
+  unzip -n /tmp/sdk-tools-linux-4333796.zip -d ~/.local/share/android
+  rm /tmp/sdk-tools-linux-4333796.zip
 
   # Tooling
   sudo apt install -y \

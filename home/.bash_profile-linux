@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Add pip to path
-export PATH=~/.local/bin:$PATH
+export PATH=~/.local/bin:~/.local/share/android/tools/bin:$PATH
 
 # enable programmable completion features
 if ! shopt -oq posix; then
