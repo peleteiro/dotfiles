@@ -148,6 +148,8 @@ elif [ -n "$(uname -a | grep Ubuntu)" ]; then
     echo "deb http://apt.insynchq.com/ubuntu $(lsb_release -cs) non-free contrib" | sudo tee /etc/apt/sources.list.d/insync.list
     sudo apt update
     sudo apt install -y insync
+
+    gsettings set org.gnome.mutter experimental-features "['scale-monitor-framebuffer']"
   fi
 
   printf "\n\nYou MUST reboot your system in order to changes to take effect.\n\n"
