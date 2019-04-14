@@ -7,7 +7,6 @@ const Shell = imports.gi.Shell;
 
 const SHELL_VERSION_MINOR = parseInt(Config.PACKAGE_VERSION.split('.')[1]);
 
-
 /**
  * Keybindings.Manager is a simple convenience class for managing keyboard
  * shortcuts in GNOME Shell. You bind a shortcut using add(), which on success

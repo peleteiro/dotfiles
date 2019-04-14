@@ -1,0 +1,7 @@
+{
+  "uuid": "peleteiro@dotfiles", 
+  "name": "Peleteiro's Gnome Shell", 
+  "description": "My very own extension",
+  "version": 1,
+  "shell-version": ["3.30.2"]
+}
