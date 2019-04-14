@@ -20,7 +20,7 @@ elif [ -n "$(uname -a | grep Ubuntu)" ]; then
 
   # Essentials
   sudo apt install -y build-essential pkg-config dh-autoreconf nasm curl vim-nox \
-                      bash-completion tmux p7zip-full git \
+                      bash-completion tmux p7zip-full p7zip-rar git \
                       automake autoconf libreadline-dev libncurses-dev libssl-dev libyaml-dev \
                       libxslt-dev libffi-dev libtool unixodbc-dev
   
