@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=HiDPI-Configuration
+GenericName=HiDPI-Configuration
+Comment=Configure HiDPI Fractional Scaling
+Exec=/home/peleteiro/.config/autostart/hidpi.sh
+Terminal=false
+Type=Application
+X-GNOME-Autostart-enabled=true

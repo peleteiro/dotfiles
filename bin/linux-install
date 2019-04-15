@@ -29,13 +29,14 @@ elif [ -n "$(uname -a | grep Ubuntu)" ]; then
   git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.7.1
 
   # python
-  sudo apt install python3.6 python3.6-dev python3.6-venv python3.6-doc binfmt-support python3-pip
+  sudo apt install -y python3 python3-dev python3-venv python3-doc binfmt-support python3-pip
   pip3 install --user --upgrade pipenv
-
   # java
+
   sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 2EE0EA64E40A89B84B2DF73499E82A75642AC823
   echo "deb https://dl.bintray.com/sbt/debian /" | sudo tee /etc/apt/sources.list.d/sbt.list
-  sudo apt -y install openjdk-8-jdk ant maven gradle sbt
+  sudo apt update
+  sudo apt -y install openjdk-13-jdk ant maven gradle sbt
 
   # golang
   sudo add-apt-repository -y ppa:longsleep/golang-backports
@@ -44,7 +45,8 @@ elif [ -n "$(uname -a | grep Ubuntu)" ]; then
 
   # node
   sudo apt-key adv --keyserver keyserver.ubuntu.com --recv 68576280
-  echo "deb https://deb.nodesource.com/node_11.x $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/node.list
+  #echo "deb [arch=amd64] https://deb.nodesource.com/node_11.x $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/node.list
+  echo "deb [arch=amd64] https://deb.nodesource.com/node_11.x cosmic main" | sudo tee /etc/apt/sources.list.d/node.list
   curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
   echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
   sudo apt update
@@ -52,7 +54,8 @@ elif [ -n "$(uname -a | grep Ubuntu)" ]; then
 
   # docker
   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-  echo "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list
+  # echo "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list
+  echo "deb [arch=amd64] https://download.docker.com/linux/ubuntu cosmic stable" | sudo tee /etc/apt/sources.list.d/docker.list
   sudo apt update
   sudo apt install -y docker-ce
   sudo groupadd docker
@@ -110,14 +113,14 @@ elif [ -n "$(uname -a | grep Ubuntu)" ]; then
 
     # Snaps
     sudo snap install aws-cli --classic
-    sudo snap install code
+    sudo snap install code --classic
     sudo snap install google-cloud-sdk --classic
     sudo snap install insomnia
     sudo snap install intellij-idea-ultimate --classic --edge
     sudo snap install skype --classic
     sudo snap install slack --classic
     sudo snap install spotify
-    sudo snap install sublime-text
+    sudo snap install sublime-text --classic
     sudo snap install vlc
 
     # Platformio
@@ -125,19 +128,20 @@ elif [ -n "$(uname -a | grep Ubuntu)" ]; then
 
     # Chrome
     curl -fsSL https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-    echo "deb http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
+    echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
     sudo apt update
     sudo apt install -y google-chrome-stable
 
     # Opera
     curl -fsSL https://deb.opera.com/archive.key | sudo apt-key add -
-    echo "deb https://deb.opera.com/opera-stable/ stable non-free #Opera Browser (final releases)" | sudo tee /etc/apt/sources.list.d/opera-stable.list 
+    echo "deb [arch=amd64] https://deb.opera.com/opera-stable/ stable non-free #Opera Browser (final releases)" | sudo tee /etc/apt/sources.list.d/opera-stable.list 
     sudo apt update
     printf "opera-stable opera-stable/add-deb-source boolean false\n" | sudo debconf-set-selections
     sudo apt install -y opera-stable
 
     # Virtualbox
-    echo "deb https://download.virtualbox.org/virtualbox/debian $(lsb_release -cs) contrib" | sudo tee /etc/apt/sources.list.d/virtualbox.list
+    # echo "deb [arch=amd64] https://download.virtualbox.org/virtualbox/debian $(lsb_release -cs) contrib" | sudo tee /etc/apt/sources.list.d/virtualbox.list
+    echo "deb [arch=amd64] https://download.virtualbox.org/virtualbox/debian cosmic contrib" | sudo tee /etc/apt/sources.list.d/virtualbox.list
     curl -fsSL https://www.virtualbox.org/download/oracle_vbox_2016.asc | sudo apt-key add -
     curl -fsSL https://www.virtualbox.org/download/oracle_vbox.asc | sudo apt-key add -
     sudo apt update
@@ -145,12 +149,14 @@ elif [ -n "$(uname -a | grep Ubuntu)" ]; then
 
     # Insync Google Drive
     sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys ACCAF35C
-    echo "deb http://apt.insynchq.com/ubuntu $(lsb_release -cs) non-free contrib" | sudo tee /etc/apt/sources.list.d/insync.list
+    # echo "deb [arch=amd64] http://apt.insynchq.com/ubuntu $(lsb_release -cs) non-free contrib" | sudo tee /etc/apt/sources.list.d/insync.list
+    echo "deb [arch=amd64] http://apt.insynchq.com/ubuntu cosmic non-free contrib" | sudo tee /etc/apt/sources.list.d/insync.list
     sudo apt update
     sudo apt install -y insync
-
-    gsettings set org.gnome.mutter experimental-features "['scale-monitor-framebuffer']"
   fi
 
+  sudo apt autoremove -y
+
   printf "\n\nYou MUST reboot your system in order to changes to take effect.\n\n"
+
 fi
