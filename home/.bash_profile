@@ -7,6 +7,12 @@ else
     exit
 fi
 
+if [ -d $HOME/.asdf ]; then
+    . $HOME/.asdf/asdf.sh
+    . $HOME/.asdf/completions/asdf.bash
+    . $HOME/.asdf/plugins/java/asdf-java-wrapper.bash
+fi
+
 # coreutils if osx
 if [[ "$OS" == "osx" ]]; then
   export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
