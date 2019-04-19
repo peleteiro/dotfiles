@@ -162,13 +162,11 @@ elif [ -n "$(uname -a | grep Ubuntu)" ]; then
     printf "opera-stable opera-stable/add-deb-source boolean false\n" | sudo debconf-set-selections
     sudo apt install -y opera-stable
 
-    # Virtualbox
-    # echo "deb [arch=amd64] https://download.virtualbox.org/virtualbox/debian $(lsb_release -cs) contrib" | sudo tee /etc/apt/sources.list.d/virtualbox.list
-    # curl -fsSL https://www.virtualbox.org/download/oracle_vbox_2016.asc | sudo apt-key add -
-    # curl -fsSL https://www.virtualbox.org/download/oracle_vbox.asc | sudo apt-key add -
-    # sudo apt update
-    # sudo apt install -y virtualbox-6.0
-
+    # qemu
+    sudo apt install qemu-kvm qemu virt-manager virt-viewer libvirt-daemon
+    sudo systemctl enable libvirtd
+    sudo systemctl start libvirtd
+    
     # Insync Google Drive
     sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys ACCAF35C
     # echo "deb [arch=amd64] http://apt.insynchq.com/ubuntu $(lsb_release -cs) non-free contrib" | sudo tee /etc/apt/sources.list.d/insync.list
