@@ -1,0 +1,7 @@
+#!/bin/bash
+path=$1
+name="${1%.*}"
+ext="${1##*.}"
+
+
+ffmpeg -y -i $1 -c:v libx264 -crf 23 -profile:v baseline -c:a aac -strict experimental -vf scale=640:-2 $name.mobile.$ext

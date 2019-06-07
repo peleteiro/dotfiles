@@ -120,12 +120,32 @@ echo "💿  xScope 4" && mas install 889428659
 brew cask install osxfuse
 brew install sshfs
 
+# install asdf
+. $(brew --prefix asdf)/asdf.sh
+. $(brew --prefix asdf)/etc/bash_completion.d/asdf.bash
+asdf plugin-add nodejs
+bash $(brew --prefix asdf)/plugins/nodejs/bin/import-release-team-keyring
+asdf plugin-add python
+asdf plugin-add ruby
+asdf plugin-add golang
+asdf plugin-add java
+asdf plugin-add maven
+asdf plugin-add gradle
+asdf plugin-add kotlin
+asdf plugin-add scala
+asdf plugin-add sbt
+asdf plugin-add rust
+asdf plugin-add R
+asdf plugin-add erlang
+asdf plugin-add elixir
+asdf plugin-add swift
+asdf plugin-add packer
+asdf plugin-add terraform
+asdf plugin-add sqlite
+
+
 # install python
 brew install app-engine-python pipenv pyenv
-
-# install ruby
-brew install rbenv rbenv-gemset
-rbenv install 2.5.1 --skip-existing
 
 # install java
 brew cask install java
