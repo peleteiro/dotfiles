@@ -94,6 +94,7 @@ elif [ -n "$(uname -a | grep Ubuntu)" ]; then
                       aria2 \
                       colordiff \
                       direnv \
+                      entr \ 
                       exiftool \
                       ffmpeg \
                       git-extras \
@@ -107,6 +108,7 @@ elif [ -n "$(uname -a | grep Ubuntu)" ]; then
                       pngcrush \
                       pngnq \
                       pngquant \
+                      silversearcher-ag \
                       sqlite3 \
                       sshfs \
                       tree \
