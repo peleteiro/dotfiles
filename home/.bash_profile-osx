@@ -6,8 +6,9 @@
 # direnv
 eval "$(direnv hook bash)"
 
-# Ruby
-export RBENV_ROOT=/usr/local/var/rbenv
+# asdf
+. $(brew --prefix asdf)/asdf.sh
+. $(brew --prefix asdf)/etc/bash_completion.d/asdf.bash
 
 # Python
 if which pyenv > /dev/null; then eval "$(pyenv init -)"; fi
@@ -22,7 +23,11 @@ export JAVA_HOME=$(/usr/libexec/java_home)
 # Android
 export ANDROID_HOME=/usr/local/share/android-sdk
 export ANDROID_SDK_ROOT=/usr/local/share/android-sdk
-export ANDROID_NDK_HOME=/usr/local/share/android-ndk/android-ndk-r15
+export ANDROID_NDK_HOME=/usr/local/share/android-ndk
+export INTEL_HAXM_HOME=/usr/local/Caskroom/intel-haxm
+
+export PATH=$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/23.0.1:$PATH
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_192.jdk/Contents/Home/
 
 # Vagrant
 export VAGRANT_DEFAULT_PROVIDER=parallels
