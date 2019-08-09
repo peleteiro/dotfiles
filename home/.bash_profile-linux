@@ -27,3 +27,7 @@ eval "$(direnv hook bash)"
 
 # alias
 alias open=/usr/bin/xdg-open
+
+# pbcopy
+alias pbcopy='xclip -selection clipboard'
+alias pbpaste='xclip -selection clipboard -o'
