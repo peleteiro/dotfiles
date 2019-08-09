@@ -1,7 +1,14 @@
 #!/bin/bash
 
-# Add pip to path
+# Add bin to path
 export PATH=~/.local/bin:~/.local/share/android/tools/bin:$PATH
+
+# asdf
+if [ -d $HOME/.asdf ]; then
+    . $HOME/.asdf/asdf.sh
+    . $HOME/.asdf/completions/asdf.bash
+    . $HOME/.asdf/plugins/java/asdf-java-wrapper.bash
+fi
 
 # enable programmable completion features
 if ! shopt -oq posix; then
