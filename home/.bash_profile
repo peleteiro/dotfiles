@@ -104,6 +104,9 @@ if [ `command -v _docker_compose` ]; then
 	complete -F _docker_compose dkc
 fi
 
+# asdf java home
+source ~/.asdf/plugins/java/asdf-java-wrapper.bash
+
 # OS bash_profile
 source ~/.bash_profile-${OS}
 
