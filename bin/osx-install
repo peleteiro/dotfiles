@@ -125,23 +125,29 @@ brew install sshfs
 . $(brew --prefix asdf)/etc/bash_completion.d/asdf.bash
 asdf plugin-add nodejs
 bash $(brew --prefix asdf)/plugins/nodejs/bin/import-release-team-keyring
-asdf plugin-add python
-asdf plugin-add ruby
-asdf plugin-add golang
-asdf plugin-add java
-asdf plugin-add maven
-asdf plugin-add gradle
-asdf plugin-add kotlin
-asdf plugin-add scala
-asdf plugin-add sbt
-asdf plugin-add rust
-asdf plugin-add R
-asdf plugin-add erlang
+asdf plugin-add docker-slim
 asdf plugin-add elixir
-asdf plugin-add swift
+asdf plugin-add erlang
+asdf plugin-add flutter
+asdf plugin-add golang
+asdf plugin-add gradle
+asdf plugin-add java
+asdf plugin-add kotlin
+asdf plugin-add lua
+asdf plugin-add maven
 asdf plugin-add packer
-asdf plugin-add terraform
+asdf plugin-add python
+asdf plugin-add R
+asdf plugin-add ruby
+asdf plugin-add rust
+asdf plugin-add sbt
+asdf plugin-add scala
+asdf plugin-add shfmt
 asdf plugin-add sqlite
+asdf plugin-add swift
+asdf plugin-add terraform
+asdf plugin-add tflint
+asdf plugin-add tmux
 
 
 # install python

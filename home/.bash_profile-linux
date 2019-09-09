@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# homebrew
+eval $($(brew --prefix)/bin/brew shellenv)
+
 # Add pip to path
 export PATH=~/.local/bin:~/.local/share/android/tools/bin:$PATH
 
