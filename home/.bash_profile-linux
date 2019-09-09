@@ -1,10 +1,14 @@
 #!/bin/bash
 
 # homebrew
-eval $($(brew --prefix)/bin/brew shellenv)
+eval $(~/.linuxbrew/bin/brew shellenv)
 
-# Add pip to path
-export PATH=~/.local/bin:~/.local/share/android/tools/bin:$PATH
+# Add pip locals to path
+export PATH=~/.local/bin:$PATH
+
+# Add android to path
+export ANDROID_HOME=~/.local/share/android
+export PATH=~/.local/share/android/tools/bin:$PATH
 
 # asdf
 if [ -d $HOME/.asdf ]; then
