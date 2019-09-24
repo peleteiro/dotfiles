@@ -12,6 +12,7 @@ eval "$(direnv hook bash)"
 # asdf
 . $(brew --prefix asdf)/asdf.sh
 . $(brew --prefix asdf)/etc/bash_completion.d/asdf.bash
+export NODEJS_CHECK_SIGNATURES=no
 
 # Python
 if which pyenv > /dev/null; then eval "$(pyenv init -)"; fi
