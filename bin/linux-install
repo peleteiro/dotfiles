@@ -23,9 +23,6 @@ elif [ -n "$(uname -a | grep Ubuntu)" ]; then
                       bash-completion tmux p7zip-full p7zip-rar git \
                       automake autoconf libreadline-dev libncurses-dev libcurl3-dev zlib1g-dev libssl-dev libyaml-dev \
                       libxslt-dev libffi-dev libtool unixodbc-dev gfortran
-  
-  # homebrew
-  sh -c "$(curl -fsSL https://raw.githubusercontent.com/Linuxbrew/install/master/install.sh)"
 
   # asdf
   git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.7.1
@@ -61,28 +58,7 @@ elif [ -n "$(uname -a | grep Ubuntu)" ]; then
   # python
   sudo apt install -y python3 python3-dev python3-venv python3-doc binfmt-support python3-pip
   pip3 install --user --upgrade pipenv
-  # java
-
-  sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 2EE0EA64E40A89B84B2DF73499E82A75642AC823
-  echo "deb https://dl.bintray.com/sbt/debian /" | sudo tee /etc/apt/sources.list.d/sbt.list
-  sudo apt update
-  sudo apt -y install openjdk-13-jdk ant maven gradle sbt
-
-  # golang
-  echo "deb http://ppa.launchpad.net/longsleep/golang-backports/ubuntu cosmic main" | sudo tee /etc/apt/sources.list.d/longsleep-ubuntu-golang-backports-disco.list
-  # sudo add-apt-repository -y ppa:longsleep/golang-backports
-  sudo apt update
-  sudo apt install -y golang-go
-
-  # node
-  sudo apt-key adv --keyserver keyserver.ubuntu.com --recv 68576280
-  #echo "deb [arch=amd64] https://deb.nodesource.com/node_11.x $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/node.list
-  echo "deb [arch=amd64] https://deb.nodesource.com/node_11.x cosmic main" | sudo tee /etc/apt/sources.list.d/node.list
-  curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
-  echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
-  sudo apt update
-  sudo apt install -y nodejs yarn
-
+  
   # docker
   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
   # echo "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list
@@ -128,18 +104,15 @@ elif [ -n "$(uname -a | grep Ubuntu)" ]; then
   curl -L https://github.com/monochromegane/the_platinum_searcher/releases/download/v2.2.0/pt_linux_amd64.tar.gz | sudo tar -xz -C /usr/local/bin/ --strip-components 1 pt_linux_amd64/pt
   sudo chmod +x /usr/local/bin/pt
 
-  # Terraform
-  __LATEST_VER=$(curl -s https://checkpoint-api.hashicorp.com/v1/check/terraform | jq -r -M '.current_version')
-  curl -L -o /tmp/tf.zip "https://releases.hashicorp.com/terraform/${__LATEST_VER}/terraform_${__LATEST_VER}_linux_amd64.zip"
-  sudo unzip -u /tmp/tf.zip -d /usr/local/bin/
-  sudo chmod +x /usr/local/bin/terraform
-  rm /tmp/tf.zip
-  unset __LATEST_VER
-
   # Ubuntu Desktop
   if dpkg -l ubuntu-desktop 2> /dev/null; then
+    # auto hide dock
+    gsettings set org.gnome.shell.extensions.dash-to-dock dock-fixed false
+    gsettings set org.gnome.shell.extensions.dash-to-dock autohide true
+
     # gnome-shell
-    sudo apt-get install -y chrome-gnome-shell
+    sudo apt-get install -y chrome-gnome-shell gnome-tweaks gnome-shell-extensions
+    gnome-extensions enable peleteiro@dotfiles
 
     # terminator
     sudo apt install -y terminator
@@ -151,7 +124,6 @@ elif [ -n "$(uname -a | grep Ubuntu)" ]; then
     sudo snap install insomnia
     
     sudo snap install intellij-idea-ultimate --classic --edge
-    sudo snap install skype --classic
     sudo snap install slack --classic
     sudo snap install spotify
     sudo snap install sublime-text --classic

@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# homebrew
-eval $(~/.linuxbrew/bin/brew shellenv)
-
 # Add pip locals to path
 export PATH=~/.local/bin:$PATH
 
@@ -14,7 +11,6 @@ export PATH=~/.local/share/android/tools/bin:$PATH
 if [ -d $HOME/.asdf ]; then
     . $HOME/.asdf/asdf.sh
     . $HOME/.asdf/completions/asdf.bash
-    . $HOME/.asdf/plugins/java/asdf-java-wrapper.bash
 fi
 
 # enable programmable completion features
