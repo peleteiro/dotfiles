@@ -5,7 +5,7 @@ export PATH=~/.local/bin:$PATH
 
 # Add android to path
 export ANDROID_HOME=~/.local/share/android
-export PATH=~/.local/share/android/tools/bin:$PATH
+export PATH=$ANDROID_HOME/tools/bin:$ANDROID_HOME/emulator:$PATH
 
 # asdf
 if [ -d $HOME/.asdf ]; then

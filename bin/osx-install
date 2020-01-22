@@ -19,6 +19,7 @@ brew install \
 aria2 \
 autoconf \
 automake \
+bash \
 bat \
 colordiff \
 coreutils \
@@ -36,13 +37,10 @@ jpegoptim \
 jq \
 md5sha1sum \
 openssl \
-packer \
-packer-completion \
 pip-completion \
 pngcrush \
 sqlite \
 ssh-copy-id \
-terraform \
 the_platinum_searcher \
 tree \
 wget \
@@ -52,12 +50,9 @@ zopfli \
 
 # install "out of appstore" apps
 brew cask install \
-atom \
-aws-vault \
 dash \
 docker \
 droplr \
-fanny \
 firefox \
 google-backup-and-sync \
 google-chrome \
@@ -65,15 +60,10 @@ hammerspoon \
 iconjar \
 intellij-idea \
 iterm2 \
-keycastr \
-kodi \
 ksdiff \
 macsvg \
 macvim \
-microsoft-office \
 netspot \
-notational-velocity \
-parallels \
 sketch \
 spotify \
 sublime-text \
@@ -94,20 +84,13 @@ echo "💿  ColorSnapper2" && mas install 969418666
 echo "💿  Converto - The Unit Converter" && mas install 576421334
 echo "💿  DaisyDisk" && mas install 411643860
 echo "💿  Fantastical 2" && mas install 975937182
-echo "💿  House Design Pro" && mas install 748218986
 echo "💿  Hyper 3" && mas install 685096913
 echo "💿  Icon Slate" && mas install 439697913
-echo "💿  iMovie" && mas install 408981434
 echo "💿  Kaleidoscope" && mas install 587512244
-echo "💿  Keynote" && mas install 409183694
 echo "💿  LastPass" && mas install 926036361
-echo "💿  Marboo Pro" && mas install 1010557319
 echo "💿  MockSMTP" && mas install 423535515
 echo "💿  Monodraw" && mas install 920404675
-echo "💿  Navicat Premium Essentials" && mas install 466416967
-echo "💿  Numbers" && mas install 409203825
 echo "💿  Orion Label Maker" && mas install 994189084
-echo "💿  Pages" && mas install 409201541
 echo "💿  Patterns - The Regex App" && mas install 429449079
 echo "💿  Pixa" && mas install 527618971
 echo "💿  Pixelmator Pro" && mas install 1289583905
@@ -151,44 +134,9 @@ asdf plugin-add terraform
 asdf plugin-add tflint
 asdf plugin-add tmux
 
-
-# install python
-brew install app-engine-python pipenv pyenv
-
-# install java
-brew cask install java
-
-brew install \
-ant \
-maven \
-maven-completion \
-gradle \
-selenium-server-standalone \
-
-# install android
-brew install \
-gradle \
-exiftool \
-
-brew cask install java8
-export JAVA_HOME=$(/usr/libexec/java_home -v 1.8)
-export PATH=$JAVA_HOME/bin:$PATH
-brew cask install android-sdk android-ndk
-
 brew cask install \
 xquartz \
 inkscape \
 
-# install scala
-brew install \
-scala \
-sbt \
-
-# install node
-brew install node yarn
-
-# install go
-brew install go
-
-# Fix Mojave
-sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg -target /
+# # Fix Mojave
+# sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg -target /
