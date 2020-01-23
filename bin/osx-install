@@ -4,12 +4,9 @@
 ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 
 # Update homebrew
-brew install bash-completion git
+brew install git
 brew update
 brew upgrade
-
-# install homebrew cask
-brew tap homebrew/cask-cask
 
 # install mas
 brew install mas
@@ -20,6 +17,7 @@ aria2 \
 autoconf \
 automake \
 bash \
+bash-completion \
 bat \
 colordiff \
 coreutils \
