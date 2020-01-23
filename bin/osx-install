@@ -33,6 +33,7 @@ graphicsmagick \
 gron \
 hashdeep \
 imagemagick \
+inkscape \
 jpegoptim \
 jq \
 md5sha1sum \
@@ -44,35 +45,34 @@ ssh-copy-id \
 the_platinum_searcher \
 tree \
 wget \
+xquartz \
 z \
 zlib \
 zopfli \
 
 # install "out of appstore" apps
-brew cask install \
-dash \
-docker \
-droplr \
-firefox \
-google-backup-and-sync \
-google-chrome \
-hammerspoon \
-iconjar \
-intellij-idea \
-iterm2 \
-ksdiff \
-macsvg \
-macvim \
-netspot \
-sketch \
-spotify \
-sublime-text \
-the-unarchiver \
-transmission \
-transmit \
-visual-studio-code \
-vlc \
-winbox \
+brew cask install dash
+brew cask install docker
+brew cask install droplr
+brew cask install firefox
+brew cask install google-backup-and-sync
+brew cask install google-chrome
+brew cask install hammerspoon
+brew cask install iconjar
+brew cask install intellij-idea
+brew cask install iterm2
+brew cask install ksdiff
+brew cask install macsvg
+brew cask install macvim
+brew cask install netspot
+brew cask install sketch
+brew cask install spotify
+brew cask install sublime-text
+brew cask install the-unarchiver
+brew cask install transmission
+brew cask install transmit
+brew cask install visual-studio-code
+brew cask install vlc
 
 # install appstore apps
 echo "💿  Affinity Designer" && mas install 824171161
@@ -110,12 +110,13 @@ brew install asdf gnupg zlib
 . $(brew --prefix asdf)/etc/bash_completion.d/asdf.bash
 asdf plugin-add nodejs
 bash $(brew --prefix asdf)/plugins/nodejs/bin/import-release-team-keyring
-asdf plugin-add docker-slim
+asdf plugin-add dart
 asdf plugin-add elixir
 asdf plugin-add erlang
 asdf plugin-add flutter
 asdf plugin-add golang
 asdf plugin-add gradle
+asdf plugin-add groovy
 asdf plugin-add java
 asdf plugin-add kotlin
 asdf plugin-add lua
@@ -131,12 +132,8 @@ asdf plugin-add shfmt
 asdf plugin-add sqlite
 asdf plugin-add swift
 asdf plugin-add terraform
-asdf plugin-add tflint
+asdf plugin-add terraform-validator
 asdf plugin-add tmux
-
-brew cask install \
-xquartz \
-inkscape \
 
 # # Fix Mojave
 # sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg -target /
