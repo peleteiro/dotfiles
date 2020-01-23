@@ -9,7 +9,7 @@ brew update
 brew upgrade
 
 # install homebrew cask
-brew tap caskroom/cask
+brew tap homebrew/cask-cask
 
 # install mas
 brew install mas
