@@ -19,6 +19,7 @@ automake \
 bash \
 bash-completion \
 bat \
+cocoapods \
 colordiff \
 coreutils \
 direnv \
