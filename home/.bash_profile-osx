@@ -22,16 +22,16 @@ if which pipenv > /dev/null; then eval "$(pipenv --completion)"; fi
 export PATH=$PATH:./node_modules/.bin:/usr/local/share/npm/bin
 
 # Java
-export JAVA_HOME=$(/usr/libexec/java_home)
+asdf current java 2>&1 > /dev/null
+if [[ "$?" -eq 0 ]]
+then
+    export JAVA_HOME=$(asdf where java)
+fi
 
 # Android
-export ANDROID_HOME=/usr/local/share/android-sdk
 export ANDROID_SDK_ROOT=/usr/local/share/android-sdk
-export ANDROID_NDK_HOME=/usr/local/share/android-ndk
 export INTEL_HAXM_HOME=/usr/local/Caskroom/intel-haxm
-
-export PATH=$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/23.0.1:$PATH
-export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_192.jdk/Contents/Home/
+export PATH=$ANDROID_SDK_ROOT/tools:$ANDROID_SDK_ROOT/platform-tools:$PATH
 
 # Vagrant
 export VAGRANT_DEFAULT_PROVIDER=parallels

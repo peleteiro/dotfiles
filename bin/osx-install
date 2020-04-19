@@ -16,6 +16,7 @@ brew install \
 aria2 \
 autoconf \
 automake \
+awscli \
 bash \
 bash-completion \
 bat \
@@ -32,10 +33,10 @@ graphicsmagick \
 gron \
 hashdeep \
 imagemagick \
-inkscape \
 jpegoptim \
 jq \
 md5sha1sum \
+moreutils \
 openssl \
 pip-completion \
 pngcrush \
@@ -44,7 +45,6 @@ ssh-copy-id \
 the_platinum_searcher \
 tree \
 wget \
-xquartz \
 z \
 zlib \
 zopfli \
@@ -61,9 +61,7 @@ brew cask install iconjar
 brew cask install intellij-idea
 brew cask install iterm2
 brew cask install ksdiff
-brew cask install macsvg
 brew cask install macvim
-brew cask install netspot
 brew cask install sketch
 brew cask install spotify
 brew cask install sublime-text
@@ -94,7 +92,6 @@ echo "💿  Patterns - The Regex App" && mas install 429449079
 echo "💿  Pixa" && mas install 527618971
 echo "💿  Pixelmator Pro" && mas install 1289583905
 echo "💿  Pixelmator" && mas install 407963104
-echo "💿  Proxy - Web Interception Proxy" && mas install 874920950
 echo "💿  Slack" && mas install 803453959
 echo "💿  Tweetbot 3" && mas install 1384080005
 echo "💿  xScope 4" && mas install 889428659
@@ -107,8 +104,6 @@ brew install sshfs
 brew install asdf gnupg zlib
 . $(brew --prefix asdf)/asdf.sh
 . $(brew --prefix asdf)/etc/bash_completion.d/asdf.bash
-asdf plugin-add nodejs
-bash $(brew --prefix asdf)/plugins/nodejs/bin/import-release-team-keyring
 asdf plugin-add dart
 asdf plugin-add elixir
 asdf plugin-add erlang
@@ -120,6 +115,7 @@ asdf plugin-add java
 asdf plugin-add kotlin
 asdf plugin-add lua
 asdf plugin-add maven
+asdf plugin-add nodejs
 asdf plugin-add packer
 asdf plugin-add python
 asdf plugin-add R
@@ -133,6 +129,9 @@ asdf plugin-add swift
 asdf plugin-add terraform
 asdf plugin-add terraform-validator
 asdf plugin-add tmux
+asdf plugin-add yarn
+
+bash -e -c "cd ~ && asdf install"
 
 # # Fix Mojave
 # sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg -target /
