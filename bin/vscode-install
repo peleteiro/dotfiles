@@ -2,5 +2,3 @@
 
 code --install-extension editorconfig.editorconfig
 code --install-extension esbenp.prettier-vscode
-code --install-extension eg2.tslint
-code --install-extension mauve.terraform

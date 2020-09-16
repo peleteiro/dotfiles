@@ -55,21 +55,16 @@ elif [ -n "$(uname -a | grep Ubuntu)" ]; then
   asdf plugin-add tmux
   asdf plugin-add yarn
 
-  # python
-  sudo apt install -y python3 python3-dev python3-venv python3-doc binfmt-support python3-pip
-  pip3 install --user --upgrade pipenv
-  
   # docker
   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-  # echo "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list
-  echo "deb [arch=amd64] https://download.docker.com/linux/ubuntu cosmic stable" | sudo tee /etc/apt/sources.list.d/docker.list
+  echo "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list
   sudo apt update
   sudo apt install -y docker-ce
   sudo groupadd docker
   sudo usermod -aG docker $USER
   sudo systemctl enable docker
 
-  # Android-skd
+  # Android-SDK
   curl -o /tmp/sdk-tools-linux.zip https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip
   mkdir -p ~/.local/share/android
   unzip -n /tmp/sdk-tools-linux.zip -d ~/.local/share/android
@@ -80,7 +75,7 @@ elif [ -n "$(uname -a | grep Ubuntu)" ]; then
                       aria2 \
                       colordiff \
                       direnv \
-                      entr \ 
+                      entr \
                       exiftool \
                       ffmpeg \
                       git-extras \
@@ -100,10 +95,6 @@ elif [ -n "$(uname -a | grep Ubuntu)" ]; then
                       tree \
                       zopfli
 
-  # The Platium Search
-  curl -L https://github.com/monochromegane/the_platinum_searcher/releases/download/v2.2.0/pt_linux_amd64.tar.gz | sudo tar -xz -C /usr/local/bin/ --strip-components 1 pt_linux_amd64/pt
-  sudo chmod +x /usr/local/bin/pt
-
   # Ubuntu Desktop
   if dpkg -l ubuntu-desktop 2> /dev/null; then
     # auto hide dock
@@ -122,8 +113,8 @@ elif [ -n "$(uname -a | grep Ubuntu)" ]; then
     sudo snap install code --classic
     sudo snap install google-cloud-sdk --classic
     sudo snap install insomnia
-    
-    sudo snap install intellij-idea-ultimate --classic --edge
+
+    sudo snap install intellij-idea-ultimate --classic
     sudo snap install slack --classic
     sudo snap install spotify
     sudo snap install sublime-text --classic
@@ -141,7 +132,7 @@ elif [ -n "$(uname -a | grep Ubuntu)" ]; then
 
     # Opera
     curl -fsSL https://deb.opera.com/archive.key | sudo apt-key add -
-    echo "deb [arch=amd64] https://deb.opera.com/opera-stable/ stable non-free #Opera Browser (final releases)" | sudo tee /etc/apt/sources.list.d/opera-stable.list 
+    echo "deb [arch=amd64] https://deb.opera.com/opera-stable/ stable non-free #Opera Browser (final releases)" | sudo tee /etc/apt/sources.list.d/opera-stable.list
     sudo apt update
     printf "opera-stable opera-stable/add-deb-source boolean false\n" | sudo debconf-set-selections
     sudo apt install -y opera-stable
@@ -150,11 +141,10 @@ elif [ -n "$(uname -a | grep Ubuntu)" ]; then
     sudo apt install qemu-kvm qemu virt-manager virt-viewer libvirt-daemon
     sudo systemctl enable libvirtd
     sudo systemctl start libvirtd
-    
+
     # Insync Google Drive
     sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys ACCAF35C
-    # echo "deb [arch=amd64] http://apt.insynchq.com/ubuntu $(lsb_release -cs) non-free contrib" | sudo tee /etc/apt/sources.list.d/insync.list
-    echo "deb [arch=amd64] http://apt.insynchq.com/ubuntu cosmic non-free contrib" | sudo tee /etc/apt/sources.list.d/insync.list
+    echo "deb [arch=amd64] http://apt.insynchq.com/ubuntu $(lsb_release -cs) non-free contrib" | sudo tee /etc/apt/sources.list.d/insync.list
     sudo apt update
     sudo apt install -y insync
   fi
