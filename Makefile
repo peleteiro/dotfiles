@@ -20,3 +20,6 @@ endif
 
 copy:
 	@./bin/copy-home
+
+reload-gnome-shell: copy
+	killall -SIGQUIT gnome-shell
