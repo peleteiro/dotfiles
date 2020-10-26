@@ -1,5 +1,6 @@
 const Mainloop = imports.mainloop
 const Config = imports.misc.config
+const {GLib, Meta} = imports.gi
 
 window.gsconnect = {
   extdatadir: imports.misc.extensionUtils.getCurrentExtension().path,
@@ -18,36 +19,36 @@ function enable() {
     Mainloop.timeout_add(3000, function() {
       keyManager.add(
         '<Control><Super><Alt>left',
-        withFocus((app, space) => {
-          app.move_resize_frame(true, space.x, space.y, space.width * 0.6, space.height)
+        withFocus((win, space) => {
+          win.move_resize_frame(true, space.x, space.y, space.width * 0.6, space.height)
         }),
       )
 
       keyManager.add(
         '<Control><Super><Alt>right',
-        withFocus((app, space) => {
-          app.move_resize_frame(true, space.x + space.width * 0.6, space.y, space.width * 0.4, space.height)
+        withFocus((win, space) => {
+          win.move_resize_frame(true, space.x + space.width * 0.6, space.y, space.width * 0.4, space.height)
         }),
       )
 
       keyManager.add(
         '<Control><Super><Alt>up',
-        withFocus((app, space) => {
-          app.move_resize_frame(true, space.x + space.width * 0.6, space.y, space.width * 0.4, space.height * 0.7)
+        withFocus((win, space) => {
+          win.move_resize_frame(true, space.x + space.width * 0.6, space.y, space.width * 0.4, space.height * 0.7)
         }),
       )
 
       keyManager.add(
         '<Control><Super><Alt>down',
-        withFocus((app, space) => {
-          app.move_resize_frame(true, space.x + space.width * 0.6, space.y + space.height * 0.7, space.width * 0.4, space.height * 0.3)
+        withFocus((win, space) => {
+          win.move_resize_frame(true, space.x + space.width * 0.6, space.y + space.height * 0.7, space.width * 0.4, space.height * 0.3)
         }),
       )
 
       keyManager.add(
         '<Control><Super><Alt>m',
-        withFocus((app, space) => {
-          app.move_resize_frame(true, space.x, space.y, space.width, space.height)
+        withFocus((win, space) => {
+          win.move_resize_frame(true, space.x, space.y, space.width, space.height)
         }),
       )
     })
@@ -64,10 +65,10 @@ function disable() {
 
 function withFocus(cb) {
   return () => {
-    const app = global.display.focus_window
-    if (!app) return
-    const space = app.get_work_area_current_monitor()
-    if (app.maximized_horizontally || app.maximizedVertically) app.unmaximize(Meta.MaximizeFlags.HORIZONTAL | Meta.MaximizeFlags.VERTICAL)
-    cb(app, space)
+    const win = global.display.focus_window
+    if (!win) return
+    const space = win.get_work_area_current_monitor()
+    if (win.maximized_horizontally || win.maximizedVertically) win.unmaximize(Meta.MaximizeFlags.HORIZONTAL | Meta.MaximizeFlags.VERTICAL)
+    cb(win, space)
   }
 }

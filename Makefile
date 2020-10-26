@@ -21,5 +21,8 @@ endif
 copy:
 	@./bin/copy-home
 
-reload-gnome-shell: copy
+gnome-shell-reload: copy
 	killall -SIGQUIT gnome-shell
+
+gnome-shell-log:
+	journalctl /usr/bin/gnome-shell -f
