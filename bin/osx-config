@@ -1,5 +1,12 @@
 #!/bin/bash
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
+
+# Default to bash
 chsh -s /bin/bash
+
+# Key bindings
+mkdir -p ~/Library/KeyBindings
+cp $DIR/osx/DefaultKeyBinding.dict ~/Library/KeyBindings
 
 ## Global
 
