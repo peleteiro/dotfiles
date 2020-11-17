@@ -1,1 +1,7 @@
-java amazon-corretto-8.232.09.1
+nodejs 14.15.1
+yarn 1.22.5
+golang 1.15.4
+python 3.9.0
+terraform 0.13.5
+java corretto-8.275.01.1
+flutter 1.22.4-stable
