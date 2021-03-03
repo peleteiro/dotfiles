@@ -1,5 +1,7 @@
 'use strict';
 
+// https://gjs-docs.gnome.org/meta4~4_api/meta.window#method-move_frame
+
 const Config = imports.misc.config;
 const Main = imports.ui.main;
 const Meta = imports.gi.Meta;
