@@ -20,6 +20,7 @@ function enable() {
       keyManager.add(
         '<Control><Super><Alt>left',
         withFocus((win, space) => {
+          win.move_frame(true, space.x, space.y)
           win.move_resize_frame(true, space.x, space.y, space.width * 0.6, space.height)
         }),
       )
@@ -27,6 +28,7 @@ function enable() {
       keyManager.add(
         '<Control><Super><Alt>right',
         withFocus((win, space) => {
+          win.move_frame(true, space.x + space.width * 0.6, space.y)
           win.move_resize_frame(true, space.x + space.width * 0.6, space.y, space.width * 0.4, space.height)
         }),
       )
@@ -34,6 +36,7 @@ function enable() {
       keyManager.add(
         '<Control><Super><Alt>up',
         withFocus((win, space) => {
+          win.move_frame(true, space.x + space.width * 0.6, space.y)
           win.move_resize_frame(true, space.x + space.width * 0.6, space.y, space.width * 0.4, space.height * 0.7)
         }),
       )
@@ -41,6 +44,7 @@ function enable() {
       keyManager.add(
         '<Control><Super><Alt>down',
         withFocus((win, space) => {
+          win.move_frame(true, space.x + space.width * 0.6, space.y + space.height * 0.7)
           win.move_resize_frame(true, space.x + space.width * 0.6, space.y + space.height * 0.7, space.width * 0.4, space.height * 0.3)
         }),
       )
@@ -48,6 +52,7 @@ function enable() {
       keyManager.add(
         '<Control><Super><Alt>m',
         withFocus((win, space) => {
+          win.move_frame(true, space.x, space.y)
           win.move_resize_frame(true, space.x, space.y, space.width, space.height)
         }),
       )
