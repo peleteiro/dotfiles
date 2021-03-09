@@ -97,6 +97,9 @@ elif [ -n "$(uname -a | grep Ubuntu)" ]; then
 
   # Ubuntu Desktop
   if dpkg -l ubuntu-desktop 2> /dev/null; then
+    # keyboard layout
+    gsettings set org.gnome.desktop.input-sources xkb-options "['kpdl:comma']"
+
     # auto hide dock
     gsettings set org.gnome.shell.extensions.dash-to-dock dock-fixed false
     gsettings set org.gnome.shell.extensions.dash-to-dock autohide true
