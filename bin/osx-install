@@ -50,26 +50,26 @@ zlib \
 zopfli \
 
 # install "out of appstore" apps
-brew cask install dash
-brew cask install docker
-brew cask install droplr
-brew cask install firefox
-brew cask install google-backup-and-sync
-brew cask install google-chrome
-brew cask install hammerspoon
-brew cask install iconjar
-brew cask install intellij-idea
-brew cask install iterm2
-brew cask install ksdiff
-brew cask install macvim
-brew cask install sketch
-brew cask install spotify
-brew cask install sublime-text
-brew cask install the-unarchiver
-brew cask install transmission
-brew cask install transmit
-brew cask install visual-studio-code
-brew cask install vlc
+brew install --cask dash
+brew install --cask docker
+brew install --cask droplr
+brew install --cask firefox
+brew install --cask google-backup-and-sync
+brew install --cask google-chrome
+brew install --cask hammerspoon
+brew install --cask iconjar
+brew install --cask intellij-idea
+brew install --cask iterm2
+brew install --cask ksdiff
+brew install --cask macvim
+brew install --cask sketch
+brew install --cask spotify
+brew install --cask sublime-text
+brew install --cask the-unarchiver
+brew install --cask transmission
+brew install --cask transmit
+brew install --cask visual-studio-code
+brew install --cask vlc
 
 # install appstore apps
 echo "💿  Affinity Designer" && mas install 824171161
