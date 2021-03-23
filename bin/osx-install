@@ -132,6 +132,3 @@ asdf plugin-add tmux
 asdf plugin-add yarn
 
 bash -e -c "cd ~ && asdf install"
-
-# # Fix Mojave
-# sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg -target /

@@ -1,4 +1,0 @@
-#!/bin/bash
-
-code --install-extension editorconfig.editorconfig
-code --install-extension esbenp.prettier-vscode
