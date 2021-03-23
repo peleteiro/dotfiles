@@ -1,6 +1,9 @@
 #!/bin/bash
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 
+# Close any open System Preferences panes, to prevent them from overriding settings we’re about to change
+osascript -e 'tell application "System Preferences" to quit'
+
 # Default to bash
 chsh -s /bin/bash
 
@@ -16,8 +19,8 @@ scutil --set HostName "peleteiro"
 scutil --set LocalHostName "peleteiro"
 sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server NetBIOSName -string "peleteiro"
 
-# Disable sudden motion sensor. (Not useful for SSDs).
-sudo pmset -a sms 0
+# Disable the sound effects on boot
+sudo nvram SystemAudioVolume=" "
 
 # Set language and text formats
 defaults write NSGlobalDomain AppleLanguages -array "en" "pt"
