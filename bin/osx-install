@@ -5,8 +5,9 @@ curl -o /tmp/commandlinetools.zip https://dl.google.com/android/repository/comma
 rm -rf /tmp/commandlinetools-tmp-unzip
 mkdir -p /tmp/commandlinetools-tmp-unzip
 unzip -n /tmp/commandlinetools.zip -d /tmp/commandlinetools-tmp-unzip
-mkdir -p ~/.local/share/android/cmdline-tools
-mv /tmp/commandlinetools-tmp-unzip/cmdline-tools ~/.local/share/android/cmdline-tools/latest
+mkdir -p ~/.local/share/android #/cmdline-tools
+/tmp/commandlinetools-tmp-unzip/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/.local/share/android --install "cmdline-tools;latest"
+rm -rf /tmp/commandlinetools-tmp-unzip
 rm /tmp/commandlinetools.zip
 
 # install homebrew
