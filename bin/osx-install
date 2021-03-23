@@ -1,5 +1,14 @@
 #!/bin/bash
 
+# Android-SDK
+curl -o /tmp/commandlinetools.zip https://dl.google.com/android/repository/commandlinetools-mac-6858069_latest.zip
+rm -rf /tmp/commandlinetools-tmp-unzip
+mkdir -p /tmp/commandlinetools-tmp-unzip
+unzip -n /tmp/commandlinetools.zip -d /tmp/commandlinetools-tmp-unzip
+mkdir -p ~/.local/share/android/cmdline-tools
+mv /tmp/commandlinetools-tmp-unzip/cmdline-tools ~/.local/share/android/cmdline-tools/latest
+rm /tmp/commandlinetools.zip
+
 # install homebrew
 ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 
