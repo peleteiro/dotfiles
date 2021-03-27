@@ -6,7 +6,7 @@ rm -rf /tmp/commandlinetools-tmp-unzip
 mkdir -p /tmp/commandlinetools-tmp-unzip
 unzip -n /tmp/commandlinetools.zip -d /tmp/commandlinetools-tmp-unzip
 mkdir -p ~/.local/share/android #/cmdline-tools
-/tmp/commandlinetools-tmp-unzip/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/.local/share/android --install "cmdline-tools;latest"
+cd $HOME/.local/share/android && /tmp/commandlinetools-tmp-unzip/cmdline-tools/bin/sdkmanager --install "cmdline-tools;latest" --sdk_root=$HOME/.local/share/android
 rm -rf /tmp/commandlinetools-tmp-unzip
 rm /tmp/commandlinetools.zip
 
