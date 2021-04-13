@@ -41,10 +41,6 @@ fi
 # tmxu
 alias tmux="TERM=xterm-256color tmux"
 
-# bindings
-stty werase undef
-bind '\C-w:unix-filename-rubout'
-
 # editor
 export EDITOR=vim
 export VISUAL=vim
