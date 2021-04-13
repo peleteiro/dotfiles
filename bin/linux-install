@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# ReadyNas
+# ReadyNa-0
 if [[ -d "/proc/readynas" ]]; then
   echo 'Installing packages for ReadyNas linux... '
 
@@ -65,10 +65,14 @@ elif [ -n "$(uname -a | grep Ubuntu)" ]; then
   sudo systemctl enable docker
 
   # Android-SDK
-  curl -o /tmp/sdk-tools-linux.zip https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip
-  mkdir -p ~/.local/share/android
-  unzip -n /tmp/sdk-tools-linux.zip -d ~/.local/share/android
-  rm /tmp/sdk-tools-linux.zip
+  curl -o /tmp/commandlinetools.zip https://dl.google.com/android/repository/commandlinetools-linux-6858069_latest.zip
+  rm -rf /tmp/commandlinetools-tmp-unzip
+  mkdir -p /tmp/commandlinetools-tmp-unzip
+  unzip -n /tmp/commandlinetools.zip -d /tmp/commandlinetools-tmp-unzip
+  mkdir -p ~/.local/share/android #/cmdline-tools
+  cd $HOME/.local/share/android && /tmp/commandlinetools-tmp-unzip/cmdline-tools/bin/sdkmanager --install "cmdline-tools;latest" --sdk_root=$HOME/.local/share/android
+  rm -rf /tmp/commandlinetools-tmp-unzip
+  rm /tmp/commandlinetools.zip
 
   # Tooling
   sudo apt install -y \

@@ -17,9 +17,7 @@ eval "$(direnv hook bash)"
 . $(brew --prefix asdf)/etc/bash_completion.d/asdf.bash
 export NODEJS_CHECK_SIGNATURES=no
 
-# Add android to path
-export ANDROID_HOME=$HOME/.local/share/android
-export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/emulator:$ANDROID_HOME/platform-tools:$PATH
+# Add android intel haxm home
 export INTEL_HAXM_HOME=/usr/local/Caskroom/intel-haxm
 
 # Python

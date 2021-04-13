@@ -86,6 +86,10 @@ alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
 
+# Add android to path
+export ANDROID_HOME=$HOME/.local/share/android
+export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/emulator:$ANDROID_HOME/platform-tools:$PATH
+
 # aws cli
 if [ `which aws_completer` ]; then
   complete -C aws_completer aws

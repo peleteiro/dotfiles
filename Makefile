@@ -16,7 +16,6 @@ ifeq ($(OS), Darwin)
 else
 	@./bin/linux-install
 endif
-	@./bin/vscode-install
 
 copy:
 	@./bin/copy-home
