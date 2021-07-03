@@ -95,9 +95,6 @@ if [ `which aws_completer` ]; then
   complete -C aws_completer aws
 fi
 
-# aws-vault
-export AWS_VAULT_BACKEND=file
-
 # Docker
 alias dkc=docker-compose
 if [ `command -v _docker_compose` ]; then

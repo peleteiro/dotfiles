@@ -12,11 +12,6 @@ export CPPFLAGS="-I/usr/local/opt/zlib/include"
 # direnv
 eval "$(direnv hook bash)"
 
-# asdf
-. $(brew --prefix asdf)/asdf.sh
-. $(brew --prefix asdf)/etc/bash_completion.d/asdf.bash
-export NODEJS_CHECK_SIGNATURES=no
-
 # Add android intel haxm home
 export INTEL_HAXM_HOME=/usr/local/Caskroom/intel-haxm
 
@@ -26,16 +21,6 @@ if which pipenv > /dev/null; then eval "$(pipenv --completion)"; fi
 
 # Node
 export PATH=$PATH:./node_modules/.bin:/usr/local/share/npm/bin
-
-# Java
-asdf current java 2>&1 > /dev/null
-if [[ "$?" -eq 0 ]]
-then
-    export JAVA_HOME=$(asdf where java)
-fi
-
-# Vagrant
-export VAGRANT_DEFAULT_PROVIDER=parallels
 
 # Alias ###################################################################
 alias vim="mvim -v"

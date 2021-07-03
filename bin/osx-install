@@ -1,15 +1,5 @@
 #!/bin/bash
 
-# Android-SDK
-curl -o /tmp/commandlinetools.zip https://dl.google.com/android/repository/commandlinetools-mac-6858069_latest.zip
-rm -rf /tmp/commandlinetools-tmp-unzip
-mkdir -p /tmp/commandlinetools-tmp-unzip
-unzip -n /tmp/commandlinetools.zip -d /tmp/commandlinetools-tmp-unzip
-mkdir -p ~/.local/share/android #/cmdline-tools
-cd $HOME/.local/share/android && /tmp/commandlinetools-tmp-unzip/cmdline-tools/bin/sdkmanager --install "cmdline-tools;latest" --sdk_root=$HOME/.local/share/android
-rm -rf /tmp/commandlinetools-tmp-unzip
-rm /tmp/commandlinetools.zip
-
 # install homebrew
 ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 
@@ -45,7 +35,6 @@ hashdeep \
 imagemagick \
 jpegoptim \
 jq \
-md5sha1sum \
 moreutils \
 openssl \
 pip-completion \
@@ -71,7 +60,6 @@ brew install --cask iconjar
 brew install --cask intellij-idea
 brew install --cask iterm2
 brew install --cask ksdiff
-brew install --cask macvim
 brew install --cask sketch
 brew install --cask spotify
 brew install --cask sublime-text
@@ -84,17 +72,14 @@ brew install --cask vlc
 # install appstore apps
 echo "💿  Affinity Designer" && mas install 824171161
 echo "💿  Amphetamine" && mas install 937984704
-echo "💿  Barcode Designer" && mas install 976921966
 echo "💿  Capto" && mas install 1078184147
 echo "💿  Cardhop" && mas install 1290358394
 echo "💿  ColorSnapper2" && mas install 969418666
-echo "💿  Converto - The Unit Converter" && mas install 576421334
 echo "💿  DaisyDisk" && mas install 411643860
 echo "💿  Fantastical 2" && mas install 975937182
 echo "💿  Hyper 3" && mas install 685096913
 echo "💿  Icon Slate" && mas install 439697913
 echo "💿  Kaleidoscope" && mas install 587512244
-echo "💿  LastPass" && mas install 926036361
 echo "💿  MockSMTP" && mas install 423535515
 echo "💿  Monodraw" && mas install 920404675
 echo "💿  Orion Label Maker" && mas install 994189084
@@ -110,35 +95,13 @@ echo "💿  xScope 4" && mas install 889428659
 brew cask install osxfuse
 brew install sshfs
 
-# install asdf
-brew install asdf gnupg zlib
-. $(brew --prefix asdf)/asdf.sh
-. $(brew --prefix asdf)/etc/bash_completion.d/asdf.bash
-asdf plugin-add dart
-asdf plugin-add elixir
-asdf plugin-add erlang
-asdf plugin-add flutter
-asdf plugin-add golang
-asdf plugin-add gradle
-asdf plugin-add groovy
-asdf plugin-add java
-asdf plugin-add kotlin
-asdf plugin-add lua
-asdf plugin-add maven
-asdf plugin-add nodejs
-asdf plugin-add packer
-asdf plugin-add python
-asdf plugin-add R
-asdf plugin-add ruby
-asdf plugin-add rust
-asdf plugin-add sbt
-asdf plugin-add scala
-asdf plugin-add shfmt
-asdf plugin-add sqlite
-asdf plugin-add swift
-asdf plugin-add terraform
-asdf plugin-add terraform-validator
-asdf plugin-add tmux
-asdf plugin-add yarn
-
-bash -e -c "cd ~ && asdf install"
+# Android-SDK
+brew install openjdk@8
+curl -o /tmp/commandlinetools.zip https://dl.google.com/android/repository/commandlinetools-mac-6858069_latest.zip
+rm -rf /tmp/commandlinetools-tmp-unzip
+mkdir -p /tmp/commandlinetools-tmp-unzip
+unzip -n /tmp/commandlinetools.zip -d /tmp/commandlinetools-tmp-unzip
+mkdir -p ~/.local/share/android #/cmdline-tools
+cd $HOME/.local/share/android && /tmp/commandlinetools-tmp-unzip/cmdline-tools/bin/sdkmanager --install "cmdline-tools;latest" --sdk_root=$HOME/.local/share/android
+rm -rf /tmp/commandlinetools-tmp-unzip
+rm /tmp/commandlinetools.zip
