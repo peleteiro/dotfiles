@@ -21,7 +21,6 @@ awscli \
 bash \
 bash-completion \
 bat \
-cocoapods \
 colordiff \
 coreutils \
 direnv \
@@ -40,9 +39,9 @@ moreutils \
 openssl \
 pip-completion \
 pngcrush \
+ripgrep \
 sqlite \
 ssh-copy-id \
-the_platinum_searcher \
 tree \
 wget \
 z \
