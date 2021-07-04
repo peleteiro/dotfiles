@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # install homebrew
-ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+eval "$(/opt/homebrew/bin/brew shellenv)"
 
 # Update homebrew
 brew install git
@@ -63,6 +64,7 @@ brew install --cask ksdiff
 brew install --cask sketch
 brew install --cask spotify
 brew install --cask sublime-text
+brew install --cask sublime-merge
 brew install --cask the-unarchiver
 brew install --cask transmission
 brew install --cask transmit
@@ -105,3 +107,6 @@ mkdir -p ~/.local/share/android #/cmdline-tools
 cd $HOME/.local/share/android && /tmp/commandlinetools-tmp-unzip/cmdline-tools/bin/sdkmanager --install "cmdline-tools;latest" --sdk_root=$HOME/.local/share/android
 rm -rf /tmp/commandlinetools-tmp-unzip
 rm /tmp/commandlinetools.zip
+
+# Nix
+ sh <(curl -L https://nixos.org/nix/install) --darwin-use-unencrypted-nix-store-volume

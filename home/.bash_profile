@@ -9,8 +9,11 @@ fi
 
 # coreutils if osx
 if [[ "$OS" == "osx" ]]; then
-  export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+  PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"
   alias sed=gsed
+
+  source ~/.nix-profile/etc/profile.d/nix.sh
 fi
 
 # Bash functions
