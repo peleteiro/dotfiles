@@ -1,8 +1,6 @@
-# bindings
-stty werase undef
-bind '\C-w:unix-filename-rubout'
-
-## Turn off terminal beep
-bind 'set bell-style none'
+if [ -d $HOME/.asdf ]; then
+  . $HOME/.asdf/asdf.sh
+  . $HOME/.asdf/completions/asdf.bash
+fi
 
 [ -n "$PS1" ] && source ~/.bash_profile

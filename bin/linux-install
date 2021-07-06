@@ -25,35 +25,20 @@ elif [ -n "$(uname -a | grep Ubuntu)" ]; then
                       libxslt-dev libffi-dev libtool unixodbc-dev gfortran
 
   # asdf
-  git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.7.1
+  git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.8.1
   . $HOME/.asdf/asdf.sh
   . $HOME/.asdf/completions/asdf.bash
   asdf plugin-add nodejs
   bash ~/.asdf/plugins/nodejs/bin/import-release-team-keyring
-  asdf plugin-add docker-slim
-  asdf plugin-add elixir
-  asdf plugin-add erlang
+  asdf plugin add awscli
   asdf plugin-add flutter
   asdf plugin-add golang
-  asdf plugin-add gradle
   asdf plugin-add java
-  asdf plugin-add kotlin
-  asdf plugin-add lua
-  asdf plugin-add maven
-  asdf plugin-add packer
+  asdf plugin-add jq
   asdf plugin-add python
-  asdf plugin-add R
   asdf plugin-add ruby
   asdf plugin-add rust
-  asdf plugin-add sbt
-  asdf plugin-add scala
-  asdf plugin-add shfmt
-  asdf plugin-add sqlite
-  asdf plugin-add swift
   asdf plugin-add terraform
-  asdf plugin-add tflint
-  asdf plugin-add tmux
-  asdf plugin-add yarn
 
   # docker
   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -

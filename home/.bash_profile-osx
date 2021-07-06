@@ -1,20 +1,20 @@
 #!/bin/bash
 
-# editor
-export REACT_EDITOR=subl
+# homebrew
+eval "$(/opt/homebrew/bin/brew shellenv)"
+
+# coreutils
+PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"
+alias sed=gsed
 
 # bash_completion
-[ -f /usr/local/etc/bash_completion ] && . /usr/local/etc/bash_completion
+[ -f `brew --prefix`/etc/bash_completion ] && . `brew --prefix`/etc/bash_completion
 
 # direnv
 eval "$(direnv hook bash)"
 
 # Add android intel haxm home
 export INTEL_HAXM_HOME=/usr/local/Caskroom/intel-haxm
-
-# Python
-if which pyenv > /dev/null; then eval "$(pyenv init -)"; fi
-if which pipenv > /dev/null; then eval "$(pipenv --completion)"; fi
 
 # Node
 export PATH=$PATH:./node_modules/.bin:/usr/local/share/npm/bin

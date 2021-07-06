@@ -1,3 +1,10 @@
+# bindings
+stty werase undef
+bind '\C-w:unix-filename-rubout'
+
+## Turn off terminal beep
+bind 'set bell-style none'
+
 #OS
 if [[ "$OSTYPE" == "linux-gnu" ]]; then
     export OS="linux"
@@ -5,15 +12,6 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
     export OS="osx"
 else
     exit
-fi
-
-# coreutils if osx
-if [[ "$OS" == "osx" ]]; then
-  eval "$(/opt/homebrew/bin/brew shellenv)"
-  PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"
-  alias sed=gsed
-
-  source ~/.nix-profile/etc/profile.d/nix.sh
 fi
 
 # Bash functions
@@ -31,10 +29,6 @@ export LC_CTYPE=en_US.UTF-8
 : ${UNAME=$(uname)}
 
 # bash-completion
-if [[ "$OS" == "osx" && -f `brew --prefix`/etc/bash_completion ]]; then
-  . `brew --prefix`/etc/bash_completion
-fi
-
 if [ -d ~/.bash_completion.d ]; then
   for file in ~/.bash_completion.d/*; do
     source $file
@@ -103,6 +97,9 @@ alias dkc=docker-compose
 if [ `command -v _docker_compose` ]; then
 	complete -F _docker_compose dkc
 fi
+
+# Python
+if which pipenv > /dev/null; then eval "$(pipenv --completion 2> /dev/null)"; fi
 
 # OS bash_profile
 source ~/.bash_profile-${OS}
