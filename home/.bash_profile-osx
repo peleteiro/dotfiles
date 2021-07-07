@@ -3,10 +3,6 @@
 # homebrew
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
-# coreutils
-PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"
-alias sed=gsed
-
 # bash_completion
 [ -f `brew --prefix`/etc/bash_completion ] && . `brew --prefix`/etc/bash_completion
 

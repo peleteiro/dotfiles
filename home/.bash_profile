@@ -14,6 +14,12 @@ else
     exit
 fi
 
+# coreutils if osx
+if [[ "$OS" == "osx" ]]; then
+  PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"
+  alias sed=gsed
+fi
+
 # Bash functions
 if [ -f ~/.bash_functions ]; then
   source ~/.bash_functions
