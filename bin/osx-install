@@ -29,6 +29,7 @@ docker-compose-completion \
 exiftool \
 git-extras \
 gnu-sed \
+gpg \
 graphicsmagick \
 gron \
 hashdeep \
