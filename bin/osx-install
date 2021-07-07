@@ -108,12 +108,8 @@ echo "💿 Slack" && mas install 803453959
 echo "💿 Tweetbot 3" && mas install 1384080005
 echo "💿 xScope 4" && mas install 889428659
 
-# install sshfs
-brew cask install osxfuse
-brew install sshfs
-
 # Android-SDK
-brew install openjdk@8
+brew install microsoft-openjdk
 curl -o /tmp/commandlinetools.zip https://dl.google.com/android/repository/commandlinetools-mac-6858069_latest.zip
 rm -rf /tmp/commandlinetools-tmp-unzip
 mkdir -p /tmp/commandlinetools-tmp-unzip
