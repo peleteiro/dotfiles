@@ -41,6 +41,12 @@ if [ -d ~/.bash_completion.d ]; then
   done
 fi
 
+# asdf
+if [ -d $HOME/.asdf ]; then
+  . $HOME/.asdf/asdf.sh
+  . $HOME/.asdf/completions/asdf.bash
+fi
+
 # tmxu
 alias tmux="TERM=xterm-256color tmux"
 

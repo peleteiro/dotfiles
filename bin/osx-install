@@ -24,8 +24,6 @@ bat \
 colordiff \
 coreutils \
 direnv \
-docker-completion \
-docker-compose-completion \
 exiftool \
 git-extras \
 gnu-sed \
@@ -50,7 +48,7 @@ zlib \
 zopfli \
 
 # asdf
-brew install asdf
+git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.9.0
 . $HOME/.asdf/asdf.sh
 . $HOME/.asdf/completions/asdf.bash
 asdf plugin-add nodejs
@@ -66,51 +64,39 @@ asdf plugin-add rust
 asdf plugin-add terraform
 
 # install "out of appstore" apps
-brew install --cask dash
 brew install --cask docker
 brew install --cask droplr
 brew install --cask firefox
-brew install --cask google-backup-and-sync
+brew install --cask google-drive
 brew install --cask google-chrome
 brew install --cask hammerspoon
 brew install --cask iconjar
 brew install --cask intellij-idea
 brew install --cask iterm2
-brew install --cask ksdiff
-brew install --cask sketch
 brew install --cask spotify
 brew install --cask sublime-text
 brew install --cask sublime-merge
 brew install --cask the-unarchiver
-brew install --cask transmission
 brew install --cask transmit
 brew install --cask visual-studio-code
 brew install --cask vlc
 
 # install appstore apps
+echo "💿 1Password" && mas install 1333542190
 echo "💿 Affinity Designer" && mas install 824171161
 echo "💿 Amphetamine" && mas install 937984704
 echo "💿 Capto" && mas install 1078184147
-echo "💿 Cardhop" && mas install 1290358394
-echo "💿 ColorSnapper2" && mas install 969418666
 echo "💿 DaisyDisk" && mas install 411643860
-echo "💿 Fantastical 2" && mas install 975937182
-echo "💿 Hyper 3" && mas install 685096913
-echo "💿 Icon Slate" && mas install 439697913
-echo "💿 Kaleidoscope" && mas install 587512244
-echo "💿 MockSMTP" && mas install 423535515
 echo "💿 Monodraw" && mas install 920404675
-echo "💿 Orion Label Maker" && mas install 994189084
-echo "💿 Patterns - The Regex App" && mas install 429449079
-echo "💿 Pixa" && mas install 527618971
 echo "💿 Pixelmator Pro" && mas install 1289583905
-echo "💿 Pixelmator" && mas install 407963104
 echo "💿 Slack" && mas install 803453959
 echo "💿 Tweetbot 3" && mas install 1384080005
 echo "💿 xScope 4" && mas install 889428659
 
+
 # Android-SDK
-brew install microsoft-openjdk
+brew install openjdk
+sudo ln -sfn /opt/homebrew/opt/openjdk/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk.jdk
 curl -o /tmp/commandlinetools.zip https://dl.google.com/android/repository/commandlinetools-mac-6858069_latest.zip
 rm -rf /tmp/commandlinetools-tmp-unzip
 mkdir -p /tmp/commandlinetools-tmp-unzip
