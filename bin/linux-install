@@ -41,8 +41,8 @@ elif [ -n "$(uname -a | grep Ubuntu)" ]; then
   asdf plugin-add terraform
 
   # docker
-  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-  echo "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list
+  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+  echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
   sudo apt update
   sudo apt install -y docker-ce
   sudo groupadd docker
@@ -107,8 +107,8 @@ elif [ -n "$(uname -a | grep Ubuntu)" ]; then
     sudo apt update && sudo apt install -y 1password
 
     # Sublime
-    wget -qO - https://download.sublimetext.com/sublimehq-pub.gpg | sudo apt-key add -
-    echo "deb https://download.sublimetext.com/ apt/stable/" | sudo tee /etc/apt/sources.list.d/sublime-text.list
+    curl -fsSL https://download.sublimetext.com/sublimehq-pub.gpg | sudo gpg --dearmor -o /usr/share/keyrings/sublimehq-pub.gpg
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/sublimehq-pub.gpg] https://download.sublimetext.com/ apt/stable/" | sudo tee /etc/apt/sources.list.d/sublime-text.list > /dev/null
     sudo apt-get update
     sudo apt-get install sublime-text
 
