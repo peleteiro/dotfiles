@@ -50,11 +50,14 @@ elif [ -n "$(uname -a | grep Ubuntu)" ]; then
   sudo systemctl enable docker
 
   # Android-SDK
+  sudo apt install -y openjdk-8-jdk
+  asdf global java system
   curl -o /tmp/commandlinetools.zip https://dl.google.com/android/repository/commandlinetools-linux-6858069_latest.zip
   rm -rf /tmp/commandlinetools-tmp-unzip
   mkdir -p /tmp/commandlinetools-tmp-unzip
   unzip -n /tmp/commandlinetools.zip -d /tmp/commandlinetools-tmp-unzip
   mkdir -p ~/.local/share/android #/cmdline-tools
+  cd $HOME/.local/share/android && yes | /tmp/commandlinetools-tmp-unzip/cmdline-tools/bin/sdkmanager --licenses --sdk_root=$HOME/.local/share/android
   cd $HOME/.local/share/android && /tmp/commandlinetools-tmp-unzip/cmdline-tools/bin/sdkmanager --install "cmdline-tools;latest" --sdk_root=$HOME/.local/share/android
   rm -rf /tmp/commandlinetools-tmp-unzip
   rm /tmp/commandlinetools.zip
