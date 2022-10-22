@@ -16,7 +16,7 @@ export INTEL_HAXM_HOME=/usr/local/Caskroom/intel-haxm
 export PATH=$PATH:./node_modules/.bin:/usr/local/share/npm/bin
 
 # Alias ###################################################################
-alias vim="mvim -v"
+alias vim="nvim"
 alias subl="/Applications/Sublime\ Text.app/Contents/SharedSupport/bin/subl"
 
 # IntelliJ
