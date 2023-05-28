@@ -63,6 +63,8 @@ asdf plugin-add ruby
 asdf plugin-add rust
 asdf plugin-add terraform
 
+asdf global java system
+
 # install "out of appstore" apps
 brew install --cask 1password
 brew install --cask docker
