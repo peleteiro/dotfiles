@@ -64,35 +64,45 @@ asdf plugin-add rust
 asdf plugin-add terraform
 
 # install "out of appstore" apps
+brew install --cask 1password
 brew install --cask docker
 brew install --cask droplr
 brew install --cask firefox
-brew install --cask google-drive
 brew install --cask google-chrome
+brew install --cask google-drive
 brew install --cask hammerspoon
 brew install --cask iconjar
 brew install --cask intellij-idea
 brew install --cask iterm2
+brew install --cask obsidian
 brew install --cask spotify
-brew install --cask sublime-text
 brew install --cask sublime-merge
+brew install --cask sublime-text
+brew install --cask tableplus
 brew install --cask the-unarchiver
 brew install --cask transmit
 brew install --cask visual-studio-code
 brew install --cask vlc
 
 # install appstore apps
-echo "💿 1Password" && mas install 1333542190
 echo "💿 Affinity Designer" && mas install 824171161
 echo "💿 Amphetamine" && mas install 937984704
+echo "💿 Brother P Touch Editor" && mas install 1453365242
 echo "💿 Capto" && mas install 1078184147
+echo "💿 Colorsnapper 2" && mas install 969418666
 echo "💿 DaisyDisk" && mas install 411643860
+echo "💿 Dato" && mas install 1470584107
+echo "💿 Microsoft Remote Desktop" && mas install 1295203466
+echo "💿 MockSMTP" && mas install 423535515
 echo "💿 Monodraw" && mas install 920404675
+echo "💿 Pastel" && mas install 413897608
 echo "💿 Pixelmator Pro" && mas install 1289583905
 echo "💿 Slack" && mas install 803453959
-echo "💿 Tweetbot 3" && mas install 1384080005
+echo "💿 SMTPTester" && mas install 1633950905
+echo "💿 Typeface 3" && mas install 1062679359
+echo "💿 Whatsapp Desktop" && mas install 1147396723
 echo "💿 xScope 4" && mas install 889428659
-
+echo "💿 Yubico Authenticator" && mas install 1497506650
 
 # Android-SDK
 brew install openjdk
