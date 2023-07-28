@@ -39,6 +39,7 @@ openssl \
 pip-completion \
 pngcrush \
 ripgrep \
+rnr \
 sqlite \
 ssh-copy-id \
 tree \
