@@ -1,14 +1,5 @@
 #!/bin/bash
 
-# homebrew
-eval "$(/opt/homebrew/bin/brew shellenv)"
-
-# bash_completion
-[ -f `brew --prefix`/etc/bash_completion ] && . `brew --prefix`/etc/bash_completion
-
-# direnv
-eval "$(direnv hook bash)"
-
 # Add android intel haxm home
 export INTEL_HAXM_HOME=/usr/local/Caskroom/intel-haxm
 

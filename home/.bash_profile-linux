@@ -15,9 +15,6 @@ fi
 ## Adds username on prompt PS1
 export PS1="\[\033[36m\]\u\[\033[m\]@${PS1}"
 
-# direnv
-eval "$(direnv hook bash)"
-
 # alias
 alias open=/usr/bin/xdg-open
 

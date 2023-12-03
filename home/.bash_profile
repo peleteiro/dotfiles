@@ -14,6 +14,12 @@ else
     exit
 fi
 
+# homebrew
+if [[ "$OS" == "osx" ]]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+  [ -f `brew --prefix`/etc/bash_completion ] && . `brew --prefix`/etc/bash_completion
+fi
+
 # coreutils if osx
 if [[ "$OS" == "osx" ]]; then
   PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"
@@ -39,12 +45,6 @@ if [ -d ~/.bash_completion.d ]; then
   for file in ~/.bash_completion.d/*; do
     source $file
   done
-fi
-
-# asdf
-if [ -d $HOME/.asdf ]; then
-  . $HOME/.asdf/asdf.sh
-  . $HOME/.asdf/completions/asdf.bash
 fi
 
 # tmxu
@@ -113,8 +113,20 @@ fi
 # Python
 if which pipenv > /dev/null; then eval "$(pipenv --completion 2> /dev/null)"; fi
 
+# direnv
+eval "$(direnv hook bash)"
+
+# Just
+eval "$(just --completions bash)"
+
 # OS bash_profile
 source ~/.bash_profile-${OS}
+
+# asdf
+if [ -d $HOME/.asdf ]; then
+  . $HOME/.asdf/asdf.sh
+  . $HOME/.asdf/completions/asdf.bash
+fi
 
 # PATH
 export PATH=~/.bin:$PATH

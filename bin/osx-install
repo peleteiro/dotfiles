@@ -34,6 +34,7 @@ hashdeep \
 imagemagick \
 jpegoptim \
 jq \
+just \
 moreutils \
 openssl \
 pip-completion \
