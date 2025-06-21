@@ -123,10 +123,10 @@ eval "$(just --completions bash)"
 source ~/.bash_profile-${OS}
 
 # asdf
-if [ -d $HOME/.asdf ]; then
-  . $HOME/.asdf/asdf.sh
-  . $HOME/.asdf/completions/asdf.bash
-fi
+export ASDF_DIR="$HOME/.asdf"
+export ASDF_DATA_DIR="$HOME/.asdf"
+export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
+. <(asdf completion bash)
 
 # PATH
 export PATH=~/.bin:$PATH
