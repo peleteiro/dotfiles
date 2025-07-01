@@ -52,6 +52,9 @@ z \
 zlib \
 zopfli \
 
+# mise
+curl https://mise.run | sh
+
 # asdf
 brew install asdf
 export ASDF_DIR="$HOME/.asdf"
@@ -132,3 +135,6 @@ mkdir -p ~/.local/share/android #/cmdline-tools
 cd $HOME/.local/share/android && /tmp/commandlinetools-tmp-unzip/cmdline-tools/bin/sdkmanager --install "cmdline-tools;latest" --sdk_root=$HOME/.local/share/android
 rm -rf /tmp/commandlinetools-tmp-unzip
 rm /tmp/commandlinetools.zip
+
+# Rustup
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh

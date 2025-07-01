@@ -160,3 +160,6 @@ elif [ -n "$(uname -a | grep Ubuntu)" ]; then
   printf "\n\nYou MUST reboot your system in order to changes to take effect.\n\n"
 
 fi
+
+# Rustup
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh

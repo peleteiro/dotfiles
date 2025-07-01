@@ -14,6 +14,22 @@ else
     exit
 fi
 
+# setup some basic variables
+export LANG=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
+export LC_CTYPE=en_US.UTF-8
+
+: ${HOME=~}
+: ${LOGNAME=$(id -un)}
+: ${UNAME=$(uname)}
+
+# bash-completion
+if [ -d ~/.bash_completion.d ]; then
+  for file in ~/.bash_completion.d/*; do
+    source $file
+  done
+fi
+
 # homebrew
 if [[ "$OS" == "osx" ]]; then
   eval "$(/opt/homebrew/bin/brew shellenv)"
@@ -31,21 +47,11 @@ if [ -f ~/.bash_functions ]; then
   source ~/.bash_functions
 fi
 
-# setup some basic variables
-export LANG=en_US.UTF-8
-export LC_ALL=en_US.UTF-8
-export LC_CTYPE=en_US.UTF-8
+# Mise
+eval "$(~/.local/bin/mise activate bash)"
 
-: ${HOME=~}
-: ${LOGNAME=$(id -un)}
-: ${UNAME=$(uname)}
-
-# bash-completion
-if [ -d ~/.bash_completion.d ]; then
-  for file in ~/.bash_completion.d/*; do
-    source $file
-  done
-fi
+# Rustup
+. "$HOME/.cargo/env"
 
 # tmxu
 alias tmux="TERM=xterm-256color tmux"
