@@ -24,22 +24,6 @@ elif [ -n "$(uname -a | grep Ubuntu)" ]; then
                       automake autoconf libreadline-dev libncurses-dev libcurl3-dev zlib1g-dev libssl-dev libyaml-dev \
                       libxslt-dev libffi-dev libtool unixodbc-dev gfortran
 
-  # asdf
-  git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.8.1
-  . $HOME/.asdf/asdf.sh
-  . $HOME/.asdf/completions/asdf.bash
-  asdf plugin-add nodejs
-  bash ~/.asdf/plugins/nodejs/bin/import-release-team-keyring
-  asdf plugin add awscli
-  asdf plugin-add flutter
-  asdf plugin-add golang
-  asdf plugin-add java
-  asdf plugin-add jq
-  asdf plugin-add python
-  asdf plugin-add ruby
-  asdf plugin-add rust
-  asdf plugin-add terraform
-
   # docker
   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
   echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null

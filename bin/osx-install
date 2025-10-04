@@ -55,25 +55,6 @@ zopfli \
 # mise
 curl https://mise.run | sh
 
-# asdf
-brew install asdf
-export ASDF_DIR="$HOME/.asdf"
-export PATH="$ASDF_DIR/bin:$ASDF_DIR/shims:$PATH"
-
-asdf plugin-add nodejs
-bash ~/.asdf/plugins/nodejs/bin/import-release-team-keyring
-asdf plugin add awscli
-asdf plugin-add flutter
-asdf plugin-add golang
-asdf plugin-add java
-asdf plugin-add jq
-asdf plugin-add python
-asdf plugin-add ruby
-asdf plugin-add rust
-asdf plugin-add terraform
-
-asdf global java system
-
 # install "out of appstore" apps
 brew install --cask 1password
 brew install --cask docker
