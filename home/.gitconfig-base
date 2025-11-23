@@ -4,9 +4,11 @@
 [github]
   user = peleteiro
 [core]
-  # editor = subl -n -w
-  editor = vim
-  pager = less -FRSX
+  # editor will be set by GUI/non-GUI config
+  # GUI: subl -n -w (Sublime Text)
+  # Non-GUI: nvim (Neovim)
+  # pager will be set by GUI/non-GUI config
+  # Both GUI and non-GUI: delta
   whitespace = fix,-indent-with-non-tab,trailing-space,cr-at-eol
 [color]
   diff = auto
@@ -31,17 +33,27 @@
 [user]
   name = Jose Peleteiro
   email = jose@peleteiro.net
-[branch "master"]
-  remote = origin
-  merge = master
 [branch]
   autosetuprebase = always
+  defaultBranch = main
+[init]
+  defaultBranch = main
 [gist]
   private = true
 [push]
   default = matching
-[mergetool "smerge"]
-	cmd = smerge mergetool \"$BASE\" \"$LOCAL\" \"$REMOTE\" -o \"$MERGED\"
-	trustExitCode = true
-[merge]
-	tool = smerge
+# Always use SSH for authentication (not HTTPS)
+[url "git@github.com:"]
+  insteadOf = https://github.com/
+# Always sign commits with GPG
+# The signing key will be configured automatically when copying dotfiles (if 1Password is authenticated)
+[commit]
+  gpgsign = true
+
+# Use Gemini CLI for commit message suggestions
+# The prepare-commit-msg hook will be configured automatically by copy-home script
+
+# SOPS (Secrets Operations) integration
+[diff "sops"]
+  textconv = sops -d
+

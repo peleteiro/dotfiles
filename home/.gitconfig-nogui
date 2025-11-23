@@ -1,0 +1,27 @@
+# Git configuration for non-graphical environments
+# This file is included when GUI is not available
+
+# Use Neovim as editor for non-GUI environments
+# Use delta for better diff viewing (CLI)
+# See: https://github.com/dandavison/delta
+[core]
+  editor = nvim
+  pager = delta
+[interactive]
+  diffFilter = delta --color-only
+[delta]
+  navigate = true
+  line-numbers = true
+  side-by-side = true
+  whitespace-error-style = 22 reverse
+  file-style = box
+  syntax-theme = Dracula
+  paging = always
+# Use delta for merge and diff operations
+[merge]
+  conflictStyle = zdiff3
+[diff]
+  tool = delta
+[difftool "delta"]
+  cmd = delta \"$LOCAL\" \"$REMOTE\"
+

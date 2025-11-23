@@ -1,0 +1,203 @@
+#!/bin/bash
+# Script to copy dotfiles to home directory
+# Supports Bash and Zsh
+
+set -e
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
+
+# Detect operating system
+OS=$(uname)
+if [ "$OS" = "Darwin" ]; then
+  CURRENT_OS="macos"
+  OTHER_OS="linux"
+else
+  CURRENT_OS="linux"
+  OTHER_OS="macos"
+fi
+
+echo "📁 Copying dotfiles to $HOME..."
+
+# List of files that should keep their OS suffix (they are referenced/included by other files)
+# These files are sourced/included by other configuration files
+KEEP_SUFFIX_FILES=(
+  ".bash_profile-${CURRENT_OS}"
+  ".shared_shell_config-${CURRENT_OS}"
+)
+
+# Copy dotfiles
+echo "  Copying files..."
+find "$DIR/home" -maxdepth 1 -type f -name ".*" -print0 | while IFS= read -r -d '' file; do
+  filename=$(basename "$file")
+  
+  # Skip gitconfig files - will be assembled separately
+  if [[ "$filename" == ".gitconfig"* ]]; then
+    continue
+  fi
+  
+  # Skip files with OS suffix from the other OS
+  if [[ "$filename" == *"-${OTHER_OS}" ]]; then
+    continue
+  fi
+  
+  # Handle files with OS suffix for current OS
+  if [[ "$filename" == *"-${CURRENT_OS}" ]]; then
+    # Check if this file should keep its suffix (it's referenced by another file)
+    keep_suffix=false
+    for keep_file in "${KEEP_SUFFIX_FILES[@]}"; do
+      if [ "$filename" = "$keep_file" ]; then
+        keep_suffix=true
+        break
+      fi
+    done
+    
+    if [ "$keep_suffix" = true ]; then
+      # Copy with suffix (file is referenced by another file)
+      echo "    → $filename"
+      cp "$file" "$HOME/$filename"
+    else
+      # Copy without suffix (remove the OS suffix)
+      target_filename="${filename%-${CURRENT_OS}}"
+      echo "    → $target_filename (from $filename)"
+      cp "$file" "$HOME/$target_filename"
+    fi
+  else
+    # Regular file without OS suffix
+  echo "    → $filename"
+  cp "$file" "$HOME/$filename"
+  fi
+done
+
+# Assemble .gitconfig based on GUI availability
+echo "  Configuring Git..."
+HAS_GUI=false
+if [ -n "$DISPLAY" ] || [ -n "$WAYLAND_DISPLAY" ]; then
+  HAS_GUI=true
+elif [[ "$(uname)" == "Darwin" ]]; then
+  # macOS always has GUI capability
+  HAS_GUI=true
+fi
+
+# Build .gitconfig from base + appropriate GUI/non-GUI config
+if [ -f "$DIR/home/.gitconfig-base" ]; then
+  cp "$DIR/home/.gitconfig-base" "$HOME/.gitconfig"
+  
+  if [ "$HAS_GUI" = true ]; then
+    if [ -f "$DIR/home/.gitconfig-gui" ]; then
+      cat "$DIR/home/.gitconfig-gui" >> "$HOME/.gitconfig"
+      echo "    → Git configured for graphical environment"
+    fi
+  else
+    if [ -f "$DIR/home/.gitconfig-nogui" ]; then
+      cat "$DIR/home/.gitconfig-nogui" >> "$HOME/.gitconfig"
+      echo "    → Git configured for CLI-only environment"
+    fi
+  fi
+  echo "    → .gitconfig"
+fi
+
+# Function to copy directory recursively, handling OS-specific files
+copy_dir_recursive() {
+  local source_dir="$1"
+  local dest_dir="$2"
+  
+  # Create destination directory
+  mkdir -p "$dest_dir"
+  
+  # Process all items in source directory
+  find "$source_dir" -mindepth 1 -maxdepth 1 -print0 | while IFS= read -r -d '' item; do
+    itemname=$(basename "$item")
+    
+    if [ -d "$item" ]; then
+      # Recursively copy subdirectories
+      copy_dir_recursive "$item" "$dest_dir/$itemname"
+    elif [ -f "$item" ]; then
+      # Skip files with OS suffix from the other OS
+      if [[ "$itemname" == *"-${OTHER_OS}" ]]; then
+        continue
+      fi
+      
+      # Handle files with OS suffix for current OS - copy without suffix
+      if [[ "$itemname" == *"-${CURRENT_OS}" ]]; then
+        target_filename="${itemname%-${CURRENT_OS}}"
+        cp "$item" "$dest_dir/$target_filename"
+      else
+        # Regular file without OS suffix
+        cp "$item" "$dest_dir/$itemname"
+      fi
+    fi
+  done
+}
+
+# Copy dotfile directories
+echo "  Copying directories..."
+find "$DIR/home" -maxdepth 1 -type d -name ".*" -print0 | while IFS= read -r -d '' dir; do
+  dirname=$(basename "$dir")
+  if [ "$dirname" != "." ] && [ "$dirname" != ".." ]; then
+    echo "    → $dirname/"
+    copy_dir_recursive "$dir" "$HOME/$dirname"
+    
+    # Set correct permissions for .ssh directory
+    if [ "$dirname" = ".ssh" ]; then
+      chmod 700 "$HOME/.ssh"
+      if [ -f "$HOME/.ssh/config" ]; then
+          chmod 600 "$HOME/.ssh/config"
+        echo "    → SSH config configured for ${CURRENT_OS}"
+      fi
+    fi
+    
+    # Set correct permissions for .gnupg directory
+    if [ "$dirname" = ".gnupg" ]; then
+      chmod 700 "$HOME/.gnupg"
+      if [ -f "$HOME/.gnupg/gpg-agent.conf" ]; then
+        chmod 600 "$HOME/.gnupg/gpg-agent.conf"
+        # Replace ~/.bin/pinentry-1password with absolute path
+        if grep -q "pinentry-program ~/.bin/pinentry-1password" "$HOME/.gnupg/gpg-agent.conf"; then
+          sed -i.bak "s|pinentry-program ~/.bin/pinentry-1password|pinentry-program $HOME/.bin/pinentry-1password|g" "$HOME/.gnupg/gpg-agent.conf"
+          rm -f "$HOME/.gnupg/gpg-agent.conf.bak"
+        fi
+      fi
+    fi
+    
+    # Set correct permissions for .bin directory (make scripts executable)
+    if [ "$dirname" = ".bin" ]; then
+      chmod 755 "$HOME/.bin"
+      find "$HOME/.bin" -type f -exec chmod +x {} \;
+      echo "    → Scripts in .bin made executable"
+    fi
+  fi
+done
+
+# Setup Git hooks directory and prepare-commit-msg hook
+echo "  Setting up Git hooks..."
+mkdir -p "$HOME/.git_template/hooks"
+if [ -f "$HOME/.bin/git-commit-msg-gemini" ]; then
+  # Create the hook in the template directory (for new repos)
+  cat > "$HOME/.git_template/hooks/prepare-commit-msg" << 'HOOK_EOF'
+#!/bin/bash
+# Git prepare-commit-msg hook to use Gemini for commit message suggestions
+~/.bin/git-commit-msg-gemini "$1" "$2" "$3"
+HOOK_EOF
+  chmod +x "$HOME/.git_template/hooks/prepare-commit-msg"
+  echo "    → Git prepare-commit-msg hook configured in template"
+  
+  # Configure Git to use the template directory
+  git config --global init.templateDir "$HOME/.git_template" 2>/dev/null || true
+  echo "    → Git template directory configured"
+  
+  # Also set up the hook in the current repository if we're in a git repo
+  if [ -d "$DIR/.git" ]; then
+    mkdir -p "$DIR/.git/hooks"
+    if [ ! -f "$DIR/.git/hooks/prepare-commit-msg" ] || [ "$DIR/.git/hooks/prepare-commit-msg" -ot "$HOME/.bin/git-commit-msg-gemini" ]; then
+      cp "$HOME/.git_template/hooks/prepare-commit-msg" "$DIR/.git/hooks/prepare-commit-msg"
+      echo "    → Git prepare-commit-msg hook configured in current repository"
+    fi
+  fi
+fi
+
+echo "✅ Dotfiles copied successfully!"
+echo ""
+echo "Files configured for:"
+echo "  • Bash: .bash_profile, .bashrc, .bash_functions"
+echo "  • Zsh:  .zshrc, .zprofile, .zsh_functions"
+echo "  • Shared: .shared_shell_config"

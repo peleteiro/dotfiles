@@ -1,0 +1,134 @@
+# Shared configuration between Bash and Zsh
+# This file is loaded by both shells
+
+# Detect operating system
+if [[ "$OSTYPE" == "linux-gnu" ]]; then
+    export OS="linux"
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+    export OS="macos"
+fi
+
+# Basic environment variables
+export LANG=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
+export LC_CTYPE=en_US.UTF-8
+
+: ${HOME=~}
+: ${LOGNAME=$(id -un)}
+: ${UNAME=$(uname)}
+
+# Editor
+export EDITOR=nvim
+export VISUAL=nvim
+export BAT_PAGER=never
+export PAGER='less'
+
+# Homebrew (macOS) - must be loaded early to prioritize Homebrew binaries
+if [[ "$OS" == "macos" ]] || [[ "$OS" == "osx" ]]; then
+  # Detect Homebrew path (Apple Silicon vs Intel)
+  if [ -f "/opt/homebrew/bin/brew" ]; then
+    BREW_PREFIX="/opt/homebrew"
+  elif [ -f "/usr/local/bin/brew" ]; then
+    BREW_PREFIX="/usr/local"
+  fi
+  
+  if [ -n "$BREW_PREFIX" ] && [ -f "$BREW_PREFIX/bin/brew" ]; then
+    # Load Homebrew environment (this adds Homebrew to PATH)
+    eval "$($BREW_PREFIX/bin/brew shellenv)"
+    
+    # Ensure Homebrew bin directories come FIRST, before system directories
+    # Remove any existing Homebrew paths from PATH
+    PATH=$(echo "$PATH" | tr ':' '\n' | grep -vE "^$BREW_PREFIX/(bin|sbin)$" | tr '\n' ':' | sed 's/:$//' | sed 's/^://')
+    # Prepend Homebrew paths at the very beginning
+    export PATH="$BREW_PREFIX/bin:$BREW_PREFIX/sbin:$PATH"
+  fi
+fi
+
+# Coreutils (macOS)
+if [[ "$OS" == "macos" ]] || [[ "$OS" == "osx" ]]; then
+  PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"
+  alias sed=gsed
+fi
+
+# Mise (version manager)
+if [ -f ~/.local/bin/mise ]; then
+  # Detect current shell for correct activation
+  if [ -n "$ZSH_VERSION" ]; then
+    eval "$(~/.local/bin/mise activate zsh)"
+  else
+    eval "$(~/.local/bin/mise activate bash)"
+  fi
+fi
+
+# Rustup
+if [ -f "$HOME/.cargo/env" ]; then
+  . "$HOME/.cargo/env"
+fi
+
+# Tmux
+alias tmux="TERM=xterm-256color tmux"
+
+# Cores
+export TERM=xterm-color
+export CLICOLOR=1
+
+# dircolors (Linux)
+if [[ "$OS" == "linux" ]] && command -v dircolors > /dev/null; then
+  if [ -f ~/.dircolors ]; then
+    eval "$(dircolors -b ~/.dircolors)"
+    export LS_COLORS
+  fi
+fi
+
+# Common aliases
+alias cdd='cd -' # goto last dir cd'ed from
+alias ts='date +%Y%m%d%H%M%S'
+alias ll='ls -alF'
+alias la='ls -A'
+alias l='ls -CF'
+
+# Android SDK
+export ANDROID_HOME=$HOME/.local/share/android
+export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/emulator:$ANDROID_HOME/platform-tools:$PATH
+
+# AWS CLI completion
+if command -v aws_completer > /dev/null; then
+  if [ -n "$ZSH_VERSION" ]; then
+    # Zsh completion will be configured in .zshrc
+    :
+  else
+    complete -C aws_completer aws
+  fi
+fi
+
+# Docker
+alias dkc=docker-compose
+
+# Python/Pipenv
+if command -v pipenv > /dev/null; then
+  if [ -n "$ZSH_VERSION" ]; then
+    # Zsh completion will be configured in .zshrc
+    :
+  else
+    eval "$(pipenv --completion 2> /dev/null)"
+  fi
+fi
+
+# Additional PATH
+export PATH=~/.bin:$PATH
+
+# Load OS-specific configurations
+if [ -f ~/.shared_shell_config-${OS} ]; then
+  source ~/.shared_shell_config-${OS}
+fi
+
+# GPG helper functions
+if [ -f ~/.gnupg_functions ]; then
+  source ~/.gnupg_functions
+fi
+
+# Load private configurations (if exists)
+if [ -f ~/.shared_shell_config_private ]; then
+  source ~/.shared_shell_config_private
+fi
+

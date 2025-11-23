@@ -1,0 +1,247 @@
+#!/bin/bash
+
+# Source validation utilities
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source "$DIR/validate-url" 2>/dev/null || true
+
+# Detect Homebrew path (Apple Silicon vs Intel)
+if [ -d "/opt/homebrew" ]; then
+  BREW_PATH="/opt/homebrew"
+elif [ -d "/usr/local/Homebrew" ]; then
+  BREW_PATH="/usr/local"
+else
+  BREW_PATH="/opt/homebrew"  # Default for Apple Silicon
+fi
+
+# Install homebrew if not already installed
+if ! command -v brew > /dev/null 2>&1; then
+  echo "Installing Homebrew..."
+  HOMEBREW_URL="https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh"
+  if validate_url "$HOMEBREW_URL" "Homebrew installer"; then
+    /bin/bash -c "$(curl -fsSL "$HOMEBREW_URL")"
+  else
+    echo "❌ Could not download Homebrew installer"
+    exit 1
+  fi
+fi
+
+# Setup Homebrew environment
+if [ -f "$BREW_PATH/bin/brew" ]; then
+  eval "$($BREW_PATH/bin/brew shellenv)"
+elif [ -f "/usr/local/bin/brew" ]; then
+  eval "$(/usr/local/bin/brew shellenv)"
+else
+  # Try to find brew in PATH
+  if command -v brew > /dev/null 2>&1; then
+    eval "$(brew shellenv)"
+  else
+    echo "Error: Homebrew not found after installation"
+    exit 1
+  fi
+fi
+
+# Update homebrew
+brew install git
+brew update
+brew upgrade
+
+# install mas
+brew install mas
+
+# Install bash first to ensure it's available
+echo "📦 Installing bash..."
+brew install bash
+
+# install essentials
+brew install \
+aria2 \
+autoconf \
+automake \
+atuin \
+awscli \
+bash-completion \
+bat \
+bottom \
+colordiff \
+coreutils \
+delta \
+docker-completion \
+docker-compose \
+dust \
+exiftool \
+fzf \
+gitui \
+hub \
+gnu-sed \
+gpg \
+hashdeep \
+hyperfine \
+imagemagick \
+jpegoptim \
+jq \
+moreutils \
+navi \
+neovim \
+openssl \
+ouch \
+pip-completion \
+pngcrush \
+procs \
+ripgrep \
+rnr \
+sd \
+sqlite \
+ssh-copy-id \
+tealdeer \
+tmux \
+tree \
+wget \
+zlib \
+exa \
+fd \
+zoxide \
+
+# Add Homebrew bash to /etc/shells if not already present
+BREW_BASH=$(brew --prefix)/bin/bash
+if ! grep -q "$BREW_BASH" /etc/shells; then
+  echo "Adding Homebrew bash to /etc/shells..."
+  echo "$BREW_BASH" | sudo tee -a /etc/shells
+fi
+echo "✅ Homebrew bash installed at $BREW_BASH"
+echo "   Current bash: $(which bash) ($(bash --version | head -1))"
+echo "   To set as default shell, run: chsh -s $BREW_BASH"
+
+# mise
+MISE_URL="https://mise.run"
+if validate_url "$MISE_URL" "mise installer"; then
+  curl -fsSL "$MISE_URL" | sh
+else
+  echo "⚠️  Could not download mise installer"
+fi
+
+# Function to install cask only if not already installed
+install_cask_if_missing() {
+  local cask_name=$1
+  if ! brew list --cask "$cask_name" > /dev/null 2>&1; then
+    brew install --cask "$cask_name"
+  fi
+}
+
+# install "out of appstore" apps
+install_cask_if_missing 1password
+install_cask_if_missing 1password-cli
+install_cask_if_missing antigravity
+install_cask_if_missing cursor
+install_cask_if_missing docker
+install_cask_if_missing droplr
+install_cask_if_missing firefox
+install_cask_if_missing google-chrome
+install_cask_if_missing google-drive
+install_cask_if_missing hammerspoon
+install_cask_if_missing iconjar
+install_cask_if_missing intellij-idea
+install_cask_if_missing iterm2
+install_cask_if_missing sublime-merge
+install_cask_if_missing sublime-text
+install_cask_if_missing tableplus
+install_cask_if_missing the-unarchiver
+install_cask_if_missing transmit
+install_cask_if_missing visual-studio-code
+install_cask_if_missing vlc
+
+# install appstore apps
+echo "💿 Amphetamine" && mas install 937984704
+echo "💿 Audio Lock" && mas install 1460671099
+echo "💿 Brother P Touch Editor" && mas install 1453365242
+echo "💿 Capto" && mas install 1078184147
+echo "💿 DaisyDisk" && mas install 411643860
+echo "💿 Dato" && mas install 1470584107
+echo "💿 HTTPBot" && mas install 1232603544
+echo "💿 KeepSolid VPN" && mas install 694633015
+echo "💿 Microsoft Remote Desktop" && mas install 1295203466
+echo "💿 Monodraw" && mas install 920404675
+echo "💿 Pastel" && mas install 413897608
+echo "💿 Pixelmator Pro" && mas install 1289583905
+echo "💿 Slack" && mas install 803453959
+echo "💿 Spark Mail" && mas install 6445813049
+echo "💿 TextSniper OCR" && mas install 1528890965
+echo "💿 Typeface 3" && mas install 1062679359
+echo "💿 Whatsapp Desktop" && mas install 310633997
+echo "💿 XCode" && mas install 497799835
+echo "💿 xScope 4" && mas install 889428659
+echo "💿 Yubico Authenticator" && mas install 1497506650
+
+# Android-SDK (só instala se não estiver instalado)
+ANDROID_SDK_DIR="$HOME/.local/share/android"
+if [ ! -d "$ANDROID_SDK_DIR/cmdline-tools" ] || [ ! -f "$ANDROID_SDK_DIR/cmdline-tools/latest/bin/sdkmanager" ]; then
+  echo "📱 Installing Android SDK..."
+  
+  # Instalar OpenJDK se não estiver instalado
+  if ! brew list openjdk > /dev/null 2>&1; then
+    brew install openjdk
+  fi
+  
+  BREW_PREFIX=$(brew --prefix)
+  if [ ! -L "/Library/Java/JavaVirtualMachines/openjdk.jdk" ]; then
+    sudo ln -sfn "$BREW_PREFIX/opt/openjdk/libexec/openjdk.jdk" /Library/Java/JavaVirtualMachines/openjdk.jdk
+  fi
+  
+  # Baixar e instalar command line tools
+  ANDROID_TOOLS_URL="https://dl.google.com/android/repository/commandlinetools-mac-6858069_latest.zip"
+  if validate_url "$ANDROID_TOOLS_URL" "Android command line tools"; then
+    safe_download "$ANDROID_TOOLS_URL" /tmp/commandlinetools.zip "Android command line tools"
+  else
+    echo "⚠️  Skipping Android SDK installation due to URL validation failure"
+    exit 1
+  fi
+  rm -rf /tmp/commandlinetools-tmp-unzip
+  mkdir -p /tmp/commandlinetools-tmp-unzip
+  unzip -n /tmp/commandlinetools.zip -d /tmp/commandlinetools-tmp-unzip
+  mkdir -p "$ANDROID_SDK_DIR"
+  cd "$ANDROID_SDK_DIR" && /tmp/commandlinetools-tmp-unzip/cmdline-tools/bin/sdkmanager --install "cmdline-tools;latest" --sdk_root="$ANDROID_SDK_DIR"
+  rm -rf /tmp/commandlinetools-tmp-unzip
+  rm /tmp/commandlinetools.zip
+  
+  echo "✅ Android SDK installed"
+else
+  echo "✅ Android SDK already installed"
+fi
+
+# PlatformIO (via Homebrew)
+if ! command -v platformio > /dev/null 2>&1; then
+  if brew list platformio &>/dev/null; then
+    echo "✅ PlatformIO already installed via Homebrew"
+  else
+    echo "📥 Installing PlatformIO via Homebrew..."
+    if brew install platformio; then
+      echo "✅ PlatformIO installed"
+    else
+      echo "⚠️  Could not install PlatformIO via Homebrew"
+    fi
+  fi
+else
+  echo "✅ PlatformIO already installed"
+fi
+
+# Rustup
+if ! command -v rustup > /dev/null 2>&1; then
+  RUSTUP_URL="https://sh.rustup.rs"
+  if validate_url "$RUSTUP_URL" "Rustup installer"; then
+    curl --proto '=https' --tlsv1.2 -sSf "$RUSTUP_URL" | sh
+  else
+    echo "⚠️  Could not download Rustup installer"
+  fi
+fi
+
+# Node.js (required for Gemini CLI)
+if ! command -v node > /dev/null 2>&1; then
+  echo "Installing Node.js..."
+  brew install node
+fi
+
+# Gemini CLI
+if ! command -v gemini > /dev/null 2>&1; then
+  echo "Installing Gemini CLI..."
+  npm install -g @google/gemini-cli
+  echo "💡 Run 'gemini auth login' to authenticate with Google"
+fi

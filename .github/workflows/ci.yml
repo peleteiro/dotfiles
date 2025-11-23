@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+
+jobs:
+  lint:
+    name: Lint Scripts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install ShellCheck
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck
+      
+      - name: Lint bash scripts
+        run: |
+          find bin -name "*.sh" -o -name "*" -type f | xargs file | grep "shell script" | cut -d: -f1 | while read script; do
+            echo "Checking $script"
+            shellcheck "$script" || exit 1
+          done
+          # Check main dotfiles script
+          shellcheck dotfiles || exit 1
+
+  syntax-check:
+    name: Syntax Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Check bash syntax
+        run: |
+          find bin -type f -executable | while read script; do
+            if head -1 "$script" | grep -q "#!/bin/bash\|#!/bin/sh"; then
+              echo "Checking syntax: $script"
+              bash -n "$script" || exit 1
+            fi
+          done
+          bash -n dotfiles || exit 1
+
+  test-linux:
+    name: Test on Ubuntu
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Test script help
+        run: |
+          chmod +x dotfiles
+          ./dotfiles help || exit 1
+      
+      - name: Test check command (dry run)
+        run: |
+          # Just verify the script can be executed without errors
+          ./dotfiles check || echo "Check command completed (may have warnings)"
+

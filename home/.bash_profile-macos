@@ -1,0 +1,5 @@
+# macOS-specific Bash configurations
+# Most configurations are in ~/.shared_shell_config-macos
+
+# This file can be used for very specific Bash configurations on macOS
+# that should not be shared with Zsh

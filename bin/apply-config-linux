@@ -1,0 +1,81 @@
+#!/bin/bash
+# Linux system configuration script
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
+
+# Authenticate once for all sudo commands
+echo "🔐 Authenticating for system configuration..."
+sudo -v
+
+# Keep sudo timestamp fresh (runs in background)
+SUDO_KEEPALIVE_PID=""
+(
+  while true; do
+    sudo -n true
+    sleep 60
+    kill -0 "$$" 2>/dev/null || exit
+  done
+) 2>/dev/null &
+SUDO_KEEPALIVE_PID=$!
+
+# Cleanup function to kill background process on exit
+cleanup() {
+  if [ -n "$SUDO_KEEPALIVE_PID" ]; then
+    kill "$SUDO_KEEPALIVE_PID" 2>/dev/null || true
+  fi
+}
+trap cleanup EXIT
+
+echo "⚙️  Configuring Linux system settings..."
+
+# Set hostname
+if [ -f /etc/hostname ]; then
+  echo "peleteiro" | sudo tee /etc/hostname > /dev/null
+  sudo hostnamectl set-hostname peleteiro
+fi
+
+# Update /etc/hosts if needed
+if ! grep -q "peleteiro" /etc/hosts 2>/dev/null; then
+  echo "127.0.0.1 peleteiro" | sudo tee -a /etc/hosts > /dev/null
+fi
+
+# Install Zsh if not installed
+if ! command -v zsh > /dev/null; then
+  echo "📦 Installing Zsh..."
+  sudo apt install -y zsh
+fi
+
+# Note: We don't set a default shell - user can choose between Bash and Zsh
+# To change default shell, use: chsh -s /bin/bash or chsh -s /bin/zsh
+
+# Detect if graphical environment exists
+HAS_GUI=false
+if [ -n "$DISPLAY" ] || [ -n "$WAYLAND_DISPLAY" ]; then
+  HAS_GUI=true
+elif dpkg -l ubuntu-desktop 2> /dev/null || dpkg -l gnome-desktop 2> /dev/null || dpkg -l xfce4 2> /dev/null || dpkg -l kde-standard 2> /dev/null; then
+  HAS_GUI=true
+fi
+
+# GNOME-specific configuration (only if GNOME is installed and GUI is available)
+if [ "$HAS_GUI" = true ] && (dpkg -l ubuntu-desktop 2> /dev/null || dpkg -l gnome-desktop 2> /dev/null); then
+  echo "🖥️  Configuring GNOME settings..."
+  
+  # Keyboard layout
+  gsettings set org.gnome.desktop.input-sources xkb-options "['kpdl:comma']" 2>/dev/null || true
+  
+  # Auto hide dock
+  gsettings set org.gnome.shell.extensions.dash-to-dock dock-fixed false 2>/dev/null || true
+  gsettings set org.gnome.shell.extensions.dash-to-dock autohide true 2>/dev/null || true
+  
+  # Enable extensions (if chrome-gnome-shell is installed)
+  if command -v gnome-extensions > /dev/null; then
+    gnome-extensions enable peleteiro@dotfiles 2>/dev/null || true
+  fi
+fi
+
+# Setup GPG key from 1Password (works for both GUI and non-GUI)
+if [ -f "$DIR/bin/apply-config-gpg" ]; then
+  "$DIR/bin/apply-config-gpg"
+fi
+
+echo "✅ Linux system configuration complete!"
+

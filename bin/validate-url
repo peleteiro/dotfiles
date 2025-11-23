@@ -1,0 +1,83 @@
+#!/bin/bash
+# URL validation and GPG verification utilities
+
+# Validate URL format and accessibility
+validate_url() {
+  local url="$1"
+  local description="${2:-URL}"
+  
+  # Check URL format
+  if [[ ! "$url" =~ ^https?:// ]]; then
+    echo "❌ Invalid URL format: $url" >&2
+    return 1
+  fi
+  
+  # Check if URL is accessible (HEAD request)
+  if ! curl -fsSL --head --max-time 10 "$url" > /dev/null 2>&1; then
+    echo "⚠️  $description not accessible: $url" >&2
+    return 1
+  fi
+  
+  return 0
+}
+
+# Download with URL validation
+safe_download() {
+  local url="$1"
+  local output="$2"
+  local description="${3:-file}"
+  
+  if ! validate_url "$url" "$description"; then
+    return 1
+  fi
+  
+  if curl -fsSL --max-time 60 "$url" -o "$output"; then
+    return 0
+  else
+    echo "❌ Failed to download $description" >&2
+    return 1
+  fi
+}
+
+# Verify GPG signature (if signature URL is provided)
+verify_gpg_signature() {
+  local file="$1"
+  local signature_url="${2:-}"
+  local key_url="${3:-}"
+  
+  if [ -z "$signature_url" ] || [ -z "$key_url" ]; then
+    # No signature verification requested
+    return 0
+  fi
+  
+  if ! command -v gpg > /dev/null 2>&1; then
+    echo "⚠️  GPG not available, skipping signature verification" >&2
+    return 0
+  fi
+  
+  # Download signature
+  local sig_file="${file}.sig"
+  if ! safe_download "$signature_url" "$sig_file" "GPG signature"; then
+    return 1
+  fi
+  
+  # Download and import key if provided
+  if [ -n "$key_url" ]; then
+    local key_file="/tmp/gpg-key-$$.asc"
+    if safe_download "$key_url" "$key_file" "GPG key"; then
+      gpg --import "$key_file" 2>/dev/null || true
+      rm -f "$key_file"
+    fi
+  fi
+  
+  # Verify signature
+  if gpg --verify "$sig_file" "$file" 2>/dev/null; then
+    rm -f "$sig_file"
+    return 0
+  else
+    echo "❌ GPG signature verification failed for $file" >&2
+    rm -f "$sig_file"
+    return 1
+  fi
+}
+

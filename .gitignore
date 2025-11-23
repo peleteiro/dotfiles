@@ -1,7 +1,31 @@
-# See http://help.github.com/ignore-files/ for more about ignoring files.
-
-# Editors temp files
+# OS-specific files
 .DS_Store
-.\#*
-.*.sw[a-z]
-*.un~
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor files
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Temporary files
+*.tmp
+*.bak
+*.log
+
+# Private files (should not be versioned)
+home/.bash_private
+home/.zshrc_private
+home/.shared_shell_config_private
+
+# Test files
+/tmp/
+/test/

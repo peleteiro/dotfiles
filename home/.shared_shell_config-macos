@@ -1,0 +1,42 @@
+# macOS-specific shared configurations
+
+# Add android intel haxm home
+export INTEL_HAXM_HOME=/usr/local/Caskroom/intel-haxm
+
+# Node
+export PATH=$PATH:./node_modules/.bin:/usr/local/share/npm/bin
+
+# 1Password SSH Agent integration
+# Configure SSH to use 1Password SSH agent
+OP_SSH_SOCK="$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
+
+if [ -S "$OP_SSH_SOCK" ]; then
+  export SSH_AUTH_SOCK="$OP_SSH_SOCK"
+fi
+
+# 1Password GPG integration
+# Configure GPG to use 1Password for PGP key management
+if command -v op > /dev/null; then
+  # Set 1Password PGP key ID
+  export OP_PGP_KEY_ID="b2lpibkkqfqtp5lvvp25ugx3kq"
+  
+  # Set 1Password SSH key ID
+  export OP_SSH_KEY_ID="${OP_SSH_KEY_ID:-rlrevu2grubcpjfha6eshu5m6m}"
+  
+  # Configure GPG to use 1Password
+  export GPG_TTY=$(tty)
+  
+  # Use 1Password for GPG operations
+  if [ -f ~/.gnupg/gpg-agent.conf ]; then
+    # Ensure GPG agent is configured
+    gpg-connect-agent reloadagent /bye 2>/dev/null || true
+  fi
+fi
+
+# macOS-specific aliases
+alias vim="nvim"
+alias subl="/Applications/Sublime\ Text.app/Contents/SharedSupport/bin/subl"
+
+# IntelliJ
+alias idea='/Applications/IntelliJ\ IDEA.app/Contents/MacOS/idea'
+

@@ -1,0 +1,82 @@
+#!/bin/bash
+# Setup GPG key from 1Password and configure Git
+# Works on both macOS and Linux
+
+set -e
+
+OP_PGP_KEY_ID="b2lpibkkqfqtp5lvvp25ugx3kq"
+
+echo "🔐 Setting up GPG key from 1Password..."
+
+# Check if 1Password CLI is installed
+if ! command -v op > /dev/null 2>&1; then
+  echo "⚠️  1Password CLI (op) not found. Skipping GPG setup."
+  exit 0
+fi
+
+# Check if user is signed in to 1Password
+if ! op account list &>/dev/null 2>&1; then
+  echo "⚠️  Not signed in to 1Password. Skipping GPG setup."
+  echo "   Run 'op signin' and then run this script again."
+  exit 0
+fi
+
+# Create .gnupg directory if it doesn't exist
+mkdir -p ~/.gnupg
+chmod 700 ~/.gnupg
+
+# Get key from 1Password as document
+echo "📥 Retrieving PGP key from 1Password..."
+KEY_CONTENT=$(op document get "$OP_PGP_KEY_ID" 2>/dev/null) || {
+  echo "⚠️  Could not retrieve PGP key from 1Password."
+  echo "   Make sure the item ID is correct: $OP_PGP_KEY_ID"
+  exit 0
+}
+
+if [ -z "$KEY_CONTENT" ]; then
+  echo "⚠️  PGP key content is empty. Skipping import."
+  exit 0
+fi
+
+# Check if key is already imported
+if gpg --list-secret-keys --keyid-format LONG 2>/dev/null | grep -q "^sec"; then
+  echo "✅ GPG key already imported"
+  # Just configure Git if not already set
+  if [ -z "$(git config --global user.signingkey 2>/dev/null)" ]; then
+    FINGERPRINT=$(gpg --list-secret-keys --keyid-format LONG 2>/dev/null | grep "^sec" | awk '{print $2}' | cut -d'/' -f2 | head -n1)
+    if [ -n "$FINGERPRINT" ]; then
+      git config --global user.signingkey "$FINGERPRINT" 2>/dev/null || true
+      echo "✅ Git signing key configured: $FINGERPRINT"
+    fi
+  else
+    echo "✅ Git signing key already configured"
+  fi
+else
+  # Import key
+  echo "📥 Importing GPG key..."
+  TMP_KEY=$(mktemp)
+  echo "$KEY_CONTENT" > "$TMP_KEY"
+  
+  if gpg --import "$TMP_KEY" 2>&1; then
+    echo "✅ GPG key imported successfully"
+    
+    # Get fingerprint and configure Git
+    FINGERPRINT=$(gpg --list-secret-keys --keyid-format LONG 2>/dev/null | grep "^sec" | awk '{print $2}' | cut -d'/' -f2 | head -n1)
+    
+    if [ -n "$FINGERPRINT" ]; then
+      git config --global user.signingkey "$FINGERPRINT" 2>/dev/null || true
+      echo "✅ Git signing key configured: $FINGERPRINT"
+    fi
+  else
+    echo "⚠️  Key import had issues, but may have partially succeeded"
+    echo "   Check with: gpg --list-secret-keys"
+  fi
+  
+  rm -f "$TMP_KEY"
+fi
+
+# Reload GPG agent
+gpg-connect-agent reloadagent /bye 2>/dev/null || true
+
+echo "✅ GPG setup complete!"
+

@@ -1,9 +1,0 @@
-#!/bin/bash
-if [ ! -f $1 ]; then exit 1; fi
-if [[ `echo $1 | awk -F "." '{print $3}'` != "" ]]; then exit 0; fi
-
-name=`echo $1 | awk -F "." '{print $1}'`
-size=`identify $1 | awk  '{print $3}'`
-ext=`echo $1 | awk -F "." '{print $2}'`
-
-mv $1 $name.$size.$ext

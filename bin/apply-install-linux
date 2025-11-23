@@ -1,0 +1,358 @@
+#!/bin/bash
+
+# Source validation utilities
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source "$DIR/validate-url" 2>/dev/null || true
+
+# Ubuntu
+if [ -n "$(uname -a | grep Ubuntu)" ]; then
+  echo "Installing packages for Ubuntu..."
+
+  sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+  sudo add-apt-repository multiverse
+  sudo apt update
+  sudo apt full-upgrade -y
+
+  # Detect if graphical environment exists
+  HAS_GUI=false
+  if [ -n "$DISPLAY" ] || [ -n "$WAYLAND_DISPLAY" ]; then
+    HAS_GUI=true
+  elif dpkg -l ubuntu-desktop 2> /dev/null || dpkg -l gnome-desktop 2> /dev/null || dpkg -l xfce4 2> /dev/null || dpkg -l kde-standard 2> /dev/null; then
+    HAS_GUI=true
+  fi
+
+  if [ "$HAS_GUI" = true ]; then
+    echo "🖥️  Graphical environment detected - installing desktop packages"
+  else
+    echo "🖥️  No graphical environment detected - installing CLI-only packages"
+  fi
+  echo ""
+
+  # Essentials (always install)
+  sudo apt install -y build-essential pkg-config dh-autoreconf nasm curl \
+                      bash-completion tmux git \
+                      automake autoconf libreadline-dev libncurses-dev libcurl3-dev zlib1g-dev libssl-dev libyaml-dev \
+                      libxslt-dev libffi-dev libtool unixodbc-dev gfortran
+
+  # Docker (repositório oficial)
+  if ! command -v docker > /dev/null 2>&1; then
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+    sudo apt update
+    sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+    sudo groupadd docker 2>/dev/null || true
+    sudo usermod -aG docker $USER
+    sudo systemctl enable docker
+    echo "✅ Docker installed"
+  else
+    echo "✅ Docker already installed"
+  fi
+  
+  # Docker completions (Bash e Zsh)
+  if command -v docker > /dev/null 2>&1; then
+    # Bash completion
+    if [ ! -f /etc/bash_completion.d/docker ]; then
+      sudo curl -L https://raw.githubusercontent.com/docker/cli/master/contrib/completion/bash/docker -o /etc/bash_completion.d/docker
+    fi
+    # Zsh completion (será carregado automaticamente se docker completion zsh estiver disponível)
+    if [ -f ~/.zshrc ] && ! grep -q "docker completion zsh" ~/.zshrc; then
+      echo "" >> ~/.zshrc
+      echo "# Docker completion" >> ~/.zshrc
+      echo "if command -v docker > /dev/null 2>&1; then" >> ~/.zshrc
+      echo "  source <(docker completion zsh)" >> ~/.zshrc
+      echo "fi" >> ~/.zshrc
+    fi
+  fi
+
+  # Android-SDK (só instala se não estiver instalado)
+  ANDROID_SDK_DIR="$HOME/.local/share/android"
+  if [ ! -d "$ANDROID_SDK_DIR/cmdline-tools" ] || [ ! -f "$ANDROID_SDK_DIR/cmdline-tools/latest/bin/sdkmanager" ]; then
+    echo "📱 Installing Android SDK..."
+    
+    # Instalar OpenJDK se não estiver instalado
+    if ! dpkg -l | grep -q "^ii.*openjdk-8-jdk"; then
+      sudo apt install -y openjdk-8-jdk
+    fi
+    
+    # Configurar asdf se estiver instalado
+    if command -v asdf > /dev/null 2>&1; then
+      asdf global java system
+    fi
+    
+    # Baixar e instalar command line tools
+    ANDROID_TOOLS_URL="https://dl.google.com/android/repository/commandlinetools-linux-6858069_latest.zip"
+    if validate_url "$ANDROID_TOOLS_URL" "Android command line tools"; then
+      if safe_download "$ANDROID_TOOLS_URL" /tmp/commandlinetools.zip "Android command line tools"; then
+        rm -rf /tmp/commandlinetools-tmp-unzip
+        mkdir -p /tmp/commandlinetools-tmp-unzip
+        unzip -n /tmp/commandlinetools.zip -d /tmp/commandlinetools-tmp-unzip
+      else
+        echo "⚠️  Skipping Android SDK installation due to download failure"
+        continue
+      fi
+    else
+      echo "⚠️  Skipping Android SDK installation due to URL validation failure"
+      continue
+    fi
+    mkdir -p "$ANDROID_SDK_DIR"
+    cd "$ANDROID_SDK_DIR" && yes | /tmp/commandlinetools-tmp-unzip/cmdline-tools/bin/sdkmanager --licenses --sdk_root="$ANDROID_SDK_DIR"
+    cd "$ANDROID_SDK_DIR" && /tmp/commandlinetools-tmp-unzip/cmdline-tools/bin/sdkmanager --install "cmdline-tools;latest" --sdk_root="$ANDROID_SDK_DIR"
+    rm -rf /tmp/commandlinetools-tmp-unzip
+    rm /tmp/commandlinetools.zip
+    
+    echo "✅ Android SDK installed"
+  else
+    echo "✅ Android SDK already installed"
+  fi
+
+  # Tooling (CLI tools - always install)
+  sudo apt install -y \
+                      aria2 \
+                      bat \
+                      colordiff \
+                      entr \
+                      exiftool \
+                      fzf \
+                      hashdeep \
+                      hub \
+                      htop \
+                      jpegoptim \
+                      jq \
+                      parallel \
+                      pngcrush \
+                      ripgrep \
+                      sqlite3 \
+                      tree \
+                      exa \
+                      fd-find \
+                      zoxide
+
+  # 1Password CLI (always install - works without GUI)
+  # Setup 1Password repository for CLI (same repo as GUI)
+  if ! command -v op > /dev/null; then
+    curl -sS https://downloads.1password.com/linux/keys/1password.asc | sudo gpg --dearmor --output /usr/share/keyrings/1password-archive-keyring.gpg
+    echo 'deb [arch=amd64 signed-by=/usr/share/keyrings/1password-archive-keyring.gpg] https://downloads.1password.com/linux/debian/amd64 stable main' | sudo tee /etc/apt/sources.list.d/1password.list
+    sudo apt update
+    sudo apt install -y 1password-cli || {
+      # Fallback to direct download if apt package not available
+      OP_URL="https://cache.agilebits.com/dist/1P/op2/pkg/v2.27.0/op_linux_amd64_v2.27.0.zip"
+      if validate_url "$OP_URL" "1Password CLI"; then
+        safe_download "$OP_URL" /tmp/op.zip "1Password CLI"
+      else
+        echo "⚠️  Could not download 1Password CLI fallback"
+        continue
+      fi
+      unzip -q -o /tmp/op.zip -d /tmp
+      sudo mv /tmp/op /usr/local/bin/op
+      sudo chmod +x /usr/local/bin/op
+      rm -f /tmp/op.zip
+    }
+  fi
+
+  # Editor and tools based on GUI availability
+  if [ "$HAS_GUI" = true ]; then
+    # GUI environment: install Neovim (used as Git editor) and Sublime Text/Merge
+    sudo apt install -y neovim
+    curl -fsSL https://download.sublimetext.com/sublimehq-pub.gpg | sudo gpg --dearmor -o /usr/share/keyrings/sublimehq-pub.gpg
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/sublimehq-pub.gpg] https://download.sublimetext.com/ apt/stable/" | sudo tee /etc/apt/sources.list.d/sublime-text.list > /dev/null
+    sudo apt-get update
+    sudo apt-get install -y sublime-text sublime-merge
+  else
+    # CLI-only environment: use Neovim and delta
+    sudo apt install -y neovim
+    # Install delta (better git diff viewer) via apt repository
+    # Note: package name is git-delta but executable is delta
+    if ! command -v delta > /dev/null; then
+      # Add WakeMeOps repository for git-delta
+      curl -sSL https://raw.githubusercontent.com/upciti/wakemeops/main/assets/install_repository | sudo bash
+      sudo apt update
+      # Try to install from repository
+      if ! sudo apt install -y git-delta 2>/dev/null; then
+        # Fallback to .deb download if repository installation fails
+        DELTA_VERSION="0.16.5"
+        curl -sSfLo /tmp/delta.deb "https://github.com/dandavison/delta/releases/download/${DELTA_VERSION}/git-delta_${DELTA_VERSION}_amd64.deb"
+        sudo dpkg -i /tmp/delta.deb || sudo apt-get install -f -y
+        rm -f /tmp/delta.deb
+      fi
+    fi
+  fi
+
+  # GUI-specific packages
+  if [ "$HAS_GUI" = true ]; then
+    # GUI tooling
+    sudo apt install -y \
+                      ffmpeg \
+                      imagemagick \
+                      inkscape
+
+    # GNOME-specific packages (configuration is done in apply-config-linux)
+    if dpkg -l ubuntu-desktop 2> /dev/null || dpkg -l gnome-desktop 2> /dev/null; then
+      # gnome-shell tools
+      sudo apt-get install -y chrome-gnome-shell gnome-tweaks gnome-shell-extensions
+
+      # GNOME Online Accounts (for Google Drive integration)
+      sudo apt install -y gnome-online-accounts
+    fi
+
+    # 1Password GUI (repository already configured above for CLI)
+    sudo mkdir -p /etc/debsig/policies/AC2D62742012EA22/
+    curl -sS https://downloads.1password.com/linux/debian/debsig/1password.pol | sudo tee /etc/debsig/policies/AC2D62742012EA22/1password.pol
+    sudo mkdir -p /usr/share/debsig/keyrings/AC2D62742012EA22
+    curl -sS https://downloads.1password.com/linux/keys/1password.asc | sudo gpg --dearmor --output /usr/share/debsig/keyrings/AC2D62742012EA22/debsig.gpg
+    sudo apt update && sudo apt install -y 1password
+
+    # AWS CLI (via apt)
+    if ! command -v aws > /dev/null 2>&1; then
+      AWS_CLI_URL="https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"
+      if validate_url "$AWS_CLI_URL" "AWS CLI"; then
+        if safe_download "$AWS_CLI_URL" /tmp/awscliv2.zip "AWS CLI"; then
+          unzip -q /tmp/awscliv2.zip -d /tmp
+          sudo /tmp/aws/install
+          rm -rf /tmp/aws /tmp/awscliv2.zip
+        else
+          echo "⚠️  Could not download AWS CLI"
+        fi
+      else
+        echo "⚠️  Could not validate AWS CLI URL"
+      fi
+    fi
+
+    # Visual Studio Code (repositório oficial Microsoft)
+    if ! command -v code > /dev/null 2>&1; then
+      curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | sudo gpg --dearmor -o /usr/share/keyrings/microsoft-archive-keyring.gpg
+      echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/microsoft-archive-keyring.gpg] https://packages.microsoft.com/repos/code stable main" | sudo tee /etc/apt/sources.list.d/vscode.list > /dev/null
+      sudo apt update
+      sudo apt install -y code
+    fi
+
+    # Insomnia (repositório oficial)
+    if ! command -v insomnia > /dev/null 2>&1; then
+      echo "deb https://download.konghq.com/insomnia-ubuntu/ default all" | sudo tee /etc/apt/sources.list.d/insomnia.list > /dev/null
+      curl -sSL https://download.konghq.com/insomnia-ubuntu/KEY.gpg | sudo apt-key add -
+      sudo apt update
+      sudo apt install -y insomnia
+    fi
+
+    # Flatpak (para Slack e outras aplicações)
+    if ! command -v flatpak > /dev/null 2>&1; then
+      sudo apt install -y flatpak
+    fi
+    
+    # Adicionar repositório Flathub se não existir
+    if ! flatpak remote-list | grep -q flathub; then
+      sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+    fi
+    
+    # Slack (via Flatpak)
+    if ! flatpak list | grep -q com.slack.Slack; then
+      sudo flatpak install -y flathub com.slack.Slack
+    fi
+
+    # VLC (via apt - já está nos repositórios)
+    sudo apt install -y vlc
+
+    # Caffeine Indicator (via apt)
+    sudo apt install -y caffeine-indicator
+
+    # IntelliJ IDEA Ultimate (repositório JetBrains)
+    if ! command -v idea > /dev/null 2>&1; then
+      # Adicionar repositório JetBrains
+      wget -qO - https://jetbrains-ppa.s3-website.eu-central-1.amazonaws.com/jetbrains-archive.key | sudo apt-key add -
+      echo "deb https://jetbrains-ppa.s3-website.eu-central-1.amazonaws.com any main" | sudo tee /etc/apt/sources.list.d/jetbrains-ppa.list > /dev/null
+      sudo apt update
+      sudo apt install -y intellij-idea-ultimate
+    fi
+
+    # Antigravity (Google IDE - repositório oficial)
+    if ! command -v antigravity > /dev/null 2>&1; then
+      echo "📥 Installing Antigravity..."
+      # Adicionar chave GPG do repositório
+      if [ ! -f /etc/apt/keyrings/antigravity-repo-key.gpg ]; then
+        sudo mkdir -p /etc/apt/keyrings
+        curl -fsSL https://us-central1-apt.pkg.dev/doc/repo-signing-key.gpg | sudo gpg --dearmor -o /etc/apt/keyrings/antigravity-repo-key.gpg
+      fi
+      # Adicionar repositório
+      if [ ! -f /etc/apt/sources.list.d/antigravity.list ]; then
+        echo "deb [signed-by=/etc/apt/keyrings/antigravity-repo-key.gpg] https://us-central1-apt.pkg.dev/projects/antigravity-auto-updater-dev/ antigravity-debian main" | sudo tee /etc/apt/sources.list.d/antigravity.list > /dev/null
+      fi
+      sudo apt update
+      sudo apt install -y antigravity
+      echo "✅ Antigravity installed"
+    else
+      echo "✅ Antigravity already installed"
+    fi
+
+    # Platformio
+    PLATFORMIO_URL="https://raw.githubusercontent.com/platformio/platformio/develop/scripts/get-platformio.py"
+    if validate_url "$PLATFORMIO_URL" "PlatformIO installer"; then
+      sudo python -c "$(curl -fsSL "$PLATFORMIO_URL")"
+    else
+      echo "⚠️  Could not download PlatformIO installer"
+    fi
+
+    # Chrome
+    curl -fsSL https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+    echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
+    sudo apt update
+    sudo apt install -y google-chrome-stable
+
+    # qemu (with GUI tools)
+    sudo apt install qemu-kvm qemu virt-manager virt-viewer libvirt-daemon
+    sudo systemctl enable libvirtd
+    sudo systemctl start libvirtd
+  fi
+
+  sudo apt autoremove -y
+
+  printf "\n\nYou MUST reboot your system in order to changes to take effect.\n\n"
+
+fi
+
+# Rustup
+if ! command -v rustup > /dev/null 2>&1; then
+  RUSTUP_URL="https://sh.rustup.rs"
+  if validate_url "$RUSTUP_URL" "Rustup installer"; then
+    curl --proto '=https' --tlsv1.2 -sSf "$RUSTUP_URL" | sh
+  else
+    echo "⚠️  Could not download Rustup installer"
+  fi
+fi
+
+# Rust utilities (install via cargo if not available in apt)
+# These are Rust-based CLI tools that may not be in apt repositories
+if command -v cargo > /dev/null 2>&1; then
+  echo "📦 Installing Rust utilities..."
+  
+  # Install utilities that might not be in apt
+  for util in dust procs bottom ouch tealdeer hyperfine gitui atuin navi; do
+    if ! command -v "$util" > /dev/null 2>&1; then
+      echo "  Installing $util..."
+      cargo install "$util" 2>/dev/null || echo "  ⚠️  Failed to install $util"
+    else
+      echo "  ✅ $util already installed"
+    fi
+  done
+else
+  echo "⚠️  Rust/Cargo not found. Some utilities may not be installed."
+  echo "   Run 'curl --proto \"=https\" --tlsv1.2 -sSf https://sh.rustup.rs | sh' first"
+fi
+
+# Node.js (required for Gemini CLI)
+if ! command -v node > /dev/null 2>&1; then
+  echo "Installing Node.js..."
+  # Try to install from NodeSource repository (more recent versions)
+  NODESOURCE_URL="https://deb.nodesource.com/setup_20.x"
+  if validate_url "$NODESOURCE_URL" "NodeSource installer"; then
+    curl -fsSL "$NODESOURCE_URL" | sudo -E bash -
+  else
+    echo "⚠️  Could not download NodeSource installer"
+  fi
+  sudo apt install -y nodejs
+fi
+
+# Gemini CLI
+if ! command -v gemini > /dev/null 2>&1; then
+  echo "Installing Gemini CLI..."
+  sudo npm install -g @google/gemini-cli
+  echo "💡 Run 'gemini auth login' to authenticate with Google"
+fi

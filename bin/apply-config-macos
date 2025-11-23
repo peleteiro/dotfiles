@@ -1,19 +1,82 @@
 #!/bin/bash
+# macOS system configuration script
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 
-# Close any open System Preferences panes, to prevent them from overriding settings we’re about to change
+# Authenticate once for all sudo commands
+# This will prompt for password/Touch ID once and cache it for subsequent sudo commands
+echo "🔐 Authenticating for system configuration..."
+sudo -v
+
+# Keep sudo timestamp fresh (runs in background)
+# This prevents sudo from asking for password again during script execution
+SUDO_KEEPALIVE_PID=""
+(
+  while true; do
+    sudo -n true
+    sleep 60
+    kill -0 "$$" 2>/dev/null || exit
+  done
+) 2>/dev/null &
+SUDO_KEEPALIVE_PID=$!
+
+# Cleanup function to kill background process on exit
+cleanup() {
+  if [ -n "$SUDO_KEEPALIVE_PID" ]; then
+    kill "$SUDO_KEEPALIVE_PID" 2>/dev/null || true
+  fi
+}
+trap cleanup EXIT
+
+# Close any open System Preferences panes, to prevent them from overriding settings we're about to change
 osascript -e 'tell application "System Preferences" to quit'
 
-# Default to bash
-chsh -s /bin/bash
+# Install Zsh if not installed (supports Bash and Zsh)
+if ! command -v zsh > /dev/null; then
+  echo "📦 Zsh not found. Installing via Homebrew..."
+  if command -v brew > /dev/null; then
+    brew install zsh
+  else
+    echo "⚠️  Homebrew not found. Zsh will not be installed."
+  fi
+fi
+
+# Configure default shell: use Homebrew bash if system is using system bash
+CURRENT_SHELL=$(dscl . -read /Users/$(whoami) UserShell 2>/dev/null | awk '{print $2}' || echo "$SHELL")
+if [ "$CURRENT_SHELL" = "/bin/bash" ]; then
+  # Check if Homebrew bash is installed
+  if command -v brew > /dev/null 2>&1; then
+    BREW_BASH=$(brew --prefix)/bin/bash
+    if [ -f "$BREW_BASH" ]; then
+      # Check if Homebrew bash is in /etc/shells
+      if ! grep -q "$BREW_BASH" /etc/shells; then
+        echo "Adding Homebrew bash to /etc/shells..."
+        echo "$BREW_BASH" | sudo tee -a /etc/shells > /dev/null
+      fi
+      echo "🔄 Switching from system bash to Homebrew bash..."
+      chsh -s "$BREW_BASH"
+      echo "✅ Default shell changed to Homebrew bash: $BREW_BASH"
+      echo "   This will take effect in new terminal sessions."
+    else
+      echo "⚠️  Homebrew bash not found. Install it with: brew install bash"
+    fi
+  else
+    echo "⚠️  Homebrew not found. Cannot switch to Homebrew bash."
+  fi
+elif command -v brew > /dev/null 2>&1 && [ "$CURRENT_SHELL" = "$(brew --prefix)/bin/bash" ]; then
+  echo "✅ Already using Homebrew bash: $CURRENT_SHELL"
+else
+  echo "ℹ️  Current shell: $CURRENT_SHELL (not system bash, leaving unchanged)"
+fi
 
 # Key bindings
 mkdir -p ~/Library/KeyBindings
-cp $DIR/osx/DefaultKeyBinding.dict ~/Library/KeyBindings
+cp $DIR/macos/DefaultKeyBinding.dict ~/Library/KeyBindings
 
 ## Global
 
 # Set computer name (as done via System Preferences → Sharing)
+# Group commands that may require authentication
+echo "⚙️  Configuring system settings..."
 scutil --set ComputerName "peleteiro"
 scutil --set HostName "peleteiro"
 scutil --set LocalHostName "peleteiro"
@@ -120,6 +183,11 @@ defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
 
 # Show the ~/Library folder
 chflags nohidden ~/Library
+
+# Setup GPG key from 1Password
+if [ -f "$DIR/bin/apply-config-gpg" ]; then
+  "$DIR/bin/apply-config-gpg"
+fi
 
 # Show absolute path in finder's title bar.
 defaults write com.apple.finder _FXShowPosixPathInTitle -bool YES

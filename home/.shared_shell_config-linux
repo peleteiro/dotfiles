@@ -1,0 +1,40 @@
+# Linux-specific shared configurations
+
+# Add pip locals to path
+export PATH=~/.local/bin:$PATH
+
+# 1Password SSH Agent integration
+OP_SSH_SOCK="$HOME/.1password/agent.sock"
+
+if [ -S "$OP_SSH_SOCK" ]; then
+  export SSH_AUTH_SOCK="$OP_SSH_SOCK"
+fi
+
+# 1Password GPG integration
+# Configure GPG to use 1Password for PGP key management
+if command -v op > /dev/null; then
+  # Set 1Password PGP key ID
+  export OP_PGP_KEY_ID="b2lpibkkqfqtp5lvvp25ugx3kq"
+  
+  # Set 1Password SSH key ID
+  export OP_SSH_KEY_ID="${OP_SSH_KEY_ID:-rlrevu2grubcpjfha6eshu5m6m}"
+  
+  # Configure GPG to use 1Password
+  export GPG_TTY=$(tty)
+  
+  # Use 1Password for GPG operations
+  if [ -f ~/.gnupg/gpg-agent.conf ]; then
+    # Ensure GPG agent is configured
+    gpg-connect-agent reloadagent /bye 2>/dev/null || true
+  fi
+fi
+
+# Linux-specific aliases
+alias open=/usr/bin/xdg-open
+
+# pbcopy/pbpaste for Linux
+if command -v xclip > /dev/null; then
+  alias pbcopy='xclip -selection clipboard'
+  alias pbpaste='xclip -selection clipboard -o'
+fi
+

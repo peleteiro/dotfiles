@@ -1,23 +1,8 @@
-#!/bin/bash
+# Linux-specific Bash configurations
+# Most configurations are in ~/.shared_shell_config-linux
 
-# Add pip locals to path
-export PATH=~/.local/bin:$PATH
-
-# enable programmable completion features
-if ! shopt -oq posix; then
-  if [ -f /usr/share/bash-completion/bash_completion ]; then
-    . /usr/share/bash-completion/bash_completion
-  elif [ -f /etc/bash_completion ]; then
-    . /etc/bash_completion
-  fi
-fi
-
-## Adds username on prompt PS1
+# Add username to PS1 prompt (Linux-specific for Bash)
 export PS1="\[\033[36m\]\u\[\033[m\]@${PS1}"
 
-# alias
-alias open=/usr/bin/xdg-open
-
-# pbcopy
-alias pbcopy='xclip -selection clipboard'
-alias pbpaste='xclip -selection clipboard -o'
+# This file can be used for very specific Bash configurations on Linux
+# that should not be shared with Zsh

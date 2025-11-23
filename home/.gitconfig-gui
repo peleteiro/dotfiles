@@ -1,0 +1,29 @@
+# Git configuration for graphical environments
+# This file is included when GUI is available
+
+# Use Neovim as editor (even in GUI environments)
+# Use delta as pager (same as non-GUI)
+# See: https://github.com/dandavison/delta
+[core]
+  editor = nvim
+  pager = delta
+[interactive]
+  diffFilter = delta --color-only
+[delta]
+  navigate = true
+  line-numbers = true
+  side-by-side = true
+  whitespace-error-style = 22 reverse
+  file-style = box
+  syntax-theme = Dracula
+  paging = always
+
+# Merge tool (Sublime Merge for GUI)
+# Note: Sublime Merge is designed for merge conflicts, not as a git difftool.
+# For viewing diffs, use 'git diff' (with delta pager) or open the repo in Sublime Merge directly.
+[mergetool "smerge"]
+	cmd = smerge mergetool \"$BASE\" \"$LOCAL\" \"$REMOTE\" -o \"$MERGED\"
+	trustExitCode = true
+[merge]
+	tool = smerge
+

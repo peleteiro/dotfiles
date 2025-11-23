@@ -1,4 +1,4 @@
-#!/bin/bash
+# Zsh functions
 
 # Function to navigate to project root directory
 function proj() {
@@ -12,7 +12,12 @@ function proj() {
 
 # Function to use specific Java version (macOS)
 function java_use() {
-  export JAVA_HOME=$(/usr/libexec/java_home -v $1)
-  export PATH=$JAVA_HOME/bin:$PATH
-  java -version
+  if [[ "$OS" == "osx" ]]; then
+    export JAVA_HOME=$(/usr/libexec/java_home -v $1)
+    export PATH=$JAVA_HOME/bin:$PATH
+    java -version
+  else
+    echo "java_use is only available on macOS"
+  fi
 }
+

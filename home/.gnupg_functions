@@ -1,0 +1,64 @@
+# GPG helper functions for 1Password integration
+
+# Function to import PGP key from 1Password
+gpg_import_from_1password() {
+  if ! command -v op > /dev/null; then
+    echo "❌ 1Password CLI (op) not found"
+    return 1
+  fi
+  
+  local key_id="${OP_PGP_KEY_ID:-b2lpibkkqfqtp5lvvp25ugx3kq}"
+  
+  echo "📥 Importing PGP key from 1Password..."
+  
+  # Try different methods to get the key
+  local key_content=""
+  
+  # Method 1: Try as field "private key"
+  key_content=$(op item get "$key_id" --fields "private key" 2>/dev/null)
+  
+  # Method 2: Try as notesPlain
+  if [ -z "$key_content" ]; then
+    key_content=$(op item get "$key_id" --fields "notesPlain" 2>/dev/null)
+  fi
+  
+  # Method 3: Try as op:// reference
+  if [ -z "$key_content" ]; then
+    key_content=$(op read "op://Private/$key_id/private key" 2>/dev/null)
+  fi
+  
+  if [ -z "$key_content" ]; then
+    echo "❌ Could not retrieve PGP key from 1Password"
+    return 1
+  fi
+  
+  # Import the key
+  echo "$key_content" | gpg --import
+  
+  # Get the key fingerprint
+  local fingerprint=$(gpg --list-secret-keys --keyid-format LONG | grep sec | awk '{print $2}' | cut -d'/' -f2 | head -n1)
+  
+  if [ -n "$fingerprint" ]; then
+    echo "✅ PGP key imported successfully"
+    echo "   Key ID: $fingerprint"
+    echo ""
+    echo "💡 To use for Git signing:"
+    echo "   git config --global user.signingkey $fingerprint"
+    echo "   git config --global commit.gpgsign true"
+  fi
+}
+
+# Function to get PGP password from 1Password
+gpg_get_password_from_1password() {
+  if ! command -v op > /dev/null; then
+    echo "❌ 1Password CLI (op) not found"
+    return 1
+  fi
+  
+  local key_id="${OP_PGP_KEY_ID:-b2lpibkkqfqtp5lvvp25ugx3kq}"
+  
+  # Try to get password from 1Password
+  op item get "$key_id" --fields "password" 2>/dev/null || \
+  op read "op://Private/$key_id/password" 2>/dev/null
+}
+
