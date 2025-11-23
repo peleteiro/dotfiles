@@ -1,0 +1,61 @@
+#!/bin/bash
+# Git commit-msg hook to verify that the commit message file was saved
+# This prevents commits when the user exits the editor without saving
+
+COMMIT_MSG_FILE="$1"
+BACKUP_FILE="${COMMIT_MSG_FILE}.backup"
+TIMESTAMP_FILE="${COMMIT_MSG_FILE}.timestamp"
+
+# Check if file exists and has content
+if [ ! -f "$COMMIT_MSG_FILE" ] || [ ! -s "$COMMIT_MSG_FILE" ]; then
+  echo "Aborting commit: commit message file is empty or missing"
+  rm -f "$BACKUP_FILE" "$TIMESTAMP_FILE"
+  exit 1
+fi
+
+# Get non-comment content (lines that don't start with # and are not empty)
+NON_COMMENT_CONTENT=$(grep -v "^#" "$COMMIT_MSG_FILE" | grep -v "^$" || true)
+
+# If there's no non-comment content, abort the commit
+# This means the user exited without saving (file only has comments)
+if [ -z "$NON_COMMENT_CONTENT" ]; then
+  echo "Aborting commit: no commit message provided (file was not saved)"
+  rm -f "$BACKUP_FILE" "$TIMESTAMP_FILE"
+  exit 1
+fi
+
+# If there's a timestamp file from prepare-commit-msg, check if the file was saved
+# The timestamp file marks when the message template was created
+# We need to verify that the commit message file was modified AFTER the template was created
+if [ -f "$TIMESTAMP_FILE" ]; then
+  # Check if commit message file is newer than timestamp file (was saved by user)
+  # The timestamp file should be slightly newer than when we wrote the template
+  # If the commit message file is not newer than the timestamp file, it wasn't saved
+  if [ ! "$COMMIT_MSG_FILE" -nt "$TIMESTAMP_FILE" ]; then
+    echo "Aborting commit: commit message file was not saved"
+    echo "Please save the file in your editor to proceed with the commit"
+    rm -f "$BACKUP_FILE" "$TIMESTAMP_FILE"
+    exit 1
+  fi
+  
+  # Additional check: compare content to see if it was actually modified
+  # If content is identical to backup and file wasn't saved, abort
+  if [ -f "$BACKUP_FILE" ]; then
+    CURRENT_NON_COMMENT=$(grep -v "^#" "$COMMIT_MSG_FILE" | grep -v "^$" || true)
+    BACKUP_NON_COMMENT=$(grep -v "^#" "$BACKUP_FILE" | grep -v "^$" || true)
+    
+    # If content is identical and file wasn't saved (not newer than timestamp), abort
+    if [ "$CURRENT_NON_COMMENT" = "$BACKUP_NON_COMMENT" ] && [ ! "$COMMIT_MSG_FILE" -nt "$TIMESTAMP_FILE" ]; then
+      echo "Aborting commit: commit message file was not saved"
+      echo "Please save the file in your editor to proceed with the commit"
+      rm -f "$BACKUP_FILE" "$TIMESTAMP_FILE"
+      exit 1
+    fi
+  fi
+fi
+
+# Clean up temporary files
+rm -f "$BACKUP_FILE" "$TIMESTAMP_FILE"
+
+exit 0
+

@@ -1,0 +1,4 @@
+#!/bin/bash
+# Git prepare-commit-msg hook to use Gemini for commit message suggestions
+~/.bin/git-commit-msg-gemini "$1" "$2" "$3"
+

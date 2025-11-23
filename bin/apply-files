@@ -145,7 +145,13 @@ find "$DIR/home" -maxdepth 1 -type d -name ".*" -print0 | while IFS= read -r -d 
     if [ "$dirname" = ".ssh" ]; then
       chmod 700 "$HOME/.ssh"
       if [ -f "$HOME/.ssh/config" ]; then
-          chmod 600 "$HOME/.ssh/config"
+        chmod 600 "$HOME/.ssh/config"
+        # Replace ~/Library/Group Containers with absolute path for IdentityAgent
+        # SSH config needs absolute path when there are spaces in the path
+        if grep -q 'IdentityAgent "~/Library/Group Containers' "$HOME/.ssh/config"; then
+          sed -i.bak "s|IdentityAgent \"~/Library/Group Containers|IdentityAgent \"$HOME/Library/Group Containers|g" "$HOME/.ssh/config"
+          rm -f "$HOME/.ssh/config.bak"
+        fi
         echo "    → SSH config configured for ${CURRENT_OS}"
       fi
     fi
