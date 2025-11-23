@@ -44,6 +44,8 @@ This installs everything: system configuration, packages, and dotfiles.
 dotfiles/
 ├── bin/              # Installation and management scripts
 ├── home/             # Configuration files (copied to ~/)
+│   ├── .git_hooks/   # Git hooks (prepare-commit-msg, commit-msg)
+│   └── .bin/         # Custom scripts
 ├── macos/            # macOS-specific configurations
 └── dotfiles          # Main script with subcommands
 ```
@@ -255,6 +257,49 @@ dotfiles/
 - **CLI**: `home/.gitconfig-nogui` (Neovim editor, delta pager)
 
 The final `~/.gitconfig` is assembled automatically based on GUI detection.
+
+#### Git Commit Messages with Gemini AI
+This setup includes automatic commit message generation using Google Gemini AI. The commit hooks automatically generate commit messages based on your staged changes and verify that the message file was saved before committing.
+
+**Hooks:**
+- `prepare-commit-msg`: Generates commit message suggestions using Gemini AI
+- `commit-msg`: Verifies that the commit message file was saved (prevents commits when editor is closed without saving)
+
+The hooks are located in `home/.git_hooks/` and are automatically installed to `~/.git_hooks/` when running `./dotfiles apply:files`.
+
+**Language Configuration:**
+Set the `GIT_COMMIT_LANG` environment variable to control the language of generated commit messages:
+
+```bash
+# Portuguese (Brazilian) - default for pt
+export GIT_COMMIT_LANG=pt-BR
+
+# English (American) - default for en (also the fallback)
+export GIT_COMMIT_LANG=en
+
+# Spanish
+export GIT_COMMIT_LANG=es
+
+# Any other language supported by Gemini
+export GIT_COMMIT_LANG=fr  # French
+export GIT_COMMIT_LANG=de  # German
+export GIT_COMMIT_LANG=ja  # Japanese
+# etc...
+```
+
+**Note:** 
+- English (American) is the default if `GIT_COMMIT_LANG` is not set
+- Portuguese codes (`pt`, `pt-BR`, etc.) default to Brazilian Portuguese
+- All other language codes are passed directly to Gemini
+- The commit will be aborted if you exit the editor without saving the message file
+
+Add `export GIT_COMMIT_LANG=pt-BR` (or your preferred language) to your `~/.bash_profile` or `~/.zshrc` to set it permanently.
+
+### Git Hooks
+- `home/.git_hooks/prepare-commit-msg` - Generates commit messages using Gemini AI
+- `home/.git_hooks/commit-msg` - Verifies commit message file was saved
+
+Hooks are automatically installed to `~/.git_hooks/` and configured as global Git hooks.
 
 ### Other Configurations
 - `home/.tmux.conf` - Tmux configuration

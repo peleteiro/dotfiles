@@ -30,18 +30,61 @@ if [ -z "$DIFF" ]; then
   exit 0
 fi
 
-# Check if message file already has content (user may have edited it)
-if [ -f "$COMMIT_MSG_FILE" ] && [ -s "$COMMIT_MSG_FILE" ]; then
-  # Check if it's just the default template or if user has written something
-  FIRST_LINE=$(head -n 1 "$COMMIT_MSG_FILE" 2>/dev/null || echo "")
-  # If first line is not empty and doesn't look like a template, user has written something
-  if [ -n "$FIRST_LINE" ] && [ "$FIRST_LINE" != "#"* ]; then
-    exit 0
+# Save the original file content (including Git's comments with file listing)
+ORIGINAL_CONTENT=""
+COMMENTS_ONLY=""
+if [ -f "$COMMIT_MSG_FILE" ]; then
+  ORIGINAL_CONTENT=$(cat "$COMMIT_MSG_FILE")
+  # Extract comments (lines starting with #) - these include the file listing
+  COMMENTS_ONLY=$(echo "$ORIGINAL_CONTENT" | grep "^#")
+  
+  # Check if message file already has non-comment content (user may have edited it)
+  if [ -s "$COMMIT_MSG_FILE" ]; then
+    # Check if there's any non-comment content
+    NON_COMMENT_CONTENT=$(echo "$ORIGINAL_CONTENT" | grep -v "^#" | grep -v "^$" || true)
+    if [ -n "$NON_COMMENT_CONTENT" ]; then
+      # User has already written something, don't overwrite
+      exit 0
+    fi
   fi
 fi
 
 # Generate commit message using Gemini
-# Create the prompt for Gemini
+# Read language from environment variable (default: en)
+GIT_COMMIT_LANG="${GIT_COMMIT_LANG:-en}"
+
+# Normalize language codes (only hardcoded rules: en -> en, pt -> pt-BR)
+# For all other languages, use the code as-is
+case "$GIT_COMMIT_LANG" in
+  "pt"|"pt-BR"|"pt-br"|"pt_BR"|"pt_br")
+    LANG_CODE="pt-BR"
+    LANG_NAME="Portuguese (Brazilian)"
+    ;;
+  "en"|"en-US"|"en-us"|"en_US"|"en_us"|"")
+    LANG_CODE="en"
+    LANG_NAME="English (American)"
+    ;;
+  *)
+    # For any other language, use the code as-is
+    # Normalize common separators but keep the language code
+    LANG_CODE=$(echo "$GIT_COMMIT_LANG" | tr '[:upper:]' '[:lower:]' | sed 's/_/-/g')
+    # Try to get language name from the code (basic mapping for common languages)
+    case "$LANG_CODE" in
+      "es"|"es-es"|"es-mx"|"es-ar") LANG_NAME="Spanish" ;;
+      "fr"|"fr-fr"|"fr-ca") LANG_NAME="French" ;;
+      "de"|"de-de"|"de-at") LANG_NAME="German" ;;
+      "it"|"it-it") LANG_NAME="Italian" ;;
+      "ja"|"ja-jp") LANG_NAME="Japanese" ;;
+      "zh"|"zh-cn"|"zh-tw") LANG_NAME="Chinese" ;;
+      "ru"|"ru-ru") LANG_NAME="Russian" ;;
+      "ko"|"ko-kr") LANG_NAME="Korean" ;;
+      *) LANG_NAME="$LANG_CODE" ;;  # Use code as name if unknown
+    esac
+    ;;
+esac
+
+# Create the prompt for Gemini - generic approach that works for any language
+# Use English as the base prompt language and instruct Gemini to respond in the target language
 PROMPT="Based on the following git diff, generate a detailed commit message following conventional commits format (type: description).
 
 Requirements:
@@ -50,11 +93,12 @@ Requirements:
 - Include a detailed body explaining what was changed and why (if significant)
 - Keep all relevant information about the changes
 - Do not remove comments or important details from the diff
+- Write the commit message in $LANG_NAME ($LANG_CODE)
 
 Git diff:
 $DIFF
 
-Generate the complete commit message (subject and body if needed):"
+Generate the complete commit message (subject and body if needed) in $LANG_NAME:"
 
 # Call Gemini CLI with the prompt
 # Gemini CLI accepts prompts via stdin or as positional arguments
@@ -68,20 +112,22 @@ SUGGESTED_MSG=$(echo "$GEMINI_OUTPUT" | \
   grep -v "^Error:" | \
   grep -v "^Warning:" | \
   grep -v "^gemini" | \
-  sed '/^$/N;/^\n$/d')  # Remove only excessive blank lines, keep single blank lines
+  awk 'BEGIN{blank=0} /^$/ {blank++; if(blank<=2) print} /./ {blank=0; print}')  # Keep max 2 consecutive blank lines
 
-# Trim leading/trailing whitespace but preserve structure
-SUGGESTED_MSG=$(echo "$SUGGESTED_MSG" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | sed ':a;N;$!ba;s/\n\n\n\+/\n\n/g')
+# Trim leading/trailing whitespace from each line but preserve structure
+SUGGESTED_MSG=$(echo "$SUGGESTED_MSG" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
 
 # If that didn't work or output is too short, try passing the prompt as a positional argument
 if [ -z "$SUGGESTED_MSG" ] || [ ${#SUGGESTED_MSG} -lt 10 ]; then
   # Truncate diff if too long (Gemini CLI may have argument length limits)
   DIFF_PREVIEW=$(echo "$DIFF" | head -n 100)
-  SHORT_PROMPT="Based on this git diff, generate a detailed commit message in conventional commits format (type: description). Include a detailed body explaining the changes:
+  
+  # Use generic prompt for fallback too
+  SHORT_PROMPT="Based on this git diff, generate a detailed commit message in conventional commits format (type: description). Include a detailed body explaining the changes. Write the commit message in $LANG_NAME ($LANG_CODE):
 
 $DIFF_PREVIEW
 
-Generate the complete commit message:"
+Generate the complete commit message in $LANG_NAME:"
   
   GEMINI_OUTPUT=$(gemini "$SHORT_PROMPT" 2>/dev/null)
   SUGGESTED_MSG=$(echo "$GEMINI_OUTPUT" | \
@@ -89,15 +135,40 @@ Generate the complete commit message:"
     grep -v "^Error:" | \
     grep -v "^Warning:" | \
     grep -v "^gemini" | \
-    sed '/^$/N;/^\n$/d')
-  SUGGESTED_MSG=$(echo "$SUGGESTED_MSG" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | sed ':a;N;$!ba;s/\n\n\n\+/\n\n/g')
+    awk 'BEGIN{blank=0} /^$/ {blank++; if(blank<=2) print} /./ {blank=0; print}')
+  SUGGESTED_MSG=$(echo "$SUGGESTED_MSG" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
 fi
 
 # If we got a valid suggestion (at least 10 characters), write it to the commit message file
 if [ -n "$SUGGESTED_MSG" ] && [ ${#SUGGESTED_MSG} -ge 10 ]; then
-  # Write the suggested message to the commit message file
-  # Preserve the full message including body and comments
-  echo "$SUGGESTED_MSG" > "$COMMIT_MSG_FILE"
+  # Create a backup of the original file (before we modify it)
+  # This will be used by commit-msg hook to detect if user saved the file
+  BACKUP_FILE="${COMMIT_MSG_FILE}.backup"
+  if [ -f "$COMMIT_MSG_FILE" ]; then
+    cp "$COMMIT_MSG_FILE" "$BACKUP_FILE"
+  else
+    touch "$BACKUP_FILE"
+  fi
+  
+  # Write the suggested message, preserving Git's comments (file listing) below
+  # This will update the commit message file's timestamp
+  {
+    echo "$SUGGESTED_MSG"
+    echo ""
+    # Add back the comments (file listing) if they exist
+    if [ -n "$COMMENTS_ONLY" ]; then
+      echo "$COMMENTS_ONLY"
+    fi
+  } > "$COMMIT_MSG_FILE"
+  
+  # Create a timestamp file AFTER writing the message
+  # This marks when the message template was created
+  # The timestamp file will be newer than the commit message file
+  # When the user saves the file, the commit message file will become newer than the timestamp file
+  TIMESTAMP_FILE="${COMMIT_MSG_FILE}.timestamp"
+  # Use a small delay to ensure timestamp file is created after commit message file
+  sleep 0.1
+  touch "$TIMESTAMP_FILE"
 fi
 
 exit 0
