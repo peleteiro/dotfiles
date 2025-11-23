@@ -238,18 +238,27 @@ if [ ! -d "$ANDROID_SDK_DIR/cmdline-tools" ] || [ ! -f "$ANDROID_SDK_DIR/cmdline
   # Baixar e instalar command line tools
   ANDROID_TOOLS_URL="https://dl.google.com/android/repository/commandlinetools-mac-6858069_latest.zip"
   if validate_url "$ANDROID_TOOLS_URL" "Android command line tools"; then
-    safe_download "$ANDROID_TOOLS_URL" /tmp/commandlinetools.zip "Android command line tools"
+    if safe_download "$ANDROID_TOOLS_URL" /tmp/commandlinetools.zip "Android command line tools"; then
+      rm -rf /tmp/commandlinetools-tmp-unzip
+      mkdir -p /tmp/commandlinetools-tmp-unzip
+      # Use ouch if available (installed earlier), otherwise fallback to unzip
+      if command -v ouch > /dev/null 2>&1; then
+        ouch decompress /tmp/commandlinetools.zip --dir /tmp/commandlinetools-tmp-unzip
+      else
+        unzip -n /tmp/commandlinetools.zip -d /tmp/commandlinetools-tmp-unzip
+      fi
+      mkdir -p "$ANDROID_SDK_DIR"
+      cd "$ANDROID_SDK_DIR" && /tmp/commandlinetools-tmp-unzip/cmdline-tools/bin/sdkmanager --install "cmdline-tools;latest" --sdk_root="$ANDROID_SDK_DIR"
+      rm -rf /tmp/commandlinetools-tmp-unzip
+      rm /tmp/commandlinetools.zip
+    else
+      echo "⚠️  Skipping Android SDK installation due to download failure"
+      exit 1
+    fi
   else
     echo "⚠️  Skipping Android SDK installation due to URL validation failure"
     exit 1
   fi
-  rm -rf /tmp/commandlinetools-tmp-unzip
-  mkdir -p /tmp/commandlinetools-tmp-unzip
-  unzip -n /tmp/commandlinetools.zip -d /tmp/commandlinetools-tmp-unzip
-  mkdir -p "$ANDROID_SDK_DIR"
-  cd "$ANDROID_SDK_DIR" && /tmp/commandlinetools-tmp-unzip/cmdline-tools/bin/sdkmanager --install "cmdline-tools;latest" --sdk_root="$ANDROID_SDK_DIR"
-  rm -rf /tmp/commandlinetools-tmp-unzip
-  rm /tmp/commandlinetools.zip
   
   echo "✅ Android SDK installed"
 else

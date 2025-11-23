@@ -85,7 +85,12 @@ if [ -n "$(uname -a | grep Ubuntu)" ]; then
       if safe_download "$ANDROID_TOOLS_URL" /tmp/commandlinetools.zip "Android command line tools"; then
         rm -rf /tmp/commandlinetools-tmp-unzip
         mkdir -p /tmp/commandlinetools-tmp-unzip
-        unzip -n /tmp/commandlinetools.zip -d /tmp/commandlinetools-tmp-unzip
+        # Use ouch if available, otherwise fallback to unzip
+        if command -v ouch > /dev/null 2>&1; then
+          ouch decompress /tmp/commandlinetools.zip --dir /tmp/commandlinetools-tmp-unzip
+        else
+          unzip -n /tmp/commandlinetools.zip -d /tmp/commandlinetools-tmp-unzip
+        fi
       else
         echo "⚠️  Skipping Android SDK installation due to download failure"
         continue
@@ -143,7 +148,12 @@ if [ -n "$(uname -a | grep Ubuntu)" ]; then
         echo "⚠️  Could not download 1Password CLI fallback"
         continue
       fi
-      unzip -q -o /tmp/op.zip -d /tmp
+      # Use ouch if available, otherwise fallback to unzip
+      if command -v ouch > /dev/null 2>&1; then
+        ouch decompress /tmp/op.zip --dir /tmp
+      else
+        unzip -q -o /tmp/op.zip -d /tmp
+      fi
       sudo mv /tmp/op /usr/local/bin/op
       sudo chmod +x /usr/local/bin/op
       rm -f /tmp/op.zip
@@ -207,7 +217,12 @@ if [ -n "$(uname -a | grep Ubuntu)" ]; then
       AWS_CLI_URL="https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"
       if validate_url "$AWS_CLI_URL" "AWS CLI"; then
         if safe_download "$AWS_CLI_URL" /tmp/awscliv2.zip "AWS CLI"; then
-          unzip -q /tmp/awscliv2.zip -d /tmp
+          # Use ouch if available, otherwise fallback to unzip
+          if command -v ouch > /dev/null 2>&1; then
+            ouch decompress /tmp/awscliv2.zip --dir /tmp
+          else
+            unzip -q /tmp/awscliv2.zip -d /tmp
+          fi
           sudo /tmp/aws/install
           rm -rf /tmp/aws /tmp/awscliv2.zip
         else
