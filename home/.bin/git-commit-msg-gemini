@@ -114,7 +114,30 @@ SUGGESTED_MSG=$(echo "$GEMINI_OUTPUT" | \
   grep -v "^gemini" | \
   awk 'BEGIN{blank=0} /^$/ {blank++; if(blank<=2) print} /./ {blank=0; print}')  # Keep max 2 consecutive blank lines
 
+# Remove ``` only from the beginning and end of the message (not from the middle)
+# Trim leading/trailing whitespace first
+SUGGESTED_MSG=$(echo "$SUGGESTED_MSG" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+# Remove leading ``` lines
+FIRST_LINE=$(echo "$SUGGESTED_MSG" | head -n 1)
+while [ "$FIRST_LINE" = "```" ] || [ "$FIRST_LINE" = "```bash" ] || [ "$FIRST_LINE" = "```sh" ] || echo "$FIRST_LINE" | grep -q "^```[a-z]*$"; do
+  SUGGESTED_MSG=$(echo "$SUGGESTED_MSG" | tail -n +2)
+  FIRST_LINE=$(echo "$SUGGESTED_MSG" | head -n 1)
+  [ -z "$FIRST_LINE" ] && break
+done
+# Remove trailing ``` lines
+LAST_LINE=$(echo "$SUGGESTED_MSG" | tail -n 1)
+while [ "$LAST_LINE" = "```" ] || [ "$LAST_LINE" = "```bash" ] || [ "$LAST_LINE" = "```sh" ] || echo "$LAST_LINE" | grep -q "^```[a-z]*$"; do
+  LINE_COUNT=$(echo "$SUGGESTED_MSG" | wc -l | tr -d ' ')
+  if [ "$LINE_COUNT" -le 1 ]; then
+    break
+  fi
+  SUGGESTED_MSG=$(echo "$SUGGESTED_MSG" | sed '$d')
+  LAST_LINE=$(echo "$SUGGESTED_MSG" | tail -n 1)
+  [ -z "$LAST_LINE" ] && break
+done
+
 # Trim leading/trailing whitespace from each line but preserve structure
+# (Already done above, but keeping for consistency)
 SUGGESTED_MSG=$(echo "$SUGGESTED_MSG" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
 
 # If that didn't work or output is too short, try passing the prompt as a positional argument
@@ -136,6 +159,28 @@ Generate the complete commit message in $LANG_NAME:"
     grep -v "^Warning:" | \
     grep -v "^gemini" | \
     awk 'BEGIN{blank=0} /^$/ {blank++; if(blank<=2) print} /./ {blank=0; print}')
+  
+  # Remove ``` only from the beginning and end of the message (not from the middle)
+  # Trim leading/trailing whitespace first
+  SUGGESTED_MSG=$(echo "$SUGGESTED_MSG" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+  # Remove leading ``` lines
+  FIRST_LINE=$(echo "$SUGGESTED_MSG" | head -n 1)
+  while [ "$FIRST_LINE" = "```" ] || [ "$FIRST_LINE" = "```bash" ] || [ "$FIRST_LINE" = "```sh" ] || echo "$FIRST_LINE" | grep -q "^```[a-z]*$"; do
+    SUGGESTED_MSG=$(echo "$SUGGESTED_MSG" | tail -n +2)
+    FIRST_LINE=$(echo "$SUGGESTED_MSG" | head -n 1)
+    [ -z "$FIRST_LINE" ] && break
+  done
+  # Remove trailing ``` lines
+  LAST_LINE=$(echo "$SUGGESTED_MSG" | tail -n 1)
+  while [ "$LAST_LINE" = "```" ] || [ "$LAST_LINE" = "```bash" ] || [ "$LAST_LINE" = "```sh" ] || echo "$LAST_LINE" | grep -q "^```[a-z]*$"; do
+    LINE_COUNT=$(echo "$SUGGESTED_MSG" | wc -l | tr -d ' ')
+    if [ "$LINE_COUNT" -le 1 ]; then
+      break
+    fi
+    SUGGESTED_MSG=$(echo "$SUGGESTED_MSG" | sed '$d')
+    LAST_LINE=$(echo "$SUGGESTED_MSG" | tail -n 1)
+    [ -z "$LAST_LINE" ] && break
+  done
   SUGGESTED_MSG=$(echo "$SUGGESTED_MSG" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
 fi
 
