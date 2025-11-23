@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Android SDK Command Line Tools version
+# Update this when a new version is released
+# Check latest version at: https://developer.android.com/studio#command-tools
+# Or verify at: https://dl.google.com/android/repository/repository2-1.xml
+export ANDROID_CMD_TOOLS_VERSION="13114758"
+
 # Source validation utilities
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source "$DIR/validate-url" 2>/dev/null || true
@@ -236,7 +242,7 @@ if [ ! -d "$ANDROID_SDK_DIR/cmdline-tools" ] || [ ! -f "$ANDROID_SDK_DIR/cmdline
   fi
   
   # Baixar e instalar command line tools
-  ANDROID_TOOLS_URL="https://dl.google.com/android/repository/commandlinetools-mac-6858069_latest.zip"
+  ANDROID_TOOLS_URL="https://dl.google.com/android/repository/commandlinetools-mac-${ANDROID_CMD_TOOLS_VERSION}_latest.zip"
   if validate_url "$ANDROID_TOOLS_URL" "Android command line tools"; then
     if safe_download "$ANDROID_TOOLS_URL" /tmp/commandlinetools.zip "Android command line tools"; then
       rm -rf /tmp/commandlinetools-tmp-unzip
