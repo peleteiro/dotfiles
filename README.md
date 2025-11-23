@@ -77,7 +77,6 @@ dotfiles/
 - **fzf** - Fuzzy finder for command-line
 - **sd** - Modern `sed` replacement
 - **gnu-sed** - Stream editor (GNU version)
-- **colordiff** - Colorized diff output
 - **delta** - Better `git diff` viewer with syntax highlighting
 
 ### Rust Utilities

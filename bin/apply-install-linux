@@ -120,7 +120,6 @@ if [ -n "$(uname -a | grep Ubuntu)" ]; then
   sudo apt install -y \
                       aria2 \
                       bat \
-                      colordiff \
                       entr \
                       exiftool \
                       fzf \

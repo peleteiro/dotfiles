@@ -68,7 +68,6 @@ awscli \
 bash-completion \
 bat \
 bottom \
-colordiff \
 coreutils \
 delta \
 docker-completion \
