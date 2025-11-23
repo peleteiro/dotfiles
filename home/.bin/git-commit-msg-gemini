@@ -42,54 +42,61 @@ fi
 
 # Generate commit message using Gemini
 # Create the prompt for Gemini
-PROMPT="Based on the following git diff, generate a concise commit message following conventional commits format (type: description). The message should be clear and descriptive. Generate only the commit message, nothing else:
+PROMPT="Based on the following git diff, generate a detailed commit message following conventional commits format (type: description).
 
-$DIFF"
+Requirements:
+- Use conventional commits format (e.g., 'feat:', 'fix:', 'refactor:', 'docs:', etc.)
+- Provide a clear and descriptive summary in the first line
+- Include a detailed body explaining what was changed and why (if significant)
+- Keep all relevant information about the changes
+- Do not remove comments or important details from the diff
+
+Git diff:
+$DIFF
+
+Generate the complete commit message (subject and body if needed):"
 
 # Call Gemini CLI with the prompt
 # Gemini CLI accepts prompts via stdin or as positional arguments
 # First try via stdin (better for long prompts with diff)
 GEMINI_OUTPUT=$(echo "$PROMPT" | gemini 2>/dev/null)
 
-# Extract the first non-empty line that looks like a commit message
-# Filter out common Gemini CLI output patterns and empty lines
+# Extract the commit message, preserving multiple lines and comments
+# Filter out only Gemini CLI metadata, but keep the actual message content
 SUGGESTED_MSG=$(echo "$GEMINI_OUTPUT" | \
-  grep -v "^$" | \
   grep -v "^Usage:" | \
   grep -v "^Error:" | \
   grep -v "^Warning:" | \
   grep -v "^gemini" | \
-  head -n 1 | \
-  sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | \
-  sed 's/^[^a-zA-Z]*//' | \
-  sed 's/[^a-zA-Z0-9: -].*$//')
+  sed '/^$/N;/^\n$/d')  # Remove only excessive blank lines, keep single blank lines
 
-# If that didn't work, try passing the prompt as a positional argument
-if [ -z "$SUGGESTED_MSG" ] || [ ${#SUGGESTED_MSG} -lt 5 ]; then
+# Trim leading/trailing whitespace but preserve structure
+SUGGESTED_MSG=$(echo "$SUGGESTED_MSG" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | sed ':a;N;$!ba;s/\n\n\n\+/\n\n/g')
+
+# If that didn't work or output is too short, try passing the prompt as a positional argument
+if [ -z "$SUGGESTED_MSG" ] || [ ${#SUGGESTED_MSG} -lt 10 ]; then
   # Truncate diff if too long (Gemini CLI may have argument length limits)
-  DIFF_PREVIEW=$(echo "$DIFF" | head -n 50)
-  SHORT_PROMPT="Based on this git diff, generate a concise commit message in conventional commits format (type: description):
+  DIFF_PREVIEW=$(echo "$DIFF" | head -n 100)
+  SHORT_PROMPT="Based on this git diff, generate a detailed commit message in conventional commits format (type: description). Include a detailed body explaining the changes:
 
 $DIFF_PREVIEW
 
-Generate only the commit message:"
+Generate the complete commit message:"
   
   GEMINI_OUTPUT=$(gemini "$SHORT_PROMPT" 2>/dev/null)
   SUGGESTED_MSG=$(echo "$GEMINI_OUTPUT" | \
-    grep -v "^$" | \
     grep -v "^Usage:" | \
     grep -v "^Error:" | \
     grep -v "^Warning:" | \
     grep -v "^gemini" | \
-    head -n 1 | \
-    sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | \
-    sed 's/^[^a-zA-Z]*//' | \
-    sed 's/[^a-zA-Z0-9: -].*$//')
+    sed '/^$/N;/^\n$/d')
+  SUGGESTED_MSG=$(echo "$SUGGESTED_MSG" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | sed ':a;N;$!ba;s/\n\n\n\+/\n\n/g')
 fi
 
-# If we got a valid suggestion (at least 5 characters), write it to the commit message file
-if [ -n "$SUGGESTED_MSG" ] && [ ${#SUGGESTED_MSG} -ge 5 ]; then
+# If we got a valid suggestion (at least 10 characters), write it to the commit message file
+if [ -n "$SUGGESTED_MSG" ] && [ ${#SUGGESTED_MSG} -ge 10 ]; then
   # Write the suggested message to the commit message file
+  # Preserve the full message including body and comments
   echo "$SUGGESTED_MSG" > "$COMMIT_MSG_FILE"
 fi
 
