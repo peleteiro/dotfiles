@@ -92,6 +92,7 @@ rnr \
 sd \
 sqlite \
 ssh-copy-id \
+starship \
 tealdeer \
 tmux \
 tree \
@@ -112,19 +113,67 @@ echo "   Current bash: $(which bash) ($(bash --version | head -1))"
 echo "   To set as default shell, run: chsh -s $BREW_BASH"
 
 # mise
-MISE_URL="https://mise.run"
-if validate_url "$MISE_URL" "mise installer"; then
-  curl -fsSL "$MISE_URL" | sh
+# Note: mise.run doesn't support HEAD requests, so we skip validation and try directly
+if ! command -v mise > /dev/null 2>&1; then
+  echo "📥 Installing mise..."
+  if curl -fsSL https://mise.run | sh; then
+    echo "✅ mise installed"
+  else
+    echo "⚠️  Could not install mise (may need manual installation)"
+  fi
 else
-  echo "⚠️  Could not download mise installer"
+  echo "✅ mise already installed"
 fi
 
 # Function to install cask only if not already installed
+# Checks both Homebrew cask list and if app exists in /Applications
 install_cask_if_missing() {
   local cask_name=$1
-  if ! brew list --cask "$cask_name" > /dev/null 2>&1; then
-    brew install --cask "$cask_name"
+  local app_name="${2:-}"  # Optional: app name in /Applications (if different from cask name)
+  
+  # If app_name not provided, try to infer from cask_name
+  if [ -z "$app_name" ]; then
+    # Common mappings for cask names to app names
+    case "$cask_name" in
+      "1password") app_name="1Password.app" ;;
+      "1password-cli") app_name="" ;;  # CLI tool, no app
+      "antigravity") app_name="Antigravity.app" ;;
+      "cursor") app_name="Cursor.app" ;;
+      "docker") app_name="Docker.app" ;;
+      "droplr") app_name="Droplr.app" ;;
+      "firefox") app_name="Firefox.app" ;;
+      "google-chrome") app_name="Google Chrome.app" ;;
+      "google-drive") app_name="Google Drive.app" ;;
+      "hammerspoon") app_name="Hammerspoon.app" ;;
+      "iconjar") app_name="IconJar.app" ;;
+      "intellij-idea") app_name="IntelliJ IDEA.app" ;;
+      "iterm2") app_name="iTerm.app" ;;
+      "sublime-merge") app_name="Sublime Merge.app" ;;
+      "sublime-text") app_name="Sublime Text.app" ;;
+      "tableplus") app_name="TablePlus.app" ;;
+      "the-unarchiver") app_name="The Unarchiver.app" ;;
+      "transmit") app_name="Transmit.app" ;;
+      "visual-studio-code") app_name="Visual Studio Code.app" ;;
+      "vlc") app_name="VLC.app" ;;
+      *) app_name="" ;;  # Unknown, will only check Homebrew
+    esac
   fi
+  
+  # Check if already installed via Homebrew
+  if brew list --cask "$cask_name" > /dev/null 2>&1; then
+    echo "✅ $cask_name already installed (via Homebrew)"
+    return 0
+  fi
+  
+  # Check if app exists in /Applications (if app_name provided)
+  if [ -n "$app_name" ] && [ -d "/Applications/$app_name" ]; then
+    echo "✅ $cask_name already installed (found in /Applications)"
+    return 0
+  fi
+  
+  # Not installed, install it
+  echo "📥 Installing $cask_name..."
+  brew install --cask "$cask_name"
 }
 
 # install "out of appstore" apps
@@ -209,15 +258,11 @@ fi
 
 # PlatformIO (via Homebrew)
 if ! command -v platformio > /dev/null 2>&1; then
-  if brew list platformio &>/dev/null; then
-    echo "✅ PlatformIO already installed via Homebrew"
+  echo "📥 Installing PlatformIO via Homebrew..."
+  if brew install platformio; then
+    echo "✅ PlatformIO installed"
   else
-    echo "📥 Installing PlatformIO via Homebrew..."
-    if brew install platformio; then
-      echo "✅ PlatformIO installed"
-    else
-      echo "⚠️  Could not install PlatformIO via Homebrew"
-    fi
+    echo "⚠️  Could not install PlatformIO via Homebrew"
   fi
 else
   echo "✅ PlatformIO already installed"

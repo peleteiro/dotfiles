@@ -122,6 +122,7 @@ if [ -n "$(uname -a | grep Ubuntu)" ]; then
                       pngcrush \
                       ripgrep \
                       sqlite3 \
+                      starship \
                       tree \
                       exa \
                       fd-find \

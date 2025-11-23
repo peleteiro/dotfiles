@@ -84,12 +84,17 @@ else
   alias egrep='egrep --color=auto'
 fi
 
-# Simple prompt (can be customized later)
-autoload -Uz vcs_info
-precmd() { vcs_info }
-zstyle ':vcs_info:git:*' formats ' (%b)'
-setopt PROMPT_SUBST
-PROMPT='%F{green}%1~%f%F{blue}${vcs_info_msg_0_}%f$ '
+# Starship prompt (if available, otherwise fallback to simple prompt)
+if command -v starship > /dev/null 2>&1; then
+  eval "$(starship init zsh)"
+else
+  # Fallback to simple prompt
+  autoload -Uz vcs_info
+  precmd() { vcs_info }
+  zstyle ':vcs_info:git:*' formats ' (%b)'
+  setopt PROMPT_SUBST
+  PROMPT='%F{green}%1~%f%F{blue}${vcs_info_msg_0_}%f$ '
+fi
 
 # Zsh functions
 if [ -f ~/.zsh_functions ]; then

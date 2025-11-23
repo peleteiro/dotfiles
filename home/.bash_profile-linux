@@ -1,8 +1,12 @@
 # Linux-specific Bash configurations
 # Most configurations are in ~/.shared_shell_config-linux
 
-# Add username to PS1 prompt (Linux-specific for Bash)
-export PS1="\[\033[36m\]\u\[\033[m\]@${PS1}"
+# Starship will handle the username in the prompt on Linux
+# If starship is not available, fallback to simple prompt with username
+if ! command -v starship > /dev/null 2>&1; then
+  # Fallback: Add username to PS1 prompt (Linux-specific for Bash)
+  export PS1="\[\033[36m\]\u\[\033[m\]@${PS1}"
+fi
 
 # This file can be used for very specific Bash configurations on Linux
 # that should not be shared with Zsh

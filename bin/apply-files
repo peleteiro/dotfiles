@@ -168,31 +168,29 @@ find "$DIR/home" -maxdepth 1 -type d -name ".*" -print0 | while IFS= read -r -d 
   fi
 done
 
-# Setup Git hooks directory and prepare-commit-msg hook
+# Setup Git hooks directory and prepare-commit-msg hook (global for all repos)
 echo "  Setting up Git hooks..."
-mkdir -p "$HOME/.git_template/hooks"
+GIT_HOOKS_DIR="$HOME/.git_hooks"
+mkdir -p "$GIT_HOOKS_DIR"
 if [ -f "$HOME/.bin/git-commit-msg-gemini" ]; then
-  # Create the hook in the template directory (for new repos)
-  cat > "$HOME/.git_template/hooks/prepare-commit-msg" << 'HOOK_EOF'
+  # Create the global prepare-commit-msg hook
+  cat > "$GIT_HOOKS_DIR/prepare-commit-msg" << 'HOOK_EOF'
 #!/bin/bash
 # Git prepare-commit-msg hook to use Gemini for commit message suggestions
 ~/.bin/git-commit-msg-gemini "$1" "$2" "$3"
 HOOK_EOF
-  chmod +x "$HOME/.git_template/hooks/prepare-commit-msg"
-  echo "    → Git prepare-commit-msg hook configured in template"
+  chmod +x "$GIT_HOOKS_DIR/prepare-commit-msg"
+  echo "    → Git prepare-commit-msg hook created in $GIT_HOOKS_DIR"
   
-  # Configure Git to use the template directory
+  # Configure Git to use the global hooks directory for ALL repositories
+  git config --global core.hooksPath "$GIT_HOOKS_DIR"
+  echo "    → Git global hooks path configured (applies to all repositories)"
+  
+  # Also keep the template directory for backwards compatibility
+  mkdir -p "$HOME/.git_template/hooks"
+  cp "$GIT_HOOKS_DIR/prepare-commit-msg" "$HOME/.git_template/hooks/prepare-commit-msg"
   git config --global init.templateDir "$HOME/.git_template" 2>/dev/null || true
-  echo "    → Git template directory configured"
-  
-  # Also set up the hook in the current repository if we're in a git repo
-  if [ -d "$DIR/.git" ]; then
-    mkdir -p "$DIR/.git/hooks"
-    if [ ! -f "$DIR/.git/hooks/prepare-commit-msg" ] || [ "$DIR/.git/hooks/prepare-commit-msg" -ot "$HOME/.bin/git-commit-msg-gemini" ]; then
-      cp "$HOME/.git_template/hooks/prepare-commit-msg" "$DIR/.git/hooks/prepare-commit-msg"
-      echo "    → Git prepare-commit-msg hook configured in current repository"
-    fi
-  fi
+  echo "    → Git template directory also configured for new repositories"
 fi
 
 echo "✅ Dotfiles copied successfully!"

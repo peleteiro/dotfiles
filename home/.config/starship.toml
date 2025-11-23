@@ -1,0 +1,168 @@
+# Starship prompt configuration
+# Replicates the simple prompt: directory (green) + git branch (blue) + $
+# On Linux, also shows username@hostname
+
+# Disable all modules by default, then enable only what we need
+# Format varies by OS: Linux shows username, macOS doesn't
+format = """
+$username\
+$directory\
+$git_branch\
+$character
+"""
+
+# Directory module (green, shows current directory)
+[directory]
+style = "bold green"
+truncation_length = 0  # Show full path (like \w in bash)
+truncate_to_repo = false
+
+# Git branch module (blue, shows current branch)
+[git_branch]
+symbol = ""
+style = "bold blue"
+format = " [$branch]"
+
+# Character module (shows $ or #)
+[character]
+success_symbol = "[$](bold)"
+error_symbol = "[$](bold red)"
+
+# Disable all other modules for a clean, fast prompt
+[aws]
+disabled = true
+
+[battery]
+disabled = true
+
+[cmd_duration]
+disabled = true
+
+[conda]
+disabled = true
+
+[container]
+disabled = true
+
+[crystal]
+disabled = true
+
+[dart]
+disabled = true
+
+[deno]
+disabled = true
+
+[docker_context]
+disabled = true
+
+[elixir]
+disabled = true
+
+[elm]
+disabled = true
+
+[env_var]
+disabled = true
+
+[erlang]
+disabled = true
+
+[gcloud]
+disabled = true
+
+[golang]
+disabled = true
+
+[helm]
+disabled = true
+
+[hg_branch]
+disabled = true
+
+[java]
+disabled = true
+
+[julia]
+disabled = true
+
+[kotlin]
+disabled = true
+
+[kubernetes]
+disabled = true
+
+[lua]
+disabled = true
+
+[memory_usage]
+disabled = true
+
+[nim]
+disabled = true
+
+[nix_shell]
+disabled = true
+
+[nodejs]
+disabled = true
+
+[ocaml]
+disabled = true
+
+[package]
+disabled = true
+
+[perl]
+disabled = true
+
+[php]
+disabled = true
+
+[pulumi]
+disabled = true
+
+[python]
+disabled = true
+
+[ruby]
+disabled = true
+
+[rust]
+disabled = true
+
+[scala]
+disabled = true
+
+[shlvl]
+disabled = true
+
+[swift]
+disabled = true
+
+[terraform]
+disabled = true
+
+[time]
+disabled = true
+
+# Username module
+# On Linux: always show (matches original prompt behavior)
+# On macOS: only show on SSH/remote (default behavior)
+[username]
+show_always = true  # Always show username (matches Linux prompt behavior)
+style_user = "bold cyan"
+style_root = "bold red"
+format = "[$user]($style_user)@"
+# Note: This will show username on both Linux and macOS
+# If you want macOS to not show username, you can create OS-specific configs
+
+[vagrant]
+disabled = true
+
+[vlang]
+disabled = true
+
+[zig]
+disabled = true
+

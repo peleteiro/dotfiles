@@ -49,8 +49,13 @@ if [ -f ~/.bash_functions ]; then
   source ~/.bash_functions
 fi
 
-# Bash prompt
-export PS1='\[\033[01;32m\]\w\[\e[m\]\[\e[1;34m\]$(__git_ps1 )\[\e[m\]\[\e[m\]\$ '
+# Starship prompt (if available, otherwise fallback to simple prompt)
+if command -v starship > /dev/null 2>&1; then
+  eval "$(starship init bash)"
+else
+  # Fallback to simple prompt
+  export PS1='\[\033[01;32m\]\w\[\e[m\]\[\e[1;34m\]$(__git_ps1 )\[\e[m\]\[\e[m\]\$ '
+fi
 
 # Bash history
 export HISTCONTROL=ignoreboth
