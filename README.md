@@ -327,24 +327,172 @@ Add your personal configurations here without committing them to the repository.
 ## 🐛 Troubleshooting
 
 ### Files Not Loading?
+
+**Symptoms:** Changes to dotfiles aren't taking effect, or files aren't found.
+
+**Solution:**
 ```bash
 ./dotfiles apply:install  # Ensure packages are installed
-./dotfiles apply:files    # Re-copy dotfiles
+./dotfiles apply:files     # Re-copy dotfiles
+source ~/.bash_profile    # Reload shell (Bash)
+# or
+source ~/.zshrc           # Reload shell (Zsh)
 ```
 
 ### Commands Not Found?
-- Verify packages are installed: `./dotfiles apply:install`
-- Check if `~/.shared_shell_config` is loaded in your shell
-- Reload shell: `source ~/.bash_profile` or `source ~/.zshrc`
 
-### Git/SSH/GPG Issues?
-- GPG key is automatically imported from 1Password (if authenticated)
-- Verify 1Password CLI: `op signin`
-- Re-run: `./dotfiles apply:files`
+**Symptoms:** Commands like `bat`, `rg`, `fzf`, etc. are not recognized.
+
+**Solutions:**
+1. Verify packages are installed: `./dotfiles apply:install`
+2. Check if `~/.shared_shell_config` is loaded in your shell
+3. Verify PATH includes `~/.local/bin` (Linux) or Homebrew paths (macOS)
+4. Reload shell: `source ~/.bash_profile` or `source ~/.zshrc`
+5. Check if the package manager (Homebrew/apt) is working correctly
+
+### GPG/1Password Setup Issues?
+
+**Symptoms:** GPG key not imported, Git commits not signed, or 1Password integration not working.
+
+**Common Causes:**
+- 1Password CLI not installed or not signed in
+- GPG key import failed during initial setup
+- GPG agent not configured correctly
+
+**Solution - Use the GPG Setup Script:**
+
+We provide a dedicated script to fix GPG setup issues:
+
+```bash
+# From the dotfiles directory
+./bin/setup-gpg-with-1password
+```
+
+This script will:
+- ✅ Verify 1Password CLI is installed and authenticated
+- ✅ Retrieve the PGP key from 1Password
+- ✅ Import or reimport the GPG key
+- ✅ Configure Git signing automatically
+- ✅ Verify GPG agent configuration
+
+**Force Reimport:**
+If you need to reimport the key even if it already exists:
+
+```bash
+./bin/setup-gpg-with-1password --force
+```
+
+**Manual Troubleshooting Steps:**
+
+1. **Verify 1Password CLI:**
+   ```bash
+   op --version           # Check if installed
+   op account list        # Check if signed in
+   op signin              # Sign in if needed
+   ```
+
+2. **Verify GPG Key in 1Password:**
+   ```bash
+   op document get b2lpibkkqfqtp5lvvp25ugx3kq | head -20
+   ```
+
+3. **Check Current GPG Keys:**
+   ```bash
+   gpg --list-secret-keys
+   ```
+
+4. **Verify Git Configuration:**
+   ```bash
+   git config --global user.signingkey
+   git config --global commit.gpgsign
+   ```
+
+5. **Re-run Setup:**
+   ```bash
+   ./bin/setup-gpg-with-1password  # Use the setup script
+   # or
+   ./bin/apply-config-gpg          # Original config script
+   ```
+
+### SSH Issues?
+
+**Symptoms:** SSH connections failing, keys not found, or 1Password SSH agent not working.
+
+**Solutions:**
+1. Verify 1Password SSH agent is running:
+   ```bash
+   ls -la ~/.1password/agent.sock
+   ```
+
+2. Check SSH config:
+   ```bash
+   cat ~/.ssh/config
+   ```
+
+3. Verify SSH keys in 1Password:
+   ```bash
+   op item list --categories "Secure Note" | grep -i ssh
+   ```
+
+4. Re-apply SSH configuration:
+   ```bash
+   ./dotfiles apply:files
+   ```
+
+### Git Configuration Issues?
+
+**Symptoms:** Wrong editor, merge tool, or signing not working.
+
+**Solutions:**
+1. Check current Git configuration:
+   ```bash
+   git config --global --list
+   ```
+
+2. Verify GUI detection (should match your environment):
+   ```bash
+   echo $DISPLAY        # Linux GUI
+   echo $WAYLAND_DISPLAY  # Linux Wayland
+   ```
+
+3. Re-apply Git configuration:
+   ```bash
+   ./dotfiles apply:files
+   ```
+
+### Package Installation Issues?
+
+**Symptoms:** Packages fail to install, or installation is incomplete.
+
+**Solutions:**
+
+**macOS:**
+```bash
+# Update Homebrew
+brew update
+
+# Fix Homebrew issues
+brew doctor
+
+# Re-run installation
+./dotfiles apply:install
+```
+
+**Linux:**
+```bash
+# Update package lists
+sudo apt update
+
+# Fix broken packages
+sudo apt --fix-broken install
+
+# Re-run installation
+./dotfiles apply:install
+```
 
 ### Debug Environment
 
-Use the debug environments to troubleshoot issues:
+Use the debug environments to troubleshoot issues in isolated containers:
 
 ```bash
 # Ubuntu with GUI (VNC access)
@@ -355,10 +503,14 @@ mise run debug:linux:nogui
 ```
 
 The debug environments provide:
-- Interactive bash shell
-- Pre-configured environment
+- Interactive bash shell with pre-configured environment
 - VNC access (GUI mode) for visual debugging
 - Automatic cleanup on exit
+- Full access to test installation scripts
+
+**VNC Connection (GUI mode):**
+After starting `debug:linux:gui`, the script will display connection instructions.
+Typically: `vncviewer localhost:<port>` with password `password`.
 
 ---
 
