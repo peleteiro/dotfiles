@@ -1,7 +1,7 @@
 #!/bin/bash
 # Task: Run all Linux tests
 # Usage: mise run test:linux
-# Executes both GUI and no-GUI tests
+# Executes both gui and nogui tests
 
 set -e
 
@@ -15,14 +15,14 @@ echo -e "${BLUE}🧪 Running all Linux tests${NC}"
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
 
-# Run no-GUI test
-echo -e "${BLUE}▶${NC} Running no-GUI test (Debian slim)..."
+# Run nogui test
+echo -e "${BLUE}▶${NC} Running nogui test (Debian slim)..."
 mise run test:linux:nogui
 
 echo ""
 
-# Run GUI test
-echo -e "${BLUE}▶${NC} Running GUI test (Ubuntu)..."
+# Run gui test
+echo -e "${BLUE}▶${NC} Running gui test (Ubuntu)..."
 mise run test:linux:gui
 
 echo ""
