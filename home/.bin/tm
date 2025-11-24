@@ -2,4 +2,8 @@
 SESSION_NAME=$1
 if [[ -z "$SESSION_NAME" ]]; then SESSION_NAME=0; fi
 
-tmux has -t $SESSION_NAME && tmux attach -t $SESSION_NAME || tmux new -s $SESSION_NAME
+if tmux has -t "$SESSION_NAME" 2>/dev/null; then
+  tmux attach -t "$SESSION_NAME"
+else
+  tmux new -s "$SESSION_NAME"
+fi

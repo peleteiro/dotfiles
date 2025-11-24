@@ -54,6 +54,18 @@ while IFS= read -r -d '' script; do
   fi
 done < <(find "$MISE_CONFIG_ROOT/bin" -type f -print0 2>/dev/null)
 
+# Find and check scripts in home/.bin/
+if [ -d "$MISE_CONFIG_ROOT/home/.bin" ]; then
+  while IFS= read -r -d '' script; do
+    if file "$script" 2>/dev/null | grep -q "shell script"; then
+      echo "  Checking $script"
+      if ! shellcheck "$script"; then
+        SHELLCHECK_ERRORS=$((SHELLCHECK_ERRORS + 1))
+      fi
+    fi
+  done < <(find "$MISE_CONFIG_ROOT/home/.bin" -type f -print0 2>/dev/null)
+fi
+
 # Check main dotfiles script
 if [ -f "$MISE_CONFIG_ROOT/dotfiles" ]; then
   echo "  Checking dotfiles"
@@ -94,6 +106,18 @@ while IFS= read -r script; do
     fi
   fi
 done < <(find "$MISE_CONFIG_ROOT/bin" -type f 2>/dev/null)
+
+# Check scripts in home/.bin/
+if [ -d "$MISE_CONFIG_ROOT/home/.bin" ]; then
+  while IFS= read -r script; do
+    if head -1 "$script" 2>/dev/null | grep -q "#!/bin/bash\|#!/bin/sh"; then
+      echo "  Checking syntax: $script"
+      if ! bash -n "$script"; then
+        SYNTAX_ERRORS=$((SYNTAX_ERRORS + 1))
+      fi
+    fi
+  done < <(find "$MISE_CONFIG_ROOT/home/.bin" -type f 2>/dev/null)
+fi
 
 # Check main dotfiles script
 if [ -f "$MISE_CONFIG_ROOT/dotfiles" ]; then

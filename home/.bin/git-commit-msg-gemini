@@ -2,6 +2,19 @@
 # Git commit message helper using Gemini CLI
 # This script generates commit messages using Gemini based on git diff
 
+# Pattern for matching code block markers (triple backticks with optional language)
+# Using a variable to avoid shellcheck issues with backticks in strings
+CODE_BLOCK_PATTERN='^```[a-z]*$'
+TRIPLE_BACKTICK='```'
+TRIPLE_BACKTICK_BASH='```bash'
+TRIPLE_BACKTICK_SH='```sh'
+
+# Function to check if a line is a code block marker
+is_code_block_marker() {
+  local line="$1"
+  [ "$line" = "$TRIPLE_BACKTICK" ] || [ "$line" = "$TRIPLE_BACKTICK_BASH" ] || [ "$line" = "$TRIPLE_BACKTICK_SH" ] || echo "$line" | grep -qE "$CODE_BLOCK_PATTERN"
+}
+
 # Check if gemini CLI is available
 if ! command -v gemini > /dev/null 2>&1; then
   # If gemini is not available, exit silently (don't break git commit)
@@ -11,6 +24,7 @@ fi
 # Get the commit message file path
 COMMIT_MSG_FILE="$1"
 COMMIT_SOURCE="$2"
+# shellcheck disable=SC2034  # SHA1 is provided by git hook but not used
 SHA1="$3"
 
 # Only generate message for new commits (not merges, amends, etc.)
@@ -112,21 +126,21 @@ SUGGESTED_MSG=$(echo "$GEMINI_OUTPUT" | \
   grep -v "^Error:" | \
   grep -v "^Warning:" | \
   grep -v "^gemini" | \
-  awk 'BEGIN{blank=0} /^$/ {blank++; if(blank<=2) print} /./ {blank=0; print}')  # Keep max 2 consecutive blank lines
+  sd '\n\n\n+' '\n\n')  # Keep max 2 consecutive blank lines
 
-# Remove ``` only from the beginning and end of the message (not from the middle)
+# Remove code block markers only from the beginning and end of the message
 # Trim leading/trailing whitespace first
 SUGGESTED_MSG=$(echo "$SUGGESTED_MSG" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-# Remove leading ``` lines
+# Remove leading code block marker lines
 FIRST_LINE=$(echo "$SUGGESTED_MSG" | head -n 1)
-while [ "$FIRST_LINE" = "```" ] || [ "$FIRST_LINE" = "```bash" ] || [ "$FIRST_LINE" = "```sh" ] || echo "$FIRST_LINE" | grep -q "^```[a-z]*$"; do
+while is_code_block_marker "$FIRST_LINE"; do
   SUGGESTED_MSG=$(echo "$SUGGESTED_MSG" | tail -n +2)
   FIRST_LINE=$(echo "$SUGGESTED_MSG" | head -n 1)
   [ -z "$FIRST_LINE" ] && break
 done
-# Remove trailing ``` lines
+# Remove trailing code block marker lines
 LAST_LINE=$(echo "$SUGGESTED_MSG" | tail -n 1)
-while [ "$LAST_LINE" = "```" ] || [ "$LAST_LINE" = "```bash" ] || [ "$LAST_LINE" = "```sh" ] || echo "$LAST_LINE" | grep -q "^```[a-z]*$"; do
+while is_code_block_marker "$LAST_LINE"; do
   LINE_COUNT=$(echo "$SUGGESTED_MSG" | wc -l | tr -d ' ')
   if [ "$LINE_COUNT" -le 1 ]; then
     break
@@ -158,21 +172,21 @@ Generate the complete commit message in $LANG_NAME:"
     grep -v "^Error:" | \
     grep -v "^Warning:" | \
     grep -v "^gemini" | \
-    awk 'BEGIN{blank=0} /^$/ {blank++; if(blank<=2) print} /./ {blank=0; print}')
+    sd '\n\n\n+' '\n\n')  # Keep max 2 consecutive blank lines
   
-  # Remove ``` only from the beginning and end of the message (not from the middle)
+  # Remove code block markers from beginning and end only
   # Trim leading/trailing whitespace first
   SUGGESTED_MSG=$(echo "$SUGGESTED_MSG" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-  # Remove leading ``` lines
+  # Remove leading code block marker lines
   FIRST_LINE=$(echo "$SUGGESTED_MSG" | head -n 1)
-  while [ "$FIRST_LINE" = "```" ] || [ "$FIRST_LINE" = "```bash" ] || [ "$FIRST_LINE" = "```sh" ] || echo "$FIRST_LINE" | grep -q "^```[a-z]*$"; do
+  while is_code_block_marker "$FIRST_LINE"; do
     SUGGESTED_MSG=$(echo "$SUGGESTED_MSG" | tail -n +2)
     FIRST_LINE=$(echo "$SUGGESTED_MSG" | head -n 1)
     [ -z "$FIRST_LINE" ] && break
   done
-  # Remove trailing ``` lines
+  # Remove trailing code block marker lines
   LAST_LINE=$(echo "$SUGGESTED_MSG" | tail -n 1)
-  while [ "$LAST_LINE" = "```" ] || [ "$LAST_LINE" = "```bash" ] || [ "$LAST_LINE" = "```sh" ] || echo "$LAST_LINE" | grep -q "^```[a-z]*$"; do
+  while is_code_block_marker "$LAST_LINE"; do
     LINE_COUNT=$(echo "$SUGGESTED_MSG" | wc -l | tr -d ' ')
     if [ "$LINE_COUNT" -le 1 ]; then
       break
