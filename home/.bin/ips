@@ -1,2 +1,3 @@
 #!/bin/bash
-ifconfig | grep "inet " | awk '{ print $2 }'
+# shellcheck disable=SC2016  # sd requires single quotes for regex replacement
+ifconfig | rg 'inet ' | sd '.*inet ([0-9.]+).*' '$1'

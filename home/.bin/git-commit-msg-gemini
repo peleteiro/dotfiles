@@ -12,7 +12,7 @@ TRIPLE_BACKTICK_SH='```sh'
 # Function to check if a line is a code block marker
 is_code_block_marker() {
   local line="$1"
-  [ "$line" = "$TRIPLE_BACKTICK" ] || [ "$line" = "$TRIPLE_BACKTICK_BASH" ] || [ "$line" = "$TRIPLE_BACKTICK_SH" ] || echo "$line" | grep -qE "$CODE_BLOCK_PATTERN"
+  [ "$line" = "$TRIPLE_BACKTICK" ] || [ "$line" = "$TRIPLE_BACKTICK_BASH" ] || [ "$line" = "$TRIPLE_BACKTICK_SH" ] || echo "$line" | rg -qE "$CODE_BLOCK_PATTERN" || false
 }
 
 # Check if gemini CLI is available
@@ -50,12 +50,12 @@ COMMENTS_ONLY=""
 if [ -f "$COMMIT_MSG_FILE" ]; then
   ORIGINAL_CONTENT=$(cat "$COMMIT_MSG_FILE")
   # Extract comments (lines starting with #) - these include the file listing
-  COMMENTS_ONLY=$(echo "$ORIGINAL_CONTENT" | grep "^#")
+  COMMENTS_ONLY=$(echo "$ORIGINAL_CONTENT" | rg '^#' || true)
   
   # Check if message file already has non-comment content (user may have edited it)
   if [ -s "$COMMIT_MSG_FILE" ]; then
     # Check if there's any non-comment content
-    NON_COMMENT_CONTENT=$(echo "$ORIGINAL_CONTENT" | grep -v "^#" | grep -v "^$" || true)
+    NON_COMMENT_CONTENT=$(echo "$ORIGINAL_CONTENT" | rg -v '^#|^$' || true)
     if [ -n "$NON_COMMENT_CONTENT" ]; then
       # User has already written something, don't overwrite
       exit 0
@@ -81,7 +81,7 @@ case "$GIT_COMMIT_LANG" in
   *)
     # For any other language, use the code as-is
     # Normalize common separators but keep the language code
-    LANG_CODE=$(echo "$GIT_COMMIT_LANG" | tr '[:upper:]' '[:lower:]' | sed 's/_/-/g')
+    LANG_CODE=$(echo "$GIT_COMMIT_LANG" | tr '[:upper:]' '[:lower:]' | sd '_' '-')
     # Try to get language name from the code (basic mapping for common languages)
     case "$LANG_CODE" in
       "es"|"es-es"|"es-mx"|"es-ar") LANG_NAME="Spanish" ;;
@@ -122,15 +122,12 @@ GEMINI_OUTPUT=$(echo "$PROMPT" | gemini 2>/dev/null)
 # Extract the commit message, preserving multiple lines and comments
 # Filter out only Gemini CLI metadata, but keep the actual message content
 SUGGESTED_MSG=$(echo "$GEMINI_OUTPUT" | \
-  grep -v "^Usage:" | \
-  grep -v "^Error:" | \
-  grep -v "^Warning:" | \
-  grep -v "^gemini" | \
+  rg -v '^(Usage|Error|Warning|gemini):' || true | \
   sd '\n\n\n+' '\n\n')  # Keep max 2 consecutive blank lines
 
 # Remove code block markers only from the beginning and end of the message
 # Trim leading/trailing whitespace first
-SUGGESTED_MSG=$(echo "$SUGGESTED_MSG" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+SUGGESTED_MSG=$(echo "$SUGGESTED_MSG" | sd '^\s+|\s+$' '')
 # Remove leading code block marker lines
 FIRST_LINE=$(echo "$SUGGESTED_MSG" | head -n 1)
 while is_code_block_marker "$FIRST_LINE"; do
@@ -168,10 +165,7 @@ Generate the complete commit message in $LANG_NAME:"
   
   GEMINI_OUTPUT=$(gemini "$SHORT_PROMPT" 2>/dev/null)
   SUGGESTED_MSG=$(echo "$GEMINI_OUTPUT" | \
-    grep -v "^Usage:" | \
-    grep -v "^Error:" | \
-    grep -v "^Warning:" | \
-    grep -v "^gemini" | \
+    rg -v '^(Usage|Error|Warning|gemini):' || true | \
     sd '\n\n\n+' '\n\n')  # Keep max 2 consecutive blank lines
   
   # Remove code block markers from beginning and end only

@@ -28,7 +28,8 @@ if [ "$KEY_TYPE" = "pgp" ]; then
   
   if [ "$KEY_VISIBILITY" = "public" ]; then
     # Export from locally imported key (keys are imported during dotfiles setup)
-    KEY_ID=$(gpg --list-secret-keys --keyid-format LONG 2>/dev/null | grep "^sec" | head -1 | awk '{print $2}' | cut -d'/' -f2)
+    # shellcheck disable=SC2016  # sd requires single quotes for regex replacement
+    KEY_ID=$(gpg --list-secret-keys --keyid-format LONG 2>/dev/null | rg '^sec' | head -1 | sd '.*/([A-F0-9]+).*' '$1')
     if [ -z "$KEY_ID" ]; then
       echo "Error: No PGP keys found locally" >&2
       exit 1
@@ -61,7 +62,7 @@ if [ "$KEY_TYPE" = "ssh" ]; then
   if [ "$KEY_VISIBILITY" = "public" ]; then
     # Try to get public key, or extract from private key
     KEY_CONTENT=$(op item get "$OP_SSH_KEY_ID" --fields "public key" 2>/dev/null || op document get "$OP_SSH_KEY_ID" 2>/dev/null || true)
-    if [ -z "$KEY_CONTENT" ] || ! echo "$KEY_CONTENT" | grep -q "ssh-"; then
+    if [ -z "$KEY_CONTENT" ] || ! echo "$KEY_CONTENT" | rg -q "ssh-"; then
       # Extract from private key
       PRIVATE_KEY=$(op document get "$OP_SSH_KEY_ID" 2>/dev/null || op item get "$OP_SSH_KEY_ID" --fields "notesPlain" 2>/dev/null || true)
       if [ -n "$PRIVATE_KEY" ] && command -v ssh-keygen > /dev/null 2>&1; then

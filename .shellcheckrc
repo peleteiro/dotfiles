@@ -1,0 +1,24 @@
+# ShellCheck configuration for dotfiles project
+# This file configures shellcheck to work with modern utilities like sd, rg, etc.
+
+# Note: SC2016 (Expressions don't expand in single quotes) is expected when using:
+# - `sd` (sed replacement) - requires single quotes for regex patterns
+# - `rg` (ripgrep) - single quotes are appropriate for literal patterns
+# These warnings are intentionally suppressed with inline comments where needed.
+
+# Enable external-sources to allow analysis of external commands
+external-sources=true
+
+# Shell dialect (bash 4.1+)
+shell=bash
+
+# Exclude common false positives for our project
+# SC1091: Not following source files (we use validate-url which may not exist in all contexts)
+# SC2034: Variables appear unused (some are used by external tools or git hooks)
+# SC2016: Single quotes in sd/rg commands (intentional for regex patterns)
+
+# We don't disable these globally, but document them here:
+# - SC2016: Use inline `# shellcheck disable=SC2016` for sd/rg commands with single quotes
+# - SC1091: Use inline `# shellcheck disable=SC1091` for optional source files
+# - SC2034: Use inline `# shellcheck disable=SC2034` for intentionally unused variables
+
