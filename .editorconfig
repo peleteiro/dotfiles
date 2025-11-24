@@ -1,6 +1,9 @@
-# http://editorconfig.org
+# EditorConfig is awesome: https://EditorConfig.org
+
+# Top-most EditorConfig file
 root = true
 
+# Default settings for all files
 [*]
 max_line_length = 180
 insert_final_newline = true
@@ -10,9 +13,10 @@ end_of_line = lf
 charset = utf-8
 trim_trailing_whitespace = true
 
+# Markdown files - preserve trailing whitespace for line breaks
 [*.md]
 trim_trailing_whitespace = false
 
+# Makefile - tabs required
 [Makefile]
 indent_style = tab
-indent_size = 4
