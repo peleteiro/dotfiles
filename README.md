@@ -543,10 +543,17 @@ See [LICENSE](LICENSE) file for details.
 
 ## 🤝 Contributing
 
-This is a personal dotfiles repository. Feel free to:
-- Fork and adapt for your own use
-- Use as reference for your own setup
+**Important:** This is a **personal dotfiles repository**. I do not intend to transform this into a project for direct use by other people. Instead, this is meant to be **forked and adapted** to create your own personalized dotfiles setup.
+
+**Recommended approach:**
+- **Fork this repository** and start your own dotfiles project from here
+- **Adapt and customize** the configuration to your needs
+- **Use as reference** for your own setup
+
+**However**, if you still want to contribute (e.g., report bugs, suggest improvements, or share ideas), feel free to:
 - Report issues or suggest improvements
+- Share ideas or best practices
+- Submit pull requests (though they may not be merged if they're too personal/specific)
 
 ---
 
