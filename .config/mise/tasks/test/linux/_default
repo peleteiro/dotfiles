@@ -1,0 +1,32 @@
+#!/bin/bash
+# Task: Run all Linux tests
+# Usage: mise run test:linux
+# Executes both GUI and no-GUI tests
+
+set -e
+
+# Colors for output
+BLUE='\033[0;34m'
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
+
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${BLUE}🧪 Running all Linux tests${NC}"
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo ""
+
+# Run no-GUI test
+echo -e "${BLUE}▶${NC} Running no-GUI test (Debian slim)..."
+mise run test:linux:nogui
+
+echo ""
+
+# Run GUI test
+echo -e "${BLUE}▶${NC} Running GUI test (Ubuntu)..."
+mise run test:linux:gui
+
+echo ""
+echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${GREEN}✅ All Linux tests completed!${NC}"
+echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+

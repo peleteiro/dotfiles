@@ -1,0 +1,33 @@
+#!/bin/bash
+# Task: Run complete configuration (config + install + files)
+# Usage: mise run apply
+
+set -e
+
+OS=$(uname)
+
+# Colors for output
+BLUE='\033[0;34m'
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
+
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${BLUE}🚀 Running complete configuration${NC}"
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo ""
+
+# Run config (macOS only)
+if [[ "$OS" == "Darwin" ]]; then
+  mise run apply:config
+fi
+
+# Run install and files
+mise run apply:install
+mise run apply:files
+
+echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${GREEN}✅ Complete configuration finished!${NC}"
+echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo ""
+echo "💡 Tip: Run 'mise run check' to verify everything is OK"
+

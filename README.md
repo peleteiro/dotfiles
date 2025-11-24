@@ -15,6 +15,7 @@ Personal dotfiles configuration with support for **Bash** and **Zsh** on **macOS
 - **Google account** - Optional, for Gemini CLI
 
 ### Prerequisites
+- **mise** - Runtime version manager (formerly rtx) - [Installation guide](https://mise.jdx.dev/getting-started.html)
 - **Git** - Should be pre-installed on most systems
 - **curl** - Usually pre-installed, required for downloads
 - **bash** - Version 4.1+ recommended (will be installed via Homebrew on macOS)
@@ -22,32 +23,63 @@ Personal dotfiles configuration with support for **Bash** and **Zsh** on **macOS
 ## Quick Start
 
 ```bash
-./dotfiles apply
+mise run apply
 ```
 
 This installs everything: system configuration, packages, and dotfiles.
 
+**Note:** If `mise` is not installed, install it first:
+- **macOS**: `brew install mise` or `curl https://mise.run | sh`
+- **Linux**: `curl https://mise.run | sh`
+
 ## Commands
+
+All commands are run using `mise run <task>`:
 
 | Command | Description |
 |---------|-------------|
-| `check` | Verify dotfiles integrity |
-| `apply` | Run apply:config, apply:install, and apply:files (in order) |
-| `apply:config` | Configure operating system (macOS or Linux) |
-| `apply:install` | Install packages and applications |
-| `apply:files` | Copy dotfiles to home directory |
-| `help` | Show help message |
+| `mise run apply` | Run apply:config, apply:install, and apply:files (in order) |
+| `mise run apply:config` | Configure operating system (macOS or Linux) |
+| `mise run apply:install` | Install packages and applications |
+| `mise run apply:files` | Copy dotfiles to home directory |
+| `mise run lint` | Lint and syntax-check all bash scripts |
+| `mise run test` | Run all tests (executes test:linux) |
+| `mise run test:linux` | Test scripts on Linux |
+
+Tasks are defined in `.config/mise/tasks/` using directory structure:
+- `apply` → `.config/mise/tasks/apply/_default` (has subtasks)
+- `apply:config` → `.config/mise/tasks/apply/config`
+- `apply:install` → `.config/mise/tasks/apply/install`
+- `apply:files` → `.config/mise/tasks/apply/files`
+- `lint` → `.config/mise/tasks/lint` (simple task, no subtasks)
+- `test` → `.config/mise/tasks/test/_default` (has subtasks)
+- `test:linux` → `.config/mise/tasks/test/linux`
+
+List all available tasks with `mise tasks`.
 
 ## Project Structure
 
 ```
 dotfiles/
+├── .config/
+│   └── mise/
+│       └── tasks/           # mise task definitions
+│           ├── apply/       # apply:* tasks (has subtasks)
+│           │   ├── _default # apply task
+│           │   ├── config   # apply:config task
+│           │   ├── files    # apply:files task
+│           │   └── install  # apply:install task
+│           ├── test/        # test:* tasks (has subtasks)
+│           │   ├── _default # test task
+│           │   └── linux    # test:linux task
+│           └── lint         # lint task (simple, no subtasks)
 ├── bin/              # Installation and management scripts
 ├── home/             # Configuration files (copied to ~/)
 │   ├── .git_hooks/   # Git hooks (prepare-commit-msg, commit-msg)
 │   └── .bin/         # Custom scripts
 ├── macos/            # macOS-specific configurations
-└── dotfiles          # Main script with subcommands
+├── mise.toml         # mise configuration
+└── dotfiles          # Apply script (apply, apply:config, apply:install, apply:files)
 ```
 
 ## Features
@@ -264,7 +296,7 @@ This setup includes automatic commit message generation using Google Gemini AI. 
 - `prepare-commit-msg`: Generates commit message suggestions using Gemini AI
 - `commit-msg`: Verifies that the commit message file was saved (prevents commits when editor is closed without saving)
 
-The hooks are located in `home/.git_hooks/` and are automatically installed to `~/.git_hooks/` when running `./dotfiles apply:files`.
+The hooks are located in `home/.git_hooks/` and are automatically installed to `~/.git_hooks/` when running `mise run apply:files`.
 
 **Language Configuration:**
 Set the `GIT_COMMIT_LANG` environment variable to control the language of generated commit messages:
@@ -308,7 +340,7 @@ Hooks are automatically installed to `~/.git_hooks/` and configured as global Gi
 ## Adding Configurations
 
 1. Edit files in `home/` directory
-2. Run `./dotfiles apply:files` to apply changes
+2. Run `mise run apply:files` to apply changes
 3. Reload shell: `source ~/.bash_profile` or `source ~/.zshrc`
 
 ## Updating Dotfiles
@@ -317,7 +349,7 @@ To update your dotfiles from the repository:
 
 ```bash
 git pull origin master  # or 'main' depending on your default branch
-./dotfiles apply
+mise run apply
 ```
 
 This will:
@@ -341,18 +373,17 @@ Private files (not versioned) are automatically loaded if they exist:
 ## Troubleshooting
 
 **Files not loading?**
-```bash
-./dotfiles check  # Verify installation
-```
+- Ensure packages are installed: `mise run apply:install`
+- Check if files were copied: `mise run apply:files`
 
 **Commands not found?**
-- Ensure packages are installed: `./dotfiles apply:install`
+- Ensure packages are installed: `mise run apply:install`
 - Check if `~/.shared_shell_config` is loaded
 
 **Git/SSH/GPG issues?**
 - GPG key is automatically imported from 1Password when copying dotfiles (if authenticated)
 - Verify 1Password CLI is installed and authenticated: `op signin`
-- If key wasn't imported, ensure you're signed in and run `./dotfiles apply:files` again
+- If key wasn't imported, ensure you're signed in and run `mise run apply:files` again
 
 ## License
 

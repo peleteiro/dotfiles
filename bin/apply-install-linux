@@ -8,10 +8,11 @@ export ANDROID_CMD_TOOLS_VERSION="13114758"
 
 # Source validation utilities
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# shellcheck disable=SC1091
 source "$DIR/validate-url" 2>/dev/null || true
 
 # Ubuntu
-if [ -n "$(uname -a | grep Ubuntu)" ]; then
+if uname -a | grep -q Ubuntu; then
   echo "Installing packages for Ubuntu..."
 
   sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
@@ -47,7 +48,7 @@ if [ -n "$(uname -a | grep Ubuntu)" ]; then
     sudo apt update
     sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
     sudo groupadd docker 2>/dev/null || true
-    sudo usermod -aG docker $USER
+    sudo usermod -aG docker "$USER"
     sudo systemctl enable docker
     echo "✅ Docker installed"
   else
@@ -62,11 +63,13 @@ if [ -n "$(uname -a | grep Ubuntu)" ]; then
     fi
     # Zsh completion (será carregado automaticamente se docker completion zsh estiver disponível)
     if [ -f ~/.zshrc ] && ! grep -q "docker completion zsh" ~/.zshrc; then
-      echo "" >> ~/.zshrc
-      echo "# Docker completion" >> ~/.zshrc
-      echo "if command -v docker > /dev/null 2>&1; then" >> ~/.zshrc
-      echo "  source <(docker completion zsh)" >> ~/.zshrc
-      echo "fi" >> ~/.zshrc
+      {
+        echo ""
+        echo "# Docker completion"
+        echo "if command -v docker > /dev/null 2>&1; then"
+        echo "  source <(docker completion zsh)"
+        echo "fi"
+      } >> ~/.zshrc
     fi
   fi
 
@@ -97,21 +100,18 @@ if [ -n "$(uname -a | grep Ubuntu)" ]; then
         else
           unzip -n /tmp/commandlinetools.zip -d /tmp/commandlinetools-tmp-unzip
         fi
+        mkdir -p "$ANDROID_SDK_DIR"
+        cd "$ANDROID_SDK_DIR" && yes | /tmp/commandlinetools-tmp-unzip/cmdline-tools/bin/sdkmanager --licenses --sdk_root="$ANDROID_SDK_DIR"
+        cd "$ANDROID_SDK_DIR" && /tmp/commandlinetools-tmp-unzip/cmdline-tools/bin/sdkmanager --install "cmdline-tools;latest" --sdk_root="$ANDROID_SDK_DIR"
+        rm -rf /tmp/commandlinetools-tmp-unzip
+        rm /tmp/commandlinetools.zip
+        echo "✅ Android SDK installed"
       else
         echo "⚠️  Skipping Android SDK installation due to download failure"
-        continue
       fi
     else
       echo "⚠️  Skipping Android SDK installation due to URL validation failure"
-      continue
     fi
-    mkdir -p "$ANDROID_SDK_DIR"
-    cd "$ANDROID_SDK_DIR" && yes | /tmp/commandlinetools-tmp-unzip/cmdline-tools/bin/sdkmanager --licenses --sdk_root="$ANDROID_SDK_DIR"
-    cd "$ANDROID_SDK_DIR" && /tmp/commandlinetools-tmp-unzip/cmdline-tools/bin/sdkmanager --install "cmdline-tools;latest" --sdk_root="$ANDROID_SDK_DIR"
-    rm -rf /tmp/commandlinetools-tmp-unzip
-    rm /tmp/commandlinetools.zip
-    
-    echo "✅ Android SDK installed"
   else
     echo "✅ Android SDK already installed"
   fi
@@ -148,20 +148,22 @@ if [ -n "$(uname -a | grep Ubuntu)" ]; then
       # Fallback to direct download if apt package not available
       OP_URL="https://cache.agilebits.com/dist/1P/op2/pkg/v2.27.0/op_linux_amd64_v2.27.0.zip"
       if validate_url "$OP_URL" "1Password CLI"; then
-        safe_download "$OP_URL" /tmp/op.zip "1Password CLI"
+        if safe_download "$OP_URL" /tmp/op.zip "1Password CLI"; then
+          # Use ouch if available, otherwise fallback to unzip
+          if command -v ouch > /dev/null 2>&1; then
+            ouch decompress /tmp/op.zip --dir /tmp
+          else
+            unzip -q -o /tmp/op.zip -d /tmp
+          fi
+          sudo mv /tmp/op /usr/local/bin/op
+          sudo chmod +x /usr/local/bin/op
+          rm -f /tmp/op.zip
+        else
+          echo "⚠️  Could not download 1Password CLI fallback"
+        fi
       else
-        echo "⚠️  Could not download 1Password CLI fallback"
-        continue
+        echo "⚠️  Could not validate 1Password CLI URL"
       fi
-      # Use ouch if available, otherwise fallback to unzip
-      if command -v ouch > /dev/null 2>&1; then
-        ouch decompress /tmp/op.zip --dir /tmp
-      else
-        unzip -q -o /tmp/op.zip -d /tmp
-      fi
-      sudo mv /tmp/op /usr/local/bin/op
-      sudo chmod +x /usr/local/bin/op
-      rm -f /tmp/op.zip
     }
   fi
 

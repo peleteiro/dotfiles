@@ -1,0 +1,209 @@
+#!/bin/bash
+# Task: Test on Linux with GUI (Ubuntu)
+# Usage: mise run test:linux:gui
+# Tests that dotfiles apply works correctly on Ubuntu Linux with GUI
+
+set -e
+
+# Colors for output
+BLUE='\033[0;34m'
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${BLUE}🧪 Testing dotfiles apply on Ubuntu (with GUI)${NC}"
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo ""
+
+# Check if Docker is installed
+if ! command -v docker > /dev/null 2>&1; then
+  echo -e "${RED}❌ Docker is not installed${NC}"
+  echo -e "${YELLOW}   Please install Docker to run Linux tests${NC}"
+  exit 1
+fi
+
+# Check if Docker is running
+if ! docker info > /dev/null 2>&1; then
+  echo -e "${RED}❌ Docker is not running${NC}"
+  echo -e "${YELLOW}   Please start Docker daemon${NC}"
+  exit 1
+fi
+
+echo -e "${GREEN}✅ Docker is available${NC}"
+echo ""
+
+# Use latest Ubuntu LTS (22.04 or newer)
+IMAGE="ubuntu:latest"
+CONTAINER_NAME="dotfiles-test-linux-gui-$$"
+
+# Cleanup function
+cleanup() {
+  echo ""
+  echo -e "${BLUE}▶${NC} Cleaning up..."
+  docker rm -f "$CONTAINER_NAME" > /dev/null 2>&1 || true
+}
+
+trap cleanup EXIT
+
+# Pull Ubuntu image if not available
+echo -e "${BLUE}▶${NC} Preparing Docker image..."
+if ! docker image inspect "$IMAGE" > /dev/null 2>&1; then
+  echo "  Pulling $IMAGE..."
+  docker pull "$IMAGE"
+fi
+echo -e "${GREEN}✅ Docker image ready${NC}"
+echo ""
+
+# Create and start container
+echo -e "${BLUE}▶${NC} Starting Docker container..."
+docker run -d \
+  --name "$CONTAINER_NAME" \
+  -v "$MISE_CONFIG_ROOT:/dotfiles:ro" \
+  -e DISPLAY=:99 \
+  "$IMAGE" \
+  sleep infinity > /dev/null
+
+echo -e "${GREEN}✅ Container started${NC}"
+echo ""
+
+# Install basic dependencies in container
+echo -e "${BLUE}▶${NC} Installing basic dependencies..."
+docker exec "$CONTAINER_NAME" bash -c "
+  export DEBIAN_FRONTEND=noninteractive
+  apt-get update -qq
+  apt-get install -y -qq bash curl git sudo xvfb > /dev/null 2>&1
+" || {
+  echo -e "${RED}❌ Failed to install dependencies${NC}"
+  exit 1
+}
+
+echo -e "${GREEN}✅ Dependencies installed${NC}"
+echo ""
+
+# Create a test user with sudo
+echo -e "${BLUE}▶${NC} Setting up test environment..."
+docker exec "$CONTAINER_NAME" bash -c "
+  useradd -m -s /bin/bash testuser
+  echo 'testuser ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+  mkdir -p /home/testuser
+  chown -R testuser:testuser /home/testuser
+" > /dev/null 2>&1 || true
+
+echo -e "${GREEN}✅ Test environment ready${NC}"
+echo ""
+
+# Test script help
+echo -e "${BLUE}▶${NC} Testing script help..."
+docker exec -u testuser -w /home/testuser "$CONTAINER_NAME" bash -c "
+  cp /dotfiles/dotfiles /home/testuser/dotfiles
+  chmod +x /home/testuser/dotfiles
+  /home/testuser/dotfiles help > /dev/null
+" || {
+  echo -e "${RED}❌ Help command failed${NC}"
+  exit 1
+}
+
+echo -e "${GREEN}✅ Help command works${NC}"
+echo ""
+
+# Run dotfiles apply in container with GUI environment
+echo -e "${BLUE}▶${NC} Running dotfiles apply (with GUI)..."
+echo -e "${YELLOW}   This may take a few minutes...${NC}"
+
+docker exec -u testuser -w /home/testuser -e HOME=/home/testuser -e DISPLAY=:99 "$CONTAINER_NAME" bash -c "
+  # Copy dotfiles to home directory
+  cp -r /dotfiles /home/testuser/dotfiles-repo
+  cd /home/testuser/dotfiles-repo
+  
+  # Make scripts executable
+  chmod +x dotfiles bin/* 2>/dev/null || true
+  
+  # Run apply with GUI environment
+  export DEBIAN_FRONTEND=noninteractive
+  export DISPLAY=:99
+  
+  # Run apply:config (Linux configuration)
+  ./dotfiles apply:config || true
+  
+  # Run apply:install (package installation)
+  ./dotfiles apply:install || true
+  
+  # Run apply:files (copy dotfiles - should detect GUI)
+  ./dotfiles apply:files || exit 1
+" || {
+  echo -e "${RED}❌ dotfiles apply failed${NC}"
+  exit 1
+}
+
+echo -e "${GREEN}✅ dotfiles apply completed${NC}"
+echo ""
+
+# Verify that files were copied
+echo -e "${BLUE}▶${NC} Verifying installed files..."
+MISSING_FILES=0
+
+EXPECTED_FILES=(
+  ".bash_profile"
+  ".bashrc"
+  ".bash_functions"
+  ".zshrc"
+  ".zprofile"
+  ".zsh_functions"
+  ".shared_shell_config"
+  ".shared_shell_config-linux"
+  ".tmux.conf"
+)
+
+for file in "${EXPECTED_FILES[@]}"; do
+  if docker exec -u testuser "$CONTAINER_NAME" test -f "/home/testuser/$file"; then
+    echo -e "  ${GREEN}✅${NC} $file"
+  else
+    echo -e "  ${RED}❌${NC} $file (NOT FOUND)"
+    MISSING_FILES=$((MISSING_FILES + 1))
+  fi
+done
+
+if [ $MISSING_FILES -gt 0 ]; then
+  echo -e "${RED}❌ $MISSING_FILES file(s) missing${NC}"
+  exit 1
+fi
+
+echo -e "${GREEN}✅ All expected files found${NC}"
+echo ""
+
+# Verify .gitconfig was created with GUI config
+echo -e "${BLUE}▶${NC} Verifying .gitconfig (GUI mode)..."
+if docker exec -u testuser "$CONTAINER_NAME" test -f "/home/testuser/.gitconfig"; then
+  # Check that it has GUI config (has "graphical" comment or has smerge mergetool)
+  if docker exec -u testuser "$CONTAINER_NAME" grep -q "graphical\|gui" /home/testuser/.gitconfig 2>/dev/null || \
+     docker exec -u testuser "$CONTAINER_NAME" grep -q "smerge\|mergetool.*smerge" /home/testuser/.gitconfig 2>/dev/null; then
+    echo -e "${GREEN}✅ .gitconfig created with GUI configuration${NC}"
+  else
+    echo -e "${YELLOW}⚠️  .gitconfig found but may not have GUI config${NC}"
+  fi
+else
+  echo -e "${YELLOW}⚠️  .gitconfig not found (may be expected in test environment)${NC}"
+fi
+echo ""
+
+# Verify that shell configurations are valid
+echo -e "${BLUE}▶${NC} Verifying shell configurations..."
+docker exec -u testuser "$CONTAINER_NAME" bash -c "
+  cd /home/testuser
+  bash -n .bash_profile 2>/dev/null || exit 1
+  bash -n .bashrc 2>/dev/null || exit 1
+  bash -n .bash_functions 2>/dev/null || exit 1
+" || {
+  echo -e "${RED}❌ Bash configuration syntax error${NC}"
+  exit 1
+}
+
+echo -e "${GREEN}✅ Shell configurations are valid${NC}"
+echo ""
+
+echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${GREEN}✅ Ubuntu GUI test completed successfully!${NC}"
+echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+

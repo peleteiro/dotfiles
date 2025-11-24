@@ -1,0 +1,127 @@
+#!/bin/bash
+# Task: Lint and syntax-check bash scripts
+# Usage: mise run lint
+
+set -e
+
+# Colors for output
+BLUE='\033[0;34m'
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${BLUE}🔍 Linting and syntax-checking scripts${NC}"
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo ""
+
+# Ensure shellcheck is installed via mise
+echo -e "${BLUE}▶${NC} Ensuring shellcheck is installed via mise..."
+mise install shellcheck > /dev/null 2>&1 || {
+  echo -e "${RED}❌ Failed to install shellcheck via mise${NC}"
+  exit 1
+}
+
+# mise installs tools in a location that should be in PATH when running tasks
+# But we need to ensure it's available
+if ! command -v shellcheck > /dev/null 2>&1; then
+  # mise tools are typically in ~/.local/bin or managed via mise itself
+  # When running as a mise task, mise should handle PATH automatically
+  # But let's try to find it
+  if [ -f ~/.local/bin/shellcheck ]; then
+    export PATH="$HOME/.local/bin:$PATH"
+  fi
+  
+  if ! command -v shellcheck > /dev/null 2>&1; then
+    echo -e "${RED}❌ shellcheck not found in PATH after mise install${NC}"
+    echo -e "${YELLOW}   Try running: mise install shellcheck${NC}"
+    exit 1
+  fi
+fi
+
+# Lint bash scripts with shellcheck
+echo -e "${BLUE}▶${NC} Running shellcheck on bash scripts..."
+SHELLCHECK_ERRORS=0
+
+# Find and check scripts in bin/
+while IFS= read -r -d '' script; do
+  if file "$script" 2>/dev/null | grep -q "shell script"; then
+    echo "  Checking $script"
+    if ! shellcheck "$script"; then
+      SHELLCHECK_ERRORS=$((SHELLCHECK_ERRORS + 1))
+    fi
+  fi
+done < <(find "$MISE_CONFIG_ROOT/bin" -type f -print0 2>/dev/null)
+
+# Check main dotfiles script
+if [ -f "$MISE_CONFIG_ROOT/dotfiles" ]; then
+  echo "  Checking dotfiles"
+  if ! shellcheck "$MISE_CONFIG_ROOT/dotfiles"; then
+    SHELLCHECK_ERRORS=$((SHELLCHECK_ERRORS + 1))
+  fi
+fi
+
+# Check mise tasks
+echo -e "${BLUE}▶${NC} Running shellcheck on mise tasks..."
+while IFS= read -r task; do
+  if head -1 "$task" 2>/dev/null | grep -q "#!/bin/bash\|#!/bin/sh"; then
+    echo "  Checking $task"
+    if ! shellcheck "$task"; then
+      SHELLCHECK_ERRORS=$((SHELLCHECK_ERRORS + 1))
+    fi
+  fi
+done < <(find "$MISE_CONFIG_ROOT/.config/mise/tasks" -type f 2>/dev/null)
+
+if [ $SHELLCHECK_ERRORS -gt 0 ]; then
+  echo -e "${RED}❌ shellcheck found $SHELLCHECK_ERRORS error(s)${NC}"
+  exit 1
+fi
+
+echo -e "${GREEN}✅ shellcheck passed${NC}"
+echo ""
+
+# Syntax check
+echo -e "${BLUE}▶${NC} Checking bash syntax..."
+SYNTAX_ERRORS=0
+
+# Check scripts in bin/
+while IFS= read -r script; do
+  if head -1 "$script" 2>/dev/null | grep -q "#!/bin/bash\|#!/bin/sh"; then
+    echo "  Checking syntax: $script"
+    if ! bash -n "$script"; then
+      SYNTAX_ERRORS=$((SYNTAX_ERRORS + 1))
+    fi
+  fi
+done < <(find "$MISE_CONFIG_ROOT/bin" -type f 2>/dev/null)
+
+# Check main dotfiles script
+if [ -f "$MISE_CONFIG_ROOT/dotfiles" ]; then
+  echo "  Checking syntax: dotfiles"
+  if ! bash -n "$MISE_CONFIG_ROOT/dotfiles"; then
+    SYNTAX_ERRORS=$((SYNTAX_ERRORS + 1))
+  fi
+fi
+
+# Check mise tasks
+while IFS= read -r task; do
+  if head -1 "$task" 2>/dev/null | grep -q "#!/bin/bash\|#!/bin/sh"; then
+    echo "  Checking syntax: $task"
+    if ! bash -n "$task"; then
+      SYNTAX_ERRORS=$((SYNTAX_ERRORS + 1))
+    fi
+  fi
+done < <(find "$MISE_CONFIG_ROOT/.config/mise/tasks" -type f 2>/dev/null)
+
+if [ $SYNTAX_ERRORS -gt 0 ]; then
+  echo -e "${RED}❌ Syntax check found $SYNTAX_ERRORS error(s)${NC}"
+  exit 1
+fi
+
+echo -e "${GREEN}✅ Syntax check passed${NC}"
+echo ""
+
+echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${GREEN}✅ All linting and syntax checks passed!${NC}"
+echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+

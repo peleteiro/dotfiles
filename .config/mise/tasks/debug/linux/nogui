@@ -1,0 +1,122 @@
+#!/bin/bash
+# Task: Debug on Linux without GUI (Debian slim)
+# Usage: mise run debug:linux:nogui
+# Opens an interactive bash shell in Debian slim container without GUI
+
+set -e
+
+# Colors for output
+BLUE='\033[0;34m'
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${BLUE}🐛 Debug environment: Debian slim (no GUI)${NC}"
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo ""
+
+# Check if Docker is installed
+if ! command -v docker > /dev/null 2>&1; then
+  echo -e "${RED}❌ Docker is not installed${NC}"
+  echo -e "${YELLOW}   Please install Docker to run Linux debug environment${NC}"
+  exit 1
+fi
+
+# Check if Docker is running
+if ! docker info > /dev/null 2>&1; then
+  echo -e "${RED}❌ Docker is not running${NC}"
+  echo -e "${YELLOW}   Please start Docker daemon${NC}"
+  exit 1
+fi
+
+echo -e "${GREEN}✅ Docker is available${NC}"
+echo ""
+
+# Use latest Debian stable slim
+IMAGE="debian:stable-slim"
+CONTAINER_NAME="dotfiles-debug-linux-nogui-$$"
+
+# Cleanup function
+cleanup() {
+  echo ""
+  echo -e "${BLUE}▶${NC} Cleaning up container..."
+  docker rm -f "$CONTAINER_NAME" > /dev/null 2>&1 || true
+}
+
+# Trap signals to ensure cleanup
+trap cleanup EXIT INT TERM
+
+# Pull Debian image if not available
+echo -e "${BLUE}▶${NC} Preparing Docker image..."
+if ! docker image inspect "$IMAGE" > /dev/null 2>&1; then
+  echo "  Pulling $IMAGE..."
+  docker pull "$IMAGE"
+fi
+echo -e "${GREEN}✅ Docker image ready${NC}"
+echo ""
+
+# Create and start container
+echo -e "${BLUE}▶${NC} Starting Docker container..."
+docker run -d \
+  --name "$CONTAINER_NAME" \
+  -v "$MISE_CONFIG_ROOT:/dotfiles:ro" \
+  "$IMAGE" \
+  sleep infinity > /dev/null
+
+echo -e "${GREEN}✅ Container started${NC}"
+echo ""
+
+# Install basic dependencies in container
+echo -e "${BLUE}▶${NC} Installing basic dependencies..."
+docker exec "$CONTAINER_NAME" bash -c "
+  export DEBIAN_FRONTEND=noninteractive
+  apt-get update -qq
+  apt-get install -y -qq bash curl git sudo > /dev/null 2>&1
+" || {
+  echo -e "${RED}❌ Failed to install dependencies${NC}"
+  exit 1
+}
+
+echo -e "${GREEN}✅ Dependencies installed${NC}"
+echo ""
+
+# Create a test user with sudo
+echo -e "${BLUE}▶${NC} Setting up environment..."
+docker exec "$CONTAINER_NAME" bash -c "
+  useradd -m -s /bin/bash testuser 2>/dev/null || true
+  echo 'testuser ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers 2>/dev/null || true
+  mkdir -p /home/testuser
+  chown -R testuser:testuser /home/testuser 2>/dev/null || true
+" > /dev/null 2>&1 || true
+
+# Copy dotfiles to test user home
+echo -e "${BLUE}▶${NC} Setting up dotfiles..."
+docker exec "$CONTAINER_NAME" bash -c "
+  cp -r /dotfiles /home/testuser/dotfiles-repo 2>/dev/null || true
+  chown -R testuser:testuser /home/testuser/dotfiles-repo 2>/dev/null || true
+  chmod +x /home/testuser/dotfiles-repo/dotfiles /home/testuser/dotfiles-repo/bin/* 2>/dev/null || true
+" > /dev/null 2>&1 || true
+
+echo -e "${GREEN}✅ Environment ready${NC}"
+echo ""
+
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${GREEN}🐛 Debug shell ready!${NC}"
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo ""
+echo -e "${YELLOW}💡 Tips:${NC}"
+echo "  • Dotfiles are available at: /home/testuser/dotfiles-repo"
+echo "  • Run: cd /home/testuser/dotfiles-repo"
+echo "  • Run: ./dotfiles apply:files"
+echo "  • Exit with 'exit' or Ctrl+D"
+echo ""
+
+# Open interactive bash shell (no GUI environment)
+# When bash exits, cleanup will be triggered by trap
+docker exec -it -u testuser -w /home/testuser -e HOME=/home/testuser -e DISPLAY= -e WAYLAND_DISPLAY= "$CONTAINER_NAME" bash || true
+
+# Explicit cleanup after bash exits
+cleanup
+

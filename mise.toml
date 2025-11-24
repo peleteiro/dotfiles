@@ -1,0 +1,12 @@
+# mise configuration for dotfiles project
+# mise (formerly rtx) - Runtime version manager
+
+# Tools required for this project
+[tools]
+shellcheck = "latest"
+
+# Environment variables
+[env]
+# Android SDK Command Line Tools version
+ANDROID_CMD_TOOLS_VERSION = "13114758"
+

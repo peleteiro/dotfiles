@@ -57,7 +57,7 @@ find "$DIR/home" -maxdepth 1 -type f -name ".*" -print0 | while IFS= read -r -d 
       cp "$file" "$HOME/$filename"
     else
       # Copy without suffix (remove the OS suffix)
-      target_filename="${filename%-${CURRENT_OS}}"
+      target_filename="${filename%-"${CURRENT_OS}"}"
       echo "    → $target_filename (from $filename)"
       cp "$file" "$HOME/$target_filename"
     fi
@@ -119,7 +119,7 @@ copy_dir_recursive() {
       
       # Handle files with OS suffix for current OS - copy without suffix
       if [[ "$itemname" == *"-${CURRENT_OS}" ]]; then
-        target_filename="${itemname%-${CURRENT_OS}}"
+        target_filename="${itemname%-"${CURRENT_OS}"}"
         cp "$item" "$dest_dir/$target_filename"
       else
         # Regular file without OS suffix

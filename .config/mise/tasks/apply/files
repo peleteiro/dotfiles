@@ -1,0 +1,22 @@
+#!/bin/bash
+# Task: Copy dotfiles to home directory
+# Usage: mise run apply:files
+
+set -e
+
+# Colors for output
+BLUE='\033[0;34m'
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
+echo -e "${BLUE}▶${NC} Copying dotfiles..."
+
+if "$MISE_CONFIG_ROOT/bin/apply-files"; then
+  echo -e "${GREEN}✅${NC} Dotfiles copied successfully"
+  echo ""
+else
+  echo -e "${RED}❌${NC} Dotfiles copy failed"
+  exit 1
+fi
+

@@ -41,7 +41,7 @@ if ! command -v zsh > /dev/null; then
 fi
 
 # Configure default shell: use Homebrew bash if system is using system bash
-CURRENT_SHELL=$(dscl . -read /Users/$(whoami) UserShell 2>/dev/null | awk '{print $2}' || echo "$SHELL")
+CURRENT_SHELL=$(dscl . -read "/Users/$(whoami)" UserShell 2>/dev/null | awk '{print $2}' || echo "$SHELL")
 if [ "$CURRENT_SHELL" = "/bin/bash" ]; then
   # Check if Homebrew bash is installed
   if command -v brew > /dev/null 2>&1; then
@@ -70,7 +70,7 @@ fi
 
 # Key bindings
 mkdir -p ~/Library/KeyBindings
-cp $DIR/macos/DefaultKeyBinding.dict ~/Library/KeyBindings
+cp "$DIR/macos/DefaultKeyBinding.dict" ~/Library/KeyBindings
 
 ## Global
 

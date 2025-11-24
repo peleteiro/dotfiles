@@ -10,7 +10,6 @@ OS=$(uname)
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
@@ -20,7 +19,6 @@ show_help() {
 Usage: $0 <command> [options]
 
 Available commands:
-  check            Verify dotfiles integrity
   apply            Run apply:config, apply:install and apply:files (in order)
   apply:config     Configure operating system (macOS or Linux)
   apply:install    Install packages and applications
@@ -28,7 +26,6 @@ Available commands:
   help             Show this help message
 
 Examples:
-  $0 check            # Check if everything is OK
   $0 apply            # Run everything (config + install + files)
   $0 apply:config     # Configure macOS
   $0 apply:install   # Install packages
@@ -76,11 +73,6 @@ cmd_apply_install() {
   fi
 }
 
-# Command: check
-cmd_check() {
-  "$DIR/bin/check"
-}
-
 # Command: apply
 cmd_apply() {
   echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
@@ -99,14 +91,10 @@ cmd_apply() {
   echo -e "${GREEN}✅ Complete configuration finished!${NC}"
   echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
   echo ""
-  echo "💡 Tip: Run '$0 check' to verify everything is OK"
 }
 
 # Process arguments
 case "${1:-help}" in
-  check)
-    cmd_check
-    ;;
   apply)
     cmd_apply
     ;;

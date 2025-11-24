@@ -8,6 +8,7 @@ export ANDROID_CMD_TOOLS_VERSION="13114758"
 
 # Source validation utilities
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# shellcheck disable=SC1091
 source "$DIR/validate-url" 2>/dev/null || true
 
 # Detect Homebrew path (Apple Silicon vs Intel)
