@@ -62,9 +62,6 @@ disabled = true
 [elm]
 disabled = true
 
-[env_var]
-disabled = true
-
 [erlang]
 disabled = true
 
