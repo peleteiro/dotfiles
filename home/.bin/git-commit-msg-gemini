@@ -12,7 +12,7 @@ TRIPLE_BACKTICK_SH='```sh'
 # Function to check if a line is a code block marker
 is_code_block_marker() {
   local line="$1"
-  [ "$line" = "$TRIPLE_BACKTICK" ] || [ "$line" = "$TRIPLE_BACKTICK_BASH" ] || [ "$line" = "$TRIPLE_BACKTICK_SH" ] || echo "$line" | rg -qE "$CODE_BLOCK_PATTERN" || false
+  [ "$line" = "$TRIPLE_BACKTICK" ] || [ "$line" = "$TRIPLE_BACKTICK_BASH" ] || [ "$line" = "$TRIPLE_BACKTICK_SH" ] || echo "$line" | rg -q "$CODE_BLOCK_PATTERN" || false
 }
 
 # Check if gemini CLI is available
@@ -103,11 +103,24 @@ PROMPT="Based on the following git diff, generate a detailed commit message foll
 
 Requirements:
 - Use conventional commits format (e.g., 'feat:', 'fix:', 'refactor:', 'docs:', etc.)
-- Provide a clear and descriptive summary in the first line
+- Add appropriate emoji to the commit type (✨ for feat, 🐛 for fix, ♻️ for refactor, 📝 for docs, ⚡ for perf, 🔧 for chore, etc.)
+- Provide a clear and descriptive summary in the first line (max 72 characters)
+- Include a blank line between the subject and body
 - Include a detailed body explaining what was changed and why (if significant)
+- Use bullet points (-) for multiple changes, with a blank line before the list
+- Add a blank line between different sections if needed
 - Keep all relevant information about the changes
 - Do not remove comments or important details from the diff
 - Write the commit message in $LANG_NAME ($LANG_CODE)
+
+Format example:
+✨ feat: add new feature
+
+This commit adds a new feature that improves...
+
+- Added new functionality
+- Updated documentation
+- Fixed related issues
 
 Git diff:
 $DIFF
@@ -121,13 +134,15 @@ GEMINI_OUTPUT=$(echo "$PROMPT" | gemini 2>/dev/null)
 
 # Extract the commit message, preserving multiple lines and comments
 # Filter out only Gemini CLI metadata, but keep the actual message content
+# Preserve blank lines (max 2 consecutive) for proper formatting
 SUGGESTED_MSG=$(echo "$GEMINI_OUTPUT" | \
   rg -v '^(Usage|Error|Warning|gemini):' || true | \
-  sd '\n\n\n+' '\n\n')  # Keep max 2 consecutive blank lines
+  sd '\n{4,}' '\n\n\n')  # Limit to max 3 consecutive blank lines
 
 # Remove code block markers only from the beginning and end of the message
-# Trim leading/trailing whitespace first
-SUGGESTED_MSG=$(echo "$SUGGESTED_MSG" | sd '^\s+|\s+$' '')
+# Trim leading/trailing whitespace from the entire message (but preserve newlines and blank lines)
+# Only trim spaces/tabs, not newlines
+SUGGESTED_MSG=$(echo "$SUGGESTED_MSG" | sd '^[ \t]+' '' | sd '[ \t]+$' '')
 # Remove leading code block marker lines
 FIRST_LINE=$(echo "$SUGGESTED_MSG" | head -n 1)
 while is_code_block_marker "$FIRST_LINE"; do
@@ -148,8 +163,8 @@ while is_code_block_marker "$LAST_LINE"; do
 done
 
 # Trim leading/trailing whitespace from each line but preserve structure
-# (Already done above, but keeping for consistency)
-SUGGESTED_MSG=$(echo "$SUGGESTED_MSG" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+# Use sd to preserve newlines and blank lines properly (only trim spaces/tabs, not newlines)
+SUGGESTED_MSG=$(echo "$SUGGESTED_MSG" | sd '^[ \t]+' '' | sd '[ \t]+$' '')
 
 # If that didn't work or output is too short, try passing the prompt as a positional argument
 if [ -z "$SUGGESTED_MSG" ] || [ ${#SUGGESTED_MSG} -lt 10 ]; then
@@ -157,7 +172,15 @@ if [ -z "$SUGGESTED_MSG" ] || [ ${#SUGGESTED_MSG} -lt 10 ]; then
   DIFF_PREVIEW=$(echo "$DIFF" | head -n 100)
   
   # Use generic prompt for fallback too
-  SHORT_PROMPT="Based on this git diff, generate a detailed commit message in conventional commits format (type: description). Include a detailed body explaining the changes. Write the commit message in $LANG_NAME ($LANG_CODE):
+  SHORT_PROMPT="Based on this git diff, generate a detailed commit message in conventional commits format (type: description).
+
+Requirements:
+- Use conventional commits format with emoji (✨ feat, 🐛 fix, ♻️ refactor, 📝 docs, etc.)
+- First line: subject (max 72 chars) with emoji
+- Blank line between subject and body
+- Body with detailed explanation
+- Use bullet points (-) for multiple changes
+- Write in $LANG_NAME ($LANG_CODE)
 
 $DIFF_PREVIEW
 
@@ -166,11 +189,11 @@ Generate the complete commit message in $LANG_NAME:"
   GEMINI_OUTPUT=$(gemini "$SHORT_PROMPT" 2>/dev/null)
   SUGGESTED_MSG=$(echo "$GEMINI_OUTPUT" | \
     rg -v '^(Usage|Error|Warning|gemini):' || true | \
-    sd '\n\n\n+' '\n\n')  # Keep max 2 consecutive blank lines
+    sd '\n{4,}' '\n\n\n')  # Limit to max 3 consecutive blank lines
   
   # Remove code block markers from beginning and end only
-  # Trim leading/trailing whitespace first
-  SUGGESTED_MSG=$(echo "$SUGGESTED_MSG" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+  # Trim leading/trailing whitespace (but preserve newlines and blank lines)
+  SUGGESTED_MSG=$(echo "$SUGGESTED_MSG" | sd '^[ \t]+' '' | sd '[ \t]+$' '')
   # Remove leading code block marker lines
   FIRST_LINE=$(echo "$SUGGESTED_MSG" | head -n 1)
   while is_code_block_marker "$FIRST_LINE"; do
@@ -189,7 +212,9 @@ Generate the complete commit message in $LANG_NAME:"
     LAST_LINE=$(echo "$SUGGESTED_MSG" | tail -n 1)
     [ -z "$LAST_LINE" ] && break
   done
-  SUGGESTED_MSG=$(echo "$SUGGESTED_MSG" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+  # Trim leading/trailing whitespace from each line but preserve structure
+  # Only trim spaces/tabs, not newlines (to preserve blank lines)
+  SUGGESTED_MSG=$(echo "$SUGGESTED_MSG" | sd '^[ \t]+' '' | sd '[ \t]+$' '')
 fi
 
 # If we got a valid suggestion (at least 10 characters), write it to the commit message file
@@ -205,12 +230,13 @@ if [ -n "$SUGGESTED_MSG" ] && [ ${#SUGGESTED_MSG} -ge 10 ]; then
   
   # Write the suggested message, preserving Git's comments (file listing) below
   # This will update the commit message file's timestamp
+  # Use printf '%b' to preserve newlines and escape sequences
   {
-    echo "$SUGGESTED_MSG"
-    echo ""
+    printf '%b' "$SUGGESTED_MSG"
+    printf '\n'
     # Add back the comments (file listing) if they exist
     if [ -n "$COMMENTS_ONLY" ]; then
-      echo "$COMMENTS_ONLY"
+      printf '%b' "$COMMENTS_ONLY"
     fi
   } > "$COMMIT_MSG_FILE"
   
