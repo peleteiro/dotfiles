@@ -20,12 +20,57 @@ jobs:
       
       - name: Lint bash scripts
         run: |
-          find bin -name "*.sh" -o -name "*" -type f | xargs file | grep "shell script" | cut -d: -f1 | while read script; do
-            echo "Checking $script"
-            shellcheck "$script" || exit 1
-          done
+          set -e
+          SHELLCHECK_ERRORS=0
+          
+          # Find and check scripts in bin/
+          while IFS= read -r -d '' script; do
+            if file "$script" 2>/dev/null | grep -q "shell script"; then
+              echo "Checking $script"
+              if ! shellcheck "$script"; then
+                SHELLCHECK_ERRORS=$((SHELLCHECK_ERRORS + 1))
+              fi
+            fi
+          done < <(find bin -type f -print0 2>/dev/null)
+          
+          # Find and check scripts in home/.bin/
+          if [ -d "home/.bin" ]; then
+            while IFS= read -r -d '' script; do
+              if file "$script" 2>/dev/null | grep -q "shell script"; then
+                echo "Checking $script"
+                if ! shellcheck "$script"; then
+                  SHELLCHECK_ERRORS=$((SHELLCHECK_ERRORS + 1))
+                fi
+              fi
+            done < <(find home/.bin -type f -print0 2>/dev/null)
+          fi
+          
           # Check main dotfiles script
-          shellcheck dotfiles || exit 1
+          if [ -f "dotfiles" ]; then
+            echo "Checking dotfiles"
+            if ! shellcheck dotfiles; then
+              SHELLCHECK_ERRORS=$((SHELLCHECK_ERRORS + 1))
+            fi
+          fi
+          
+          # Check mise tasks
+          if [ -d ".config/mise/tasks" ]; then
+            while IFS= read -r task; do
+              if head -1 "$task" 2>/dev/null | grep -q "#!/bin/bash\|#!/bin/sh"; then
+                echo "Checking $task"
+                if ! shellcheck "$task"; then
+                  SHELLCHECK_ERRORS=$((SHELLCHECK_ERRORS + 1))
+                fi
+              fi
+            done < <(find .config/mise/tasks -type f 2>/dev/null)
+          fi
+          
+          if [ $SHELLCHECK_ERRORS -gt 0 ]; then
+            echo "❌ shellcheck found $SHELLCHECK_ERRORS error(s)"
+            exit 1
+          fi
+          
+          echo "✅ shellcheck passed"
 
   syntax-check:
     name: Syntax Check
@@ -35,13 +80,57 @@ jobs:
       
       - name: Check bash syntax
         run: |
-          find bin -type f -executable | while read script; do
-            if head -1 "$script" | grep -q "#!/bin/bash\|#!/bin/sh"; then
+          set -e
+          SYNTAX_ERRORS=0
+          
+          # Check scripts in bin/
+          while IFS= read -r script; do
+            if head -1 "$script" 2>/dev/null | grep -q "#!/bin/bash\|#!/bin/sh"; then
               echo "Checking syntax: $script"
-              bash -n "$script" || exit 1
+              if ! bash -n "$script"; then
+                SYNTAX_ERRORS=$((SYNTAX_ERRORS + 1))
+              fi
             fi
-          done
-          bash -n dotfiles || exit 1
+          done < <(find bin -type f 2>/dev/null)
+          
+          # Check scripts in home/.bin/
+          if [ -d "home/.bin" ]; then
+            while IFS= read -r script; do
+              if head -1 "$script" 2>/dev/null | grep -q "#!/bin/bash\|#!/bin/sh"; then
+                echo "Checking syntax: $script"
+                if ! bash -n "$script"; then
+                  SYNTAX_ERRORS=$((SYNTAX_ERRORS + 1))
+                fi
+              fi
+            done < <(find home/.bin -type f 2>/dev/null)
+          fi
+          
+          # Check main dotfiles script
+          if [ -f "dotfiles" ]; then
+            echo "Checking syntax: dotfiles"
+            if ! bash -n dotfiles; then
+              SYNTAX_ERRORS=$((SYNTAX_ERRORS + 1))
+            fi
+          fi
+          
+          # Check mise tasks
+          if [ -d ".config/mise/tasks" ]; then
+            while IFS= read -r task; do
+              if head -1 "$task" 2>/dev/null | grep -q "#!/bin/bash\|#!/bin/sh"; then
+                echo "Checking syntax: $task"
+                if ! bash -n "$task"; then
+                  SYNTAX_ERRORS=$((SYNTAX_ERRORS + 1))
+                fi
+              fi
+            done < <(find .config/mise/tasks -type f 2>/dev/null)
+          fi
+          
+          if [ $SYNTAX_ERRORS -gt 0 ]; then
+            echo "❌ Syntax check found $SYNTAX_ERRORS error(s)"
+            exit 1
+          fi
+          
+          echo "✅ Syntax check passed"
 
   test-linux:
     name: Test on Ubuntu
