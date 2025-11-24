@@ -201,7 +201,8 @@ if uname -a | grep -q Ubuntu; then
     sudo apt install -y \
                       ffmpeg \
                       imagemagick \
-                      inkscape
+                      inkscape \
+                      tigervnc-viewer
 
     # GNOME-specific packages (configuration is done in apply-config-linux)
     if dpkg -l ubuntu-desktop 2> /dev/null || dpkg -l gnome-desktop 2> /dev/null; then
