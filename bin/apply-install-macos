@@ -254,7 +254,8 @@ if [ ! -d "$ANDROID_SDK_DIR/cmdline-tools" ] || [ ! -f "$ANDROID_SDK_DIR/cmdline
         unzip -n /tmp/commandlinetools.zip -d /tmp/commandlinetools-tmp-unzip
       fi
       mkdir -p "$ANDROID_SDK_DIR"
-      cd "$ANDROID_SDK_DIR" && /tmp/commandlinetools-tmp-unzip/cmdline-tools/bin/sdkmanager --install "cmdline-tools;latest" --sdk_root="$ANDROID_SDK_DIR"
+      cd "$ANDROID_SDK_DIR" && yes | /tmp/commandlinetools-tmp-unzip/cmdline-tools/bin/sdkmanager --licenses --sdk_root="$ANDROID_SDK_DIR" 2>/dev/null || true
+      cd "$ANDROID_SDK_DIR" && yes | /tmp/commandlinetools-tmp-unzip/cmdline-tools/bin/sdkmanager --install "cmdline-tools;latest" --sdk_root="$ANDROID_SDK_DIR"
       rm -rf /tmp/commandlinetools-tmp-unzip
       rm /tmp/commandlinetools.zip
     else
@@ -287,7 +288,7 @@ fi
 if ! command -v rustup > /dev/null 2>&1; then
   RUSTUP_URL="https://sh.rustup.rs"
   if validate_url "$RUSTUP_URL" "Rustup installer"; then
-    curl --proto '=https' --tlsv1.2 -sSf "$RUSTUP_URL" | sh
+    curl --proto '=https' --tlsv1.2 -sSf "$RUSTUP_URL" | sh -s -- -y
   else
     echo "⚠️  Could not download Rustup installer"
   fi
