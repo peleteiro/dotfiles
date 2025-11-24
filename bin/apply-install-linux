@@ -149,15 +149,15 @@ if uname -a | grep -q Ubuntu; then
       OP_URL="https://cache.agilebits.com/dist/1P/op2/pkg/v2.27.0/op_linux_amd64_v2.27.0.zip"
       if validate_url "$OP_URL" "1Password CLI"; then
         if safe_download "$OP_URL" /tmp/op.zip "1Password CLI"; then
-          # Use ouch if available, otherwise fallback to unzip
-          if command -v ouch > /dev/null 2>&1; then
-            ouch decompress /tmp/op.zip --dir /tmp
-          else
-            unzip -q -o /tmp/op.zip -d /tmp
-          fi
-          sudo mv /tmp/op /usr/local/bin/op
-          sudo chmod +x /usr/local/bin/op
-          rm -f /tmp/op.zip
+      # Use ouch if available, otherwise fallback to unzip
+      if command -v ouch > /dev/null 2>&1; then
+        ouch decompress /tmp/op.zip --dir /tmp
+      else
+        unzip -q -o /tmp/op.zip -d /tmp
+      fi
+      sudo mv /tmp/op /usr/local/bin/op
+      sudo chmod +x /usr/local/bin/op
+      rm -f /tmp/op.zip
         else
           echo "⚠️  Could not download 1Password CLI fallback"
         fi

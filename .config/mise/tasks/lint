@@ -47,10 +47,10 @@ SHELLCHECK_ERRORS=0
 # Find and check scripts in bin/
 while IFS= read -r -d '' script; do
   if file "$script" 2>/dev/null | grep -q "shell script"; then
-    echo "  Checking $script"
-    if ! shellcheck "$script"; then
-      SHELLCHECK_ERRORS=$((SHELLCHECK_ERRORS + 1))
-    fi
+  echo "  Checking $script"
+  if ! shellcheck "$script"; then
+    SHELLCHECK_ERRORS=$((SHELLCHECK_ERRORS + 1))
+  fi
   fi
 done < <(find "$MISE_CONFIG_ROOT/bin" -type f -print0 2>/dev/null)
 
