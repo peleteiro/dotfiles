@@ -175,35 +175,62 @@ These commands require `mise` to be installed:
 - **Antigravity** - Google AI-powered IDE
 - **Cursor** - AI-powered code editor
 - **Docker Desktop** - Container platform
+- **Droplr** - File sharing and screenshots
+- **Firefox** - Web browser
+- **Google Chrome** - Web browser
+- **Google Drive** - Cloud storage
+- **Hammerspoon** - Automation tool
+- **IconJar** - Icon management
 - **IntelliJ IDEA** - Java IDE
 - **iTerm2** - Terminal emulator
 - **Sublime Text** + **Sublime Merge** - Editor and Git client
+- **TablePlus** - Database management
+- **The Unarchiver** - Archive extractor
+- **Transmit** - FTP/SFTP client
 - **Visual Studio Code** - Code editor
-- **Firefox**, **Google Chrome** - Web browsers
-- And many more...
+- **VLC** - Media player
 
 #### Mac App Store
-- **Xcode** - Apple development IDE
-- **Slack** - Team communication
-- **Pixelmator Pro** - Image editor
+- **Amphetamine** - Keep Mac awake
+- **Audio Lock** - Audio device management
+- **Brother P Touch Editor** - Label printer software
+- **Capto** - Screen recording
 - **DaisyDisk** - Disk space analyzer
-- And 20+ more applications...
+- **Dato** - Menu bar calendar
+- **HTTPBot** - HTTP client and API testing
+- **KeepSolid VPN** - VPN client
+- **Microsoft Remote Desktop** - Remote desktop client
+- **Monodraw** - ASCII art editor
+- **Pastel** - Color picker
+- **Pixelmator Pro** - Image editor
+- **Slack** - Team communication
+- **Spark Mail** - Email client
+- **TextSniper OCR** - OCR tool
+- **Typeface 3** - Font manager
+- **WhatsApp Desktop** - WhatsApp client
+- **Xcode** - Apple development IDE
+- **xScope 4** - Design and development tools
+- **Yubico Authenticator** - Two-factor authentication
 
 ### Linux Applications (GUI Environment Only)
 
 #### Desktop Applications
-- **1Password** (GUI)
-- **Chrome** - Web browser
-- **Sublime Text** + **Sublime Merge**
-- **Visual Studio Code**
-- **IntelliJ IDEA Ultimate**
-- **Slack** (via Flatpak)
+- **1Password** (GUI) - Password manager
+- **Antigravity** - Google AI-powered IDE
+- **Caffeine Indicator** - Keep system awake
+- **Chrome** (Google Chrome) - Web browser
+- **Insomnia** - API client and testing
+- **IntelliJ IDEA Ultimate** - Java IDE
+- **Slack** (via Flatpak) - Team communication
+- **Sublime Text** + **Sublime Merge** - Editor and Git client
+- **Visual Studio Code** - Code editor
 - **VLC** - Media player
 
 #### Development Tools
 - **PlatformIO** - Embedded development
-- **QEMU/KVM** - Virtualization with GUI tools
-- **GNOME Extensions** (Ubuntu/GNOME only)
+- **QEMU/KVM** - Virtualization with GUI tools (virt-manager, virt-viewer)
+- **GNOME Extensions** (Ubuntu/GNOME only) - Shell extensions
+- **GNOME Tweaks** (Ubuntu/GNOME only) - GNOME customization tool
 
 ---
 
