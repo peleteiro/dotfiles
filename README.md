@@ -276,6 +276,31 @@ export GIT_COMMIT_LANG=es      # Spanish
 - `prepare-commit-msg` - Generates AI commit message suggestions
 - `commit-msg` - Verifies message file was saved
 
+### Installing Git Hooks in Other Projects
+
+You can easily install these AI-powered git hooks in any of your projects using the provided script. The script automatically detects if the project uses `lefthook` and configures it accordingly, or installs standard git hooks.
+
+```bash
+# From your project directory, run:
+my-git-hook install
+
+# Or specify the path:
+my-git-hook install --path /path/to/project
+
+# Force Lefthook configuration (even if lefthook.yml is missing):
+my-git-hook install --force-lefthook
+```
+
+To see available commands:
+```bash
+my-git-hook help
+```
+
+**Features:**
+- **Lefthook Support**: Automatically adds hooks to `lefthook-local.yml` if `lefthook.yml` is present.
+- **Standard Hooks**: Installs symlinks to `.git/hooks` if no hook manager is detected.
+- **Local Config**: Configures `git config core.hooksPath .git/hooks` to ensure local hooks are used without conflicting with global configurations.
+
 ### Other Configurations
 - **tmux** - Terminal multiplexer configuration
 - **SSH** - OS-specific SSH config
@@ -301,7 +326,7 @@ dotfiles/
 │   ├── apply-files          # Copy dotfiles to home
 │   └── validate-url         # URL validation utility
 ├── home/                    # Configuration files (→ ~/)
-│   ├── .git_hooks/          # Git hooks
+│   ├── .my-git-hooks/       # My Git Hooks (subproject)
 │   ├── .bin/                # Custom scripts
 │   └── .*                    # Dotfiles (bash, zsh, git, tmux, etc.)
 ├── macos/                   # macOS-specific configs

@@ -134,8 +134,8 @@ echo "  Copying directories..."
 find "$DIR/home" -maxdepth 1 -type d -name ".*" -print0 | while IFS= read -r -d '' dir; do
   dirname=$(basename "$dir")
   if [ "$dirname" != "." ] && [ "$dirname" != ".." ]; then
-    # Skip .git_hooks - it's handled separately in the Git hooks setup section
-    if [ "$dirname" = ".git_hooks" ]; then
+    # Skip .my-git-hooks - it's handled separately in the Git hooks setup section
+    if [ "$dirname" = ".my-git-hooks" ]; then
       continue
     fi
     echo "    → $dirname/"
@@ -180,11 +180,11 @@ done
 
 # Setup Git hooks directory and prepare-commit-msg hook (global for all repos)
 echo "  Setting up Git hooks..."
-GIT_HOOKS_DIR="$HOME/.git_hooks"
+GIT_HOOKS_DIR="$HOME/.my-git-hooks"
 mkdir -p "$GIT_HOOKS_DIR"
 
 # Source directory for git hooks
-GIT_HOOKS_SOURCE="$DIR/home/.git_hooks"
+GIT_HOOKS_SOURCE="$DIR/home/.my-git-hooks"
 
 if [ -f "$HOME/.bin/git-commit-msg-gemini" ] && [ -d "$GIT_HOOKS_SOURCE" ]; then
   # Copy git hooks from source directory
