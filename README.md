@@ -259,9 +259,10 @@ The `.gitconfig` is automatically assembled based on your environment:
 Automatic commit message generation using **Google Gemini AI**:
 
 **Features:**
-- Generates commit messages based on staged changes
-- Verifies message file was saved before committing
-- Supports multiple languages (set `GIT_COMMIT_LANG` environment variable)
+- **Hybrid Generation**: Combines your intent (via interactive input) with AI technical analysis for semantic commit messages.
+- **Interactive Mode**: Opens your editor before generation, allowing you to explain the *why* behind your changes.
+- **Auto-detected Language**: Supports multiple languages (set `GIT_COMMIT_LANG` environment variable).
+- Verifies message file was saved before committing.
 
 **Language Configuration:**
 ```bash

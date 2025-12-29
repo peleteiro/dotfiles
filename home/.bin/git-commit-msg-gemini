@@ -51,7 +51,7 @@ if [ -f "$COMMIT_MSG_FILE" ]; then
   ORIGINAL_CONTENT=$(cat "$COMMIT_MSG_FILE")
   # Extract comments (lines starting with #) - these include the file listing
   COMMENTS_ONLY=$(echo "$ORIGINAL_CONTENT" | rg '^#' || true)
-  
+
   # Check if message file already has non-comment content (user may have edited it)
   if [ -s "$COMMIT_MSG_FILE" ]; then
     # Check if there's any non-comment content
@@ -99,6 +99,67 @@ esac
 
 # Create the prompt for Gemini - generic approach that works for any language
 # Use English as the base prompt language and instruct Gemini to respond in the target language
+
+# ------------------------------------------------------------------------------
+# INTERACTIVE MODE: Ask user for context
+# ------------------------------------------------------------------------------
+
+# Temporary file for user input
+USER_INTENT_FILE=$(mktemp "/tmp/git-commit-intent.XXXXXX")
+
+# Add instructions to the file
+cat > "$USER_INTENT_FILE" <<EOF
+# ------------------------------------------------------------------------------
+# ANTES DE GERAR O COMMIT:
+# Descreva brevemente (em suas palavras) o que você fez e por quê.
+# A IA usará isso como base para gerar a mensagem técnica final.
+#
+# Exemplo: "Corrigi o erro de timeout na API de pagamentos"
+#
+# Deixe em branco se quiser que a IA analise sozinha pelo código.
+# Linhas começando com '#' serão ignoradas.
+# ------------------------------------------------------------------------------
+
+EOF
+
+# Determine the best editor to use
+# 1. GIT_EDITOR (git specific)
+# 2. VISUAL (standard visual editor)
+# 3. EDITOR (standard editor)
+# 4. code/vim/nano/vi (fallbacks)
+if [ -n "$GIT_EDITOR" ]; then
+  MY_EDITOR="$GIT_EDITOR"
+elif [ -n "$VISUAL" ]; then
+  MY_EDITOR="$VISUAL"
+elif [ -n "$EDITOR" ]; then
+  MY_EDITOR="$EDITOR"
+else
+  # Try to find a suitable editor
+  if command -v code >/dev/null 2>&1; then
+    MY_EDITOR="code --wait"
+  elif command -v vim >/dev/null 2>&1; then
+    MY_EDITOR="vim"
+  elif command -v nano >/dev/null 2>&1; then
+    MY_EDITOR="nano"
+  else
+    MY_EDITOR="vi"
+  fi
+fi
+
+# Open editor for user input
+# redirects are needed because git hooks might not have direct TTY access
+eval "$MY_EDITOR" "$USER_INTENT_FILE" < /dev/tty > /dev/tty 2>&1
+
+# Read user input, filtering out comments and empty lines
+USER_INTENT=$(grep -v "^#" "$USER_INTENT_FILE" | tr '\n' ' ' | sd '^[ \t]+' '' | sd '[ \t]+$' '')
+
+# Cleanup
+rm -f "$USER_INTENT_FILE"
+
+# ------------------------------------------------------------------------------
+# PROMPT CONSTRUCTION
+# ------------------------------------------------------------------------------
+
 PROMPT="Based on the following git diff, generate a detailed commit message following conventional commits format (type: description).
 
 Requirements:
@@ -111,7 +172,18 @@ Requirements:
 - Add a blank line between different sections if needed
 - Keep all relevant information about the changes
 - Do not remove comments or important details from the diff
-- Write the commit message in $LANG_NAME ($LANG_CODE)
+- Write the commit message in $LANG_NAME ($LANG_CODE)"
+
+# Add User Intent if provided
+if [ -n "$USER_INTENT" ]; then
+  PROMPT="$PROMPT
+
+IMPORTANT - USER CONTEXT:
+The user has provided the following description of their changes. You MUST use this to understand the INTENT and PURPOSE of the commit. Prioritize this context when writing the summary and explanation, while using the diff to fill in the technical details:
+\"$USER_INTENT\""
+fi
+
+PROMPT="$PROMPT
 
 Format example:
 ✨ feat: add new feature
@@ -170,7 +242,7 @@ SUGGESTED_MSG=$(echo "$SUGGESTED_MSG" | sd '^[ \t]+' '' | sd '[ \t]+$' '')
 if [ -z "$SUGGESTED_MSG" ] || [ ${#SUGGESTED_MSG} -lt 10 ]; then
   # Truncate diff if too long (Gemini CLI may have argument length limits)
   DIFF_PREVIEW=$(echo "$DIFF" | head -n 100)
-  
+
   # Use generic prompt for fallback too
   SHORT_PROMPT="Based on this git diff, generate a detailed commit message in conventional commits format (type: description).
 
@@ -185,12 +257,12 @@ Requirements:
 $DIFF_PREVIEW
 
 Generate the complete commit message in $LANG_NAME:"
-  
+
   GEMINI_OUTPUT=$(gemini "$SHORT_PROMPT" 2>/dev/null)
   SUGGESTED_MSG=$(echo "$GEMINI_OUTPUT" | \
     rg -v '^(Usage|Error|Warning|gemini):' || true | \
     sd '\n{4,}' '\n\n\n')  # Limit to max 3 consecutive blank lines
-  
+
   # Remove code block markers from beginning and end only
   # Trim leading/trailing whitespace (but preserve newlines and blank lines)
   SUGGESTED_MSG=$(echo "$SUGGESTED_MSG" | sd '^[ \t]+' '' | sd '[ \t]+$' '')
@@ -227,7 +299,7 @@ if [ -n "$SUGGESTED_MSG" ] && [ ${#SUGGESTED_MSG} -ge 10 ]; then
   else
     touch "$BACKUP_FILE"
   fi
-  
+
   # Write the suggested message, preserving Git's comments (file listing) below
   # This will update the commit message file's timestamp
   # Use printf '%b' to preserve newlines and escape sequences
@@ -239,7 +311,7 @@ if [ -n "$SUGGESTED_MSG" ] && [ ${#SUGGESTED_MSG} -ge 10 ]; then
       printf '%b' "$COMMENTS_ONLY"
     fi
   } > "$COMMIT_MSG_FILE"
-  
+
   # Create a timestamp file AFTER writing the message
   # This marks when the message template was created
   # The timestamp file will be newer than the commit message file
