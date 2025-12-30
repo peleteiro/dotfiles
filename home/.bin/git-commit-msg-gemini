@@ -15,6 +15,59 @@ is_code_block_marker() {
   [ "$line" = "$TRIPLE_BACKTICK" ] || [ "$line" = "$TRIPLE_BACKTICK_BASH" ] || [ "$line" = "$TRIPLE_BACKTICK_SH" ] || echo "$line" | rg -q "$CODE_BLOCK_PATTERN" || false
 }
 
+# Function to check if a line starts a commit message (emoji + type:)
+is_commit_message_start() {
+  local line="$1"
+  # Check if line starts with emoji followed by commit type (feat:, fix:, refactor:, etc.)
+  echo "$line" | rg -q '^[✨🐛♻️📝⚡🔧🎨🚀💄🔥💚🔒🎯🏗️📦👷🔍💡♿🌐➕➖🔀📈📉✅❌🔐🎨🚨🏁🔨🌙⚙️🎉][ \t]*[a-z]+:' || false
+}
+
+# Function to remove introductory text before the actual commit message
+remove_intro_text() {
+  local content="$1"
+  local result=""
+  local found_start=false
+  local line_num=0
+
+  while IFS= read -r line || [ -n "$line" ]; do
+    line_num=$((line_num + 1))
+    local trimmed_line
+    trimmed_line=$(echo "$line" | sd '^[ \t]+' '' | sd '[ \t]+$' '')
+
+    # Skip empty lines at the beginning (before finding the start)
+    if [ -z "$found_start" ] && [ -z "$trimmed_line" ]; then
+      continue
+    fi
+
+    # Check if this line starts a commit message (emoji + type: or just type:)
+    if [ -z "$found_start" ]; then
+      # Check for common intro phrases and skip them
+      if echo "$trimmed_line" | rg -qi '^(here is|the commit message|commit message is|generated commit|suggested commit|commit:|message:)' && [ "$line_num" -le 3 ]; then
+        continue
+      fi
+
+      # Check if this line starts a commit message
+      if is_commit_message_start "$trimmed_line"; then
+        found_start=true
+        result="$result$line"$'\n'
+      # Also check for lines starting with just commit type (without emoji)
+      elif echo "$trimmed_line" | rg -q '^(feat|fix|refactor|docs|perf|chore|style|test|build|ci|revert|wip|security|i18n|accessibility|config|deps|release|breaking):'; then
+        found_start=true
+        result="$result$line"$'\n'
+      # If we're past line 3 and haven't found a clear start, assume this is the message
+      elif [ "$line_num" -gt 3 ]; then
+        found_start=true
+        result="$result$line"$'\n'
+      fi
+    else
+      # Once we found the start, keep everything
+      result="$result$line"$'\n'
+    fi
+  done <<< "$content"
+
+  echo "$result"
+}
+
 # Check if gemini CLI is available
 if ! command -v gemini > /dev/null 2>&1; then
   # If gemini is not available, exit silently (don't break git commit)
@@ -153,7 +206,8 @@ fi
 eval "$MY_EDITOR" "$USER_INTENT_FILE" < /dev/tty > /dev/tty 2>&1
 
 # Read user input, filtering out comments and empty lines
-USER_INTENT=$(grep -v "^#" "$USER_INTENT_FILE" | tr '\n' ' ' | sd '^[ \t]+' '' | sd '[ \t]+$' '')
+# Remove lines starting with # (even with leading whitespace) and empty lines
+USER_INTENT=$(grep -v '^[ \t]*#' "$USER_INTENT_FILE" | grep -v '^[ \t]*$' | tr '\n' ' ' | sd '^[ \t]+' '' | sd '[ \t]+$' '')
 
 # Cleanup
 rm -f "$USER_INTENT_FILE"
@@ -180,8 +234,15 @@ Requirements:
 if [ -n "$USER_INTENT" ]; then
   PROMPT="$PROMPT
 
-IMPORTANT - USER CONTEXT:
-The user has provided the following description of their changes. You MUST use this to understand the INTENT and PURPOSE of the commit. Prioritize this context when writing the summary and explanation, while using the diff to fill in the technical details:
+⚠️ CRITICAL - USER INTENT (HIGHEST PRIORITY):
+The user has provided the following description of their changes. This is the PRIMARY source of information about the commit's purpose and intent. You MUST:
+1. PRIORITIZE this user description above everything else, including the diff
+2. Use this context as the foundation for understanding WHY the changes were made
+3. Base the commit message summary and explanation primarily on this user intent
+4. Use the diff only to fill in technical details and verify what was actually changed
+5. If there's any conflict between the user intent and what appears in the diff, trust the user intent
+
+User's description of their changes:
 \"$USER_INTENT\""
 fi
 
@@ -199,7 +260,22 @@ This commit adds a new feature that improves...
 Git diff:
 $DIFF
 
-Generate the complete commit message (subject and body if needed) in $LANG_NAME:"
+CRITICAL OUTPUT REQUIREMENTS:
+- Return ONLY the commit message itself, ready to use
+- Do NOT include any introduction, explanation, or commentary before or after the message
+- Do NOT write introductory phrases before the commit message
+- Do NOT write descriptive text without the commit format
+- The FIRST LINE of your output MUST start with an emoji followed by a commit type like ✨ feat, 🐛 fix, or ♻️ refactor
+- The output must be the final commit message that will be used directly in git
+- No additional text, no meta-commentary, just the formatted commit message
+- Your output should start immediately with: [emoji] [type]: [description]
+
+Example of correct output format (start your response exactly like this):
+✨ feat: add new feature
+
+This commit adds...
+
+Generate the complete commit message (subject and body if needed) in $LANG_NAME. Return ONLY the message starting with emoji and type, nothing else:"
 
 # Call Gemini CLI with the prompt
 # Gemini CLI accepts prompts via stdin or as positional arguments
@@ -236,6 +312,9 @@ while is_code_block_marker "$LAST_LINE"; do
   [ -z "$LAST_LINE" ] && break
 done
 
+# Remove any introductory text before the actual commit message
+SUGGESTED_MSG=$(remove_intro_text "$SUGGESTED_MSG")
+
 # Trim leading/trailing whitespace from each line but preserve structure
 # Use sd to preserve newlines and blank lines properly (only trim spaces/tabs, not newlines)
 SUGGESTED_MSG=$(echo "$SUGGESTED_MSG" | sd '^[ \t]+' '' | sd '[ \t]+$' '')
@@ -254,11 +333,44 @@ Requirements:
 - Blank line between subject and body
 - Body with detailed explanation
 - Use bullet points (-) for multiple changes
-- Write in $LANG_NAME ($LANG_CODE)
+- Write in $LANG_NAME ($LANG_CODE)"
+
+  # Add User Intent if provided (same priority as main prompt)
+  if [ -n "$USER_INTENT" ]; then
+    SHORT_PROMPT="$SHORT_PROMPT
+
+⚠️ CRITICAL - USER INTENT (HIGHEST PRIORITY):
+The user has provided the following description of their changes. This is the PRIMARY source of information about the commit's purpose and intent. You MUST:
+1. PRIORITIZE this user description above everything else, including the diff
+2. Use this context as the foundation for understanding WHY the changes were made
+3. Base the commit message summary and explanation primarily on this user intent
+4. Use the diff only to fill in technical details and verify what was actually changed
+5. If there's any conflict between the user intent and what appears in the diff, trust the user intent
+
+User's description of their changes:
+\"$USER_INTENT\""
+  fi
+
+  SHORT_PROMPT="$SHORT_PROMPT
 
 $DIFF_PREVIEW
 
-Generate the complete commit message in $LANG_NAME:"
+CRITICAL OUTPUT REQUIREMENTS:
+- Return ONLY the commit message itself, ready to use
+- Do NOT include any introduction, explanation, or commentary before or after the message
+- Do NOT write introductory phrases before the commit message
+- Do NOT write descriptive text without the commit format
+- The FIRST LINE of your output MUST start with an emoji followed by a commit type like ✨ feat, 🐛 fix, or ♻️ refactor
+- The output must be the final commit message that will be used directly in git
+- No additional text, no meta-commentary, just the formatted commit message
+- Your output should start immediately with: [emoji] [type]: [description]
+
+Example of correct output format (start your response exactly like this):
+✨ feat: add new feature
+
+This commit adds...
+
+Generate the complete commit message in $LANG_NAME. Return ONLY the message starting with emoji and type, nothing else:"
 
   GEMINI_OUTPUT=$(gemini "$SHORT_PROMPT" 2>/dev/null)
   SUGGESTED_MSG=$(echo "$GEMINI_OUTPUT" | \
@@ -286,6 +398,9 @@ Generate the complete commit message in $LANG_NAME:"
     LAST_LINE=$(echo "$SUGGESTED_MSG" | tail -n 1)
     [ -z "$LAST_LINE" ] && break
   done
+  # Remove any introductory text before the actual commit message
+  SUGGESTED_MSG=$(remove_intro_text "$SUGGESTED_MSG")
+
   # Trim leading/trailing whitespace from each line but preserve structure
   # Only trim spaces/tabs, not newlines (to preserve blank lines)
   SUGGESTED_MSG=$(echo "$SUGGESTED_MSG" | sd '^[ \t]+' '' | sd '[ \t]+$' '')
