@@ -109,6 +109,8 @@ USER_INTENT_FILE=$(mktemp "/tmp/git-commit-intent.XXXXXX")
 
 # Add instructions to the file
 cat > "$USER_INTENT_FILE" <<EOF
+
+
 # ------------------------------------------------------------------------------
 # ANTES DE GERAR O COMMIT:
 # Descreva brevemente (em suas palavras) o que você fez e por quê.
