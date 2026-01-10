@@ -1,12 +1,13 @@
 # Bash profile
 # Loaded for Bash login shells
 
-# Bash-specific bindings
-stty werase undef
-bind '\C-w:unix-filename-rubout'
-
-## Turn off terminal beep
-bind 'set bell-style none'
+# Bash-specific bindings (only in interactive mode with a real terminal)
+if [[ $- == *i* ]]; then
+  stty werase undef
+  bind '\C-w:unix-filename-rubout'
+  # Turn off terminal beep
+  bind 'set bell-style none'
+fi
 
 # Load shared configurations
 if [ -f ~/.shared_shell_config ]; then
