@@ -1,6 +1,12 @@
 #!/bin/bash
-# Git commit message helper using Gemini CLI
-# This script generates commit messages using Gemini based on git diff
+# Git commit message helper using AI (Gemini or Claude)
+# This script generates commit messages using AI based on git diff
+#
+# Usage:
+#   GIT_COMMIT_AI=gemini git commit  # use Gemini (default)
+#   GIT_COMMIT_AI=claude git commit  # use Claude
+#
+# Set default in your shell: export GIT_COMMIT_AI=claude
 
 # Pattern for matching code block markers (triple backticks with optional language)
 # Using a variable to avoid shellcheck issues with backticks in strings
@@ -68,9 +74,161 @@ remove_intro_text() {
   echo "$result"
 }
 
-# Check if gemini CLI is available
-if ! command -v gemini > /dev/null 2>&1; then
-  # If gemini is not available, exit silently (don't break git commit)
+# Build context prompt sections (branch, scope, user intent)
+# Usage: build_context_prompt [short]
+# If "short" is passed, uses abbreviated format for fallback prompt
+build_context_prompt() {
+  local format="${1:-full}"
+  local context=""
+
+  # Add branch name context if available
+  if [ -n "$BRANCH_NAME" ]; then
+    if [ "$format" = "short" ]; then
+      context="$context
+
+Branch: '$BRANCH_NAME' (use as hint for intent)"
+    else
+      context="$context
+
+BRANCH CONTEXT:
+The current branch is: '$BRANCH_NAME'
+Use this as a hint about the intent of the changes (e.g., 'feature/add-auth' suggests authentication feature, 'fix/login-bug' suggests a bug fix, 'refactor/cleanup-api' suggests refactoring)."
+    fi
+  fi
+
+  # Add detected scope if available
+  if [ -n "$DETECTED_SCOPE" ]; then
+    if [ "$format" = "short" ]; then
+      context="$context
+Suggested scope: '$DETECTED_SCOPE' - consider using type($DETECTED_SCOPE): description"
+    else
+      context="$context
+
+SUGGESTED SCOPE:
+Based on the file paths, the suggested scope is: '$DETECTED_SCOPE'
+Consider using this scope in the commit message format: type($DETECTED_SCOPE): description
+Only use the scope if it makes sense for the changes. Skip it if changes span multiple unrelated areas."
+    fi
+  fi
+
+  # Add User Intent if provided (same format for both)
+  if [ -n "$USER_INTENT" ]; then
+    context="$context
+
+⚠️ CRITICAL - USER INTENT (HIGHEST PRIORITY):
+The user has provided the following description of their changes. This is the PRIMARY source of information about the commit's purpose and intent. You MUST:
+1. PRIORITIZE this user description above everything else, including the diff
+2. Use this context as the foundation for understanding WHY the changes were made
+3. Base the commit message summary and explanation primarily on this user intent
+4. Use the diff only to fill in technical details and verify what was actually changed
+5. If there's any conflict between the user intent and what appears in the diff, trust the user intent
+
+User's description of their changes:
+\"$USER_INTENT\""
+  fi
+
+  echo "$context"
+}
+
+# Process AI response: filter metadata, remove code blocks, clean up formatting
+process_ai_response() {
+  local ai_output="$1"
+  local result=""
+
+  # Filter out CLI metadata, preserve blank lines (max 2 consecutive)
+  result=$(echo "$ai_output" | \
+    rg -v '^(Usage|Error|Warning|gemini|claude):' || true | \
+    sd '\n{4,}' '\n\n\n')
+
+  # Trim leading/trailing whitespace (but preserve newlines)
+  result=$(echo "$result" | sd '^[ \t]+' '' | sd '[ \t]+$' '')
+
+  # Remove leading code block marker lines
+  local first_line
+  first_line=$(echo "$result" | head -n 1)
+  while is_code_block_marker "$first_line"; do
+    result=$(echo "$result" | tail -n +2)
+    first_line=$(echo "$result" | head -n 1)
+    [ -z "$first_line" ] && break
+  done
+
+  # Remove trailing code block marker lines
+  local last_line
+  last_line=$(echo "$result" | tail -n 1)
+  while is_code_block_marker "$last_line"; do
+    local line_count
+    line_count=$(echo "$result" | wc -l | tr -d ' ')
+    if [ "$line_count" -le 1 ]; then
+      break
+    fi
+    result=$(echo "$result" | sed '$d')
+    last_line=$(echo "$result" | tail -n 1)
+    [ -z "$last_line" ] && break
+  done
+
+  # Remove introductory text before the actual commit message
+  result=$(remove_intro_text "$result")
+
+  # Final trim of whitespace
+  result=$(echo "$result" | sd '^[ \t]+' '' | sd '[ \t]+$' '')
+
+  echo "$result"
+}
+
+# ------------------------------------------------------------------------------
+# AI PROVIDER FUNCTIONS
+# ------------------------------------------------------------------------------
+
+# Select AI provider (default: gemini)
+AI_PROVIDER="${GIT_COMMIT_AI:-gemini}"
+
+# Call Gemini CLI with a prompt
+call_gemini() {
+  local prompt="$1"
+  if ! command -v gemini > /dev/null 2>&1; then
+    return 1
+  fi
+  echo "$prompt" | gemini 2>/dev/null
+}
+
+# Call Claude CLI with a prompt
+call_claude() {
+  local prompt="$1"
+  if ! command -v claude > /dev/null 2>&1; then
+    return 1
+  fi
+  # Claude CLI accepts prompts via --print flag for non-interactive output
+  echo "$prompt" | claude --print 2>/dev/null
+}
+
+# Dispatch to the selected AI provider with fallback
+call_ai() {
+  local prompt="$1"
+  local output=""
+
+  case "$AI_PROVIDER" in
+    "claude")
+      output=$(call_claude "$prompt")
+      if [ -z "$output" ] || [ ${#output} -lt 10 ]; then
+        # Fallback to gemini if claude fails
+        output=$(call_gemini "$prompt")
+      fi
+      ;;
+    "gemini"|*)
+      output=$(call_gemini "$prompt")
+      if [ -z "$output" ] || [ ${#output} -lt 10 ]; then
+        # Fallback to claude if gemini fails
+        output=$(call_claude "$prompt")
+      fi
+      ;;
+  esac
+
+  echo "$output"
+}
+
+# Check if at least one AI provider is available
+if ! command -v gemini > /dev/null 2>&1 && ! command -v claude > /dev/null 2>&1; then
+  # No AI provider available, exit silently (don't break git commit)
   exit 0
 fi
 
@@ -96,6 +254,65 @@ DIFF=$(git diff --cached)
 if [ -z "$DIFF" ]; then
   exit 0
 fi
+
+# ------------------------------------------------------------------------------
+# CONTEXT EXTRACTION: Branch name and scope detection
+# ------------------------------------------------------------------------------
+
+# Get current branch name for context
+BRANCH_NAME=$(git branch --show-current 2>/dev/null || echo "")
+
+# Get list of changed files to detect scope
+CHANGED_FILES=$(git diff --cached --name-only)
+
+# Function to detect common scope from file paths
+detect_scope() {
+  local files="$1"
+  local common_dir=""
+  local file_count=0
+  local first_dir=""
+
+  while IFS= read -r file; do
+    [ -z "$file" ] && continue
+    file_count=$((file_count + 1))
+
+    # Get the first directory component (or filename if in root)
+    local dir
+    dir=$(echo "$file" | cut -d'/' -f1)
+
+    # For deeper paths, try to get a meaningful scope
+    # e.g., src/components/auth/Login.tsx -> "auth"
+    # e.g., src/auth/login.ts -> "auth"
+    local deep_dir=""
+    if echo "$file" | grep -q '/'; then
+      # Try to find a meaningful directory (skip common top-level dirs)
+      deep_dir=$(echo "$file" | sd '^(src|lib|app|packages|modules)/' '' | cut -d'/' -f1)
+      # If deep_dir is a file (has extension), use parent logic
+      if echo "$deep_dir" | grep -q '\.'; then
+        deep_dir=""
+      fi
+    fi
+
+    local effective_dir="${deep_dir:-$dir}"
+
+    if [ -z "$first_dir" ]; then
+      first_dir="$effective_dir"
+      common_dir="$effective_dir"
+    elif [ "$effective_dir" != "$common_dir" ]; then
+      # Different directories, no common scope
+      common_dir=""
+    fi
+  done <<< "$files"
+
+  # Only suggest scope if we have multiple files in the same directory
+  # or a single file in a meaningful directory
+  if [ -n "$common_dir" ] && [ "$file_count" -ge 1 ]; then
+    # Clean up scope name (lowercase, no special chars)
+    echo "$common_dir" | tr '[:upper:]' '[:lower:]' | sd '[^a-z0-9-]' ''
+  fi
+}
+
+DETECTED_SCOPE=$(detect_scope "$CHANGED_FILES")
 
 # Save the original file content (including Git's comments with file listing)
 ORIGINAL_CONTENT=""
@@ -161,18 +378,18 @@ esac
 USER_INTENT_FILE=$(mktemp "/tmp/git-commit-intent.XXXXXX")
 
 # Add instructions to the file
-cat > "$USER_INTENT_FILE" <<EOF
+cat > "$USER_INTENT_FILE" <<'EOF'
 
 
 # ------------------------------------------------------------------------------
-# ANTES DE GERAR O COMMIT:
-# Descreva brevemente (em suas palavras) o que você fez e por quê.
-# A IA usará isso como base para gerar a mensagem técnica final.
+# BEFORE GENERATING THE COMMIT:
+# Briefly describe (in your own words) what you did and why.
+# The AI will use this as the basis for generating the final technical message.
 #
-# Exemplo: "Corrigi o erro de timeout na API de pagamentos"
+# Example: "Fixed the timeout error in the payments API"
 #
-# Deixe em branco se quiser que a IA analise sozinha pelo código.
-# Linhas começando com '#' serão ignoradas.
+# Leave blank if you want the AI to analyze the code on its own.
+# Lines starting with '#' will be ignored.
 # ------------------------------------------------------------------------------
 
 EOF
@@ -216,46 +433,82 @@ rm -f "$USER_INTENT_FILE"
 # PROMPT CONSTRUCTION
 # ------------------------------------------------------------------------------
 
-PROMPT="Based on the following git diff, generate a detailed commit message following conventional commits format (type: description).
+PROMPT="Based on the following git diff, perform a DEEP ANALYSIS of the changes and generate a comprehensive commit message following conventional commits format (type: description).
 
-Requirements:
+ANALYSIS REQUIREMENTS:
+- Carefully analyze EVERY file modified, added, or deleted
+- Understand the PURPOSE and IMPACT of each change
+- Identify patterns, refactorings, bug fixes, and new features
+- Consider how changes relate to each other
+- Note any breaking changes, dependencies, or side effects
+
+MESSAGE REQUIREMENTS:
 - Use conventional commits format (e.g., 'feat:', 'fix:', 'refactor:', 'docs:', etc.)
 - Add appropriate emoji to the commit type (✨ for feat, 🐛 for fix, ♻️ for refactor, 📝 for docs, ⚡ for perf, 🔧 for chore, etc.)
 - Provide a clear and descriptive summary in the first line (max 72 characters)
 - Include a blank line between the subject and body
-- Include a detailed body explaining what was changed and why (if significant)
-- Use bullet points (-) for multiple changes, with a blank line before the list
+- Include a detailed body explaining what was changed and WHY (context and motivation)
+- Use bullet points (-) for multiple changes - USE AS MANY AS NEEDED (up to 20 bullet points if the changes warrant it)
+- Group related changes by CATEGORY when there are many changes. Use sections like:
+  * Changes: (for code changes, new features, modifications)
+  * Tests: (for test additions or modifications)
+  * Documentation: (for docs, comments, README updates)
+  * Refactor: (for code restructuring without behavior change)
+  * Dependencies: (for package/dependency updates)
+- Be thorough: do NOT omit important changes just to keep the message short
 - Add a blank line between different sections if needed
 - Keep all relevant information about the changes
 - Do not remove comments or important details from the diff
 - Write the commit message in $LANG_NAME ($LANG_CODE)"
 
-# Add User Intent if provided
-if [ -n "$USER_INTENT" ]; then
-  PROMPT="$PROMPT
+# Add context (branch, scope, user intent)
+PROMPT="$PROMPT$(build_context_prompt full)
 
-⚠️ CRITICAL - USER INTENT (HIGHEST PRIORITY):
-The user has provided the following description of their changes. This is the PRIMARY source of information about the commit's purpose and intent. You MUST:
-1. PRIORITIZE this user description above everything else, including the diff
-2. Use this context as the foundation for understanding WHY the changes were made
-3. Base the commit message summary and explanation primarily on this user intent
-4. Use the diff only to fill in technical details and verify what was actually changed
-5. If there's any conflict between the user intent and what appears in the diff, trust the user intent
+Format examples:
 
-User's description of their changes:
-\"$USER_INTENT\""
-fi
+Example 1 (feature with categories):
+✨ feat: add user authentication system
 
-PROMPT="$PROMPT
+This commit introduces a complete authentication system to improve security.
+The motivation was to replace the legacy session-based auth with JWT tokens.
 
-Format example:
-✨ feat: add new feature
+Changes:
+- Added JWT token generation and validation
+- Implemented login/logout endpoints
+- Created middleware for protected routes
+- Added password hashing with bcrypt
 
-This commit adds a new feature that improves...
+Tests:
+- Added unit tests for token validation
+- Added integration tests for auth flow
 
-- Added new functionality
-- Updated documentation
-- Fixed related issues
+Documentation:
+- Updated API docs with auth endpoints
+- Added examples for token usage
+
+Example 2 (bug fix):
+🐛 fix: resolve race condition in payment processing
+
+Fixed a critical bug where concurrent payment requests could result in
+duplicate charges due to missing database locks.
+
+- Added row-level locking on payment records
+- Implemented idempotency keys for retry safety
+- Added transaction rollback on timeout
+
+Example 3 (refactor):
+♻️ refactor: simplify error handling across API
+
+Consolidated scattered try-catch blocks into a centralized error handler
+to improve maintainability and consistent error responses.
+
+Refactor:
+- Extracted common error handling to middleware
+- Standardized error response format
+- Removed redundant try-catch blocks in controllers
+
+Tests:
+- Updated tests to use new error format
 
 Git diff:
 $DIFF
@@ -277,47 +530,9 @@ This commit adds...
 
 Generate the complete commit message (subject and body if needed) in $LANG_NAME. Return ONLY the message starting with emoji and type, nothing else:"
 
-# Call Gemini CLI with the prompt
-# Gemini CLI accepts prompts via stdin or as positional arguments
-# First try via stdin (better for long prompts with diff)
-GEMINI_OUTPUT=$(echo "$PROMPT" | gemini 2>/dev/null)
-
-# Extract the commit message, preserving multiple lines and comments
-# Filter out only Gemini CLI metadata, but keep the actual message content
-# Preserve blank lines (max 2 consecutive) for proper formatting
-SUGGESTED_MSG=$(echo "$GEMINI_OUTPUT" | \
-  rg -v '^(Usage|Error|Warning|gemini):' || true | \
-  sd '\n{4,}' '\n\n\n')  # Limit to max 3 consecutive blank lines
-
-# Remove code block markers only from the beginning and end of the message
-# Trim leading/trailing whitespace from the entire message (but preserve newlines and blank lines)
-# Only trim spaces/tabs, not newlines
-SUGGESTED_MSG=$(echo "$SUGGESTED_MSG" | sd '^[ \t]+' '' | sd '[ \t]+$' '')
-# Remove leading code block marker lines
-FIRST_LINE=$(echo "$SUGGESTED_MSG" | head -n 1)
-while is_code_block_marker "$FIRST_LINE"; do
-  SUGGESTED_MSG=$(echo "$SUGGESTED_MSG" | tail -n +2)
-  FIRST_LINE=$(echo "$SUGGESTED_MSG" | head -n 1)
-  [ -z "$FIRST_LINE" ] && break
-done
-# Remove trailing code block marker lines
-LAST_LINE=$(echo "$SUGGESTED_MSG" | tail -n 1)
-while is_code_block_marker "$LAST_LINE"; do
-  LINE_COUNT=$(echo "$SUGGESTED_MSG" | wc -l | tr -d ' ')
-  if [ "$LINE_COUNT" -le 1 ]; then
-    break
-  fi
-  SUGGESTED_MSG=$(echo "$SUGGESTED_MSG" | sed '$d')
-  LAST_LINE=$(echo "$SUGGESTED_MSG" | tail -n 1)
-  [ -z "$LAST_LINE" ] && break
-done
-
-# Remove any introductory text before the actual commit message
-SUGGESTED_MSG=$(remove_intro_text "$SUGGESTED_MSG")
-
-# Trim leading/trailing whitespace from each line but preserve structure
-# Use sd to preserve newlines and blank lines properly (only trim spaces/tabs, not newlines)
-SUGGESTED_MSG=$(echo "$SUGGESTED_MSG" | sd '^[ \t]+' '' | sd '[ \t]+$' '')
+# Call AI provider and process response
+AI_OUTPUT=$(call_ai "$PROMPT")
+SUGGESTED_MSG=$(process_ai_response "$AI_OUTPUT")
 
 # If that didn't work or output is too short, try passing the prompt as a positional argument
 if [ -z "$SUGGESTED_MSG" ] || [ ${#SUGGESTED_MSG} -lt 10 ]; then
@@ -325,33 +540,18 @@ if [ -z "$SUGGESTED_MSG" ] || [ ${#SUGGESTED_MSG} -lt 10 ]; then
   DIFF_PREVIEW=$(echo "$DIFF" | head -n 100)
 
   # Use generic prompt for fallback too
-  SHORT_PROMPT="Based on this git diff, generate a detailed commit message in conventional commits format (type: description).
+  SHORT_PROMPT="Based on this git diff, perform a DEEP ANALYSIS and generate a comprehensive commit message in conventional commits format (type: description).
 
 Requirements:
+- Analyze EVERY change carefully - understand PURPOSE and IMPACT
 - Use conventional commits format with emoji (✨ feat, 🐛 fix, ♻️ refactor, 📝 docs, etc.)
 - First line: subject (max 72 chars) with emoji
 - Blank line between subject and body
-- Body with detailed explanation
-- Use bullet points (-) for multiple changes
-- Write in $LANG_NAME ($LANG_CODE)"
-
-  # Add User Intent if provided (same priority as main prompt)
-  if [ -n "$USER_INTENT" ]; then
-    SHORT_PROMPT="$SHORT_PROMPT
-
-⚠️ CRITICAL - USER INTENT (HIGHEST PRIORITY):
-The user has provided the following description of their changes. This is the PRIMARY source of information about the commit's purpose and intent. You MUST:
-1. PRIORITIZE this user description above everything else, including the diff
-2. Use this context as the foundation for understanding WHY the changes were made
-3. Base the commit message summary and explanation primarily on this user intent
-4. Use the diff only to fill in technical details and verify what was actually changed
-5. If there's any conflict between the user intent and what appears in the diff, trust the user intent
-
-User's description of their changes:
-\"$USER_INTENT\""
-  fi
-
-  SHORT_PROMPT="$SHORT_PROMPT
+- Body with detailed explanation of WHAT and WHY
+- Use bullet points (-) for multiple changes - up to 20 if needed
+- Group changes by category when many: Changes:, Tests:, Documentation:, Refactor:, Dependencies:
+- Be thorough: do NOT omit important changes
+- Write in $LANG_NAME ($LANG_CODE)$(build_context_prompt short)
 
 $DIFF_PREVIEW
 
@@ -372,38 +572,8 @@ This commit adds...
 
 Generate the complete commit message in $LANG_NAME. Return ONLY the message starting with emoji and type, nothing else:"
 
-  GEMINI_OUTPUT=$(gemini "$SHORT_PROMPT" 2>/dev/null)
-  SUGGESTED_MSG=$(echo "$GEMINI_OUTPUT" | \
-    rg -v '^(Usage|Error|Warning|gemini):' || true | \
-    sd '\n{4,}' '\n\n\n')  # Limit to max 3 consecutive blank lines
-
-  # Remove code block markers from beginning and end only
-  # Trim leading/trailing whitespace (but preserve newlines and blank lines)
-  SUGGESTED_MSG=$(echo "$SUGGESTED_MSG" | sd '^[ \t]+' '' | sd '[ \t]+$' '')
-  # Remove leading code block marker lines
-  FIRST_LINE=$(echo "$SUGGESTED_MSG" | head -n 1)
-  while is_code_block_marker "$FIRST_LINE"; do
-    SUGGESTED_MSG=$(echo "$SUGGESTED_MSG" | tail -n +2)
-    FIRST_LINE=$(echo "$SUGGESTED_MSG" | head -n 1)
-    [ -z "$FIRST_LINE" ] && break
-  done
-  # Remove trailing code block marker lines
-  LAST_LINE=$(echo "$SUGGESTED_MSG" | tail -n 1)
-  while is_code_block_marker "$LAST_LINE"; do
-    LINE_COUNT=$(echo "$SUGGESTED_MSG" | wc -l | tr -d ' ')
-    if [ "$LINE_COUNT" -le 1 ]; then
-      break
-    fi
-    SUGGESTED_MSG=$(echo "$SUGGESTED_MSG" | sed '$d')
-    LAST_LINE=$(echo "$SUGGESTED_MSG" | tail -n 1)
-    [ -z "$LAST_LINE" ] && break
-  done
-  # Remove any introductory text before the actual commit message
-  SUGGESTED_MSG=$(remove_intro_text "$SUGGESTED_MSG")
-
-  # Trim leading/trailing whitespace from each line but preserve structure
-  # Only trim spaces/tabs, not newlines (to preserve blank lines)
-  SUGGESTED_MSG=$(echo "$SUGGESTED_MSG" | sd '^[ \t]+' '' | sd '[ \t]+$' '')
+  AI_OUTPUT=$(call_ai "$SHORT_PROMPT")
+  SUGGESTED_MSG=$(process_ai_response "$AI_OUTPUT")
 fi
 
 # If we got a valid suggestion (at least 10 characters), write it to the commit message file
