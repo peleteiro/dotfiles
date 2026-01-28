@@ -248,11 +248,28 @@ if [ "$COMMIT_SOURCE" = "message" ] || [ "$COMMIT_SOURCE" = "merge" ] || [ "$COM
 fi
 
 # Get the diff for the staged changes
-DIFF=$(git diff --cached)
+DIFF_FULL=$(git diff --cached)
 
 # If there's no diff, exit
-if [ -z "$DIFF" ]; then
+if [ -z "$DIFF_FULL" ]; then
   exit 0
+fi
+
+# Truncate diff if too large to avoid "Prompt is too long" errors
+# Gemini has ~32k token limit, Claude similar. Limit to ~500 lines or ~20000 chars
+MAX_DIFF_LINES=500
+MAX_DIFF_CHARS=20000
+
+DIFF_LINES=$(echo "$DIFF_FULL" | wc -l | tr -d ' ')
+DIFF_CHARS=${#DIFF_FULL}
+
+if [ "$DIFF_LINES" -gt "$MAX_DIFF_LINES" ] || [ "$DIFF_CHARS" -gt "$MAX_DIFF_CHARS" ]; then
+  # Truncate to max lines
+  DIFF=$(echo "$DIFF_FULL" | head -n "$MAX_DIFF_LINES")
+  DIFF_TRUNCATED=true
+else
+  DIFF="$DIFF_FULL"
+  DIFF_TRUNCATED=false
 fi
 
 # ------------------------------------------------------------------------------
@@ -510,7 +527,7 @@ Refactor:
 Tests:
 - Updated tests to use new error format
 
-Git diff:
+Git diff${DIFF_TRUNCATED:+ (truncated - showing first $MAX_DIFF_LINES lines of $DIFF_LINES)}:
 $DIFF
 
 CRITICAL OUTPUT REQUIREMENTS:
@@ -534,10 +551,10 @@ Generate the complete commit message (subject and body if needed) in $LANG_NAME.
 AI_OUTPUT=$(call_ai "$PROMPT")
 SUGGESTED_MSG=$(process_ai_response "$AI_OUTPUT")
 
-# If that didn't work or output is too short, try passing the prompt as a positional argument
+# If that didn't work or output is too short, try with a more aggressively truncated diff
 if [ -z "$SUGGESTED_MSG" ] || [ ${#SUGGESTED_MSG} -lt 10 ]; then
-  # Truncate diff if too long (Gemini CLI may have argument length limits)
-  DIFF_PREVIEW=$(echo "$DIFF" | head -n 100)
+  # Use a much smaller diff for the fallback (100 lines max)
+  DIFF_PREVIEW=$(echo "$DIFF_FULL" | head -n 100)
 
   # Use generic prompt for fallback too
   SHORT_PROMPT="Based on this git diff, perform a DEEP ANALYSIS and generate a comprehensive commit message in conventional commits format (type: description).
@@ -553,6 +570,7 @@ Requirements:
 - Be thorough: do NOT omit important changes
 - Write in $LANG_NAME ($LANG_CODE)$(build_context_prompt short)
 
+Git diff (truncated to first 100 lines for brevity):
 $DIFF_PREVIEW
 
 CRITICAL OUTPUT REQUIREMENTS:
