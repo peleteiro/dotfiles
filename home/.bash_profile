@@ -65,14 +65,6 @@ export HISTFILESIZE=2000
 shopt -s histappend
 shopt -s checkwinsize
 
-# dircolors (Linux)
-if [[ "$OS" == "linux" ]] && command -v dircolors > /dev/null; then
-  if [ -f ~/.dircolors ]; then
-    eval "`dircolors -b ~/.dircolors`"
-    export LS_COLORS
-  fi
-fi
-
 # INPUTRC
 export INPUTRC='~/.inputrc'
 

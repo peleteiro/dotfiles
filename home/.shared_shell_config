@@ -69,16 +69,20 @@ fi
 alias tmux="TERM=xterm-256color tmux"
 
 # Cores
-export TERM=xterm-color
+export TERM=xterm-256color
 export CLICOLOR=1
 
-# dircolors (Linux)
-if [[ "$OS" == "linux" ]] && command -v dircolors > /dev/null; then
-  if [ -f ~/.dircolors ]; then
-    eval "$(dircolors -b ~/.dircolors)"
-    export LS_COLORS
-  fi
+# dircolors
+if command -v dircolors > /dev/null && [ -f ~/.dircolors ]; then
+  eval "$(dircolors -b ~/.dircolors)"
+  export LS_COLORS
 fi
+
+# Colors for ls and grep
+alias ls='ls --color=auto'
+alias grep='grep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias egrep='egrep --color=auto'
 
 # Common aliases
 alias cdd='cd -' # goto last dir cd'ed from

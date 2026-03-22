@@ -33,7 +33,7 @@ fi
 # Completion styles
 zstyle ':completion:*' menu select
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|=*' 'l:|=* r:|=*'
-zstyle ':completion:*' list-colors ''
+zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
 zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#)*=0=01;31'
 
 # Bash completion compatibility
@@ -69,19 +69,6 @@ fi
 # Pipenv
 if command -v pipenv > /dev/null; then
   eval "$(pipenv --completion 2> /dev/null)"
-fi
-
-# Colors for ls and grep
-if [[ "$OS" == "macos" ]]; then
-  alias ls='ls -G'
-  alias grep='grep --color=auto'
-  alias fgrep='fgrep --color=auto'
-  alias egrep='egrep --color=auto'
-else
-  alias ls='ls --color=auto'
-  alias grep='grep --color=auto'
-  alias fgrep='fgrep --color=auto'
-  alias egrep='egrep --color=auto'
 fi
 
 # Starship prompt (if available, otherwise fallback to simple prompt)
