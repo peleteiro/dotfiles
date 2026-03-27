@@ -22,6 +22,11 @@ setopt correct                # Correct typing errors
 setopt extended_glob          # Extended glob patterns
 setopt no_beep                # Disable beep
 
+# Key bindings (emacs mode)
+bindkey -e
+bindkey '^R' history-incremental-search-backward
+bindkey '^S' history-incremental-search-forward
+
 # Completions
 autoload -Uz compinit
 if [[ -n ${HOME}/.zcompdump(#qN.mh+24) ]]; then
