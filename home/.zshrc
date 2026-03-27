@@ -36,22 +36,9 @@ zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|=*' 'l:|=* r:|=*'
 zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
 zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#)*=0=01;31'
 
-# Bash completion compatibility
+# Bash completion compatibility (for tools that only provide bash-style completions)
 autoload -Uz bashcompinit
 bashcompinit
-
-# bash-completion (se disponível)
-if [[ "$OS" == "macos" ]] && [ -f $(brew --prefix)/etc/bash_completion ]; then
-  source $(brew --prefix)/etc/bash_completion
-fi
-
-if [[ "$OS" == "linux" ]]; then
-  if [ -f /usr/share/bash-completion/bash_completion ]; then
-    source /usr/share/bash-completion/bash_completion
-  elif [ -f /etc/bash_completion ]; then
-    source /etc/bash_completion
-  fi
-fi
 
 # Specific completions
 # AWS CLI

@@ -29,7 +29,7 @@ if command -v op > /dev/null; then
   # Use 1Password for GPG operations
   if [ -f ~/.gnupg/gpg-agent.conf ]; then
     # Ensure GPG agent is configured
-    gpg-connect-agent reloadagent /bye 2>/dev/null || true
+    gpg-connect-agent reloadagent /bye >/dev/null 2>&1 || true
   fi
 fi
 
