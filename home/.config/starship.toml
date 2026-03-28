@@ -5,7 +5,6 @@
 # Disable all modules by default, then enable only what we need
 # Format varies by OS: Linux shows username, macOS doesn't
 format = """
-$username\
 $directory\
 $git_branch\
 $character
@@ -147,12 +146,7 @@ disabled = true
 # On Linux: always show (matches original prompt behavior)
 # On macOS: only show on SSH/remote (default behavior)
 [username]
-show_always = true  # Always show username (matches Linux prompt behavior)
-style_user = "bold cyan"
-style_root = "bold red"
-format = "[$user]($style)@"
-# Note: This will show username on both Linux and macOS
-# If you want macOS to not show username, you can create OS-specific configs
+disabled = true
 
 [vagrant]
 disabled = true
