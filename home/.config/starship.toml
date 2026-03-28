@@ -25,8 +25,8 @@ format = " [$branch]($style)"
 
 # Character module (shows $ or #)
 [character]
-success_symbol = "[$](bold)"
-error_symbol = "[$](bold red)"
+success_symbol = '[\$](bold)'
+error_symbol = '[\$](bold red)'
 
 # Disable all other modules for a clean, fast prompt
 [aws]
