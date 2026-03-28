@@ -18,7 +18,6 @@ setopt inc_append_history     # Add commands immediately
 
 # Zsh options
 setopt autocd                 # cd by typing directory name
-setopt correct                # Correct typing errors
 setopt extended_glob          # Extended glob patterns
 setopt no_beep                # Disable beep
 
