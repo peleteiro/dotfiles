@@ -17,7 +17,7 @@ truncate_to_repo = false
 [git_branch]
 symbol = ""
 style = "bold blue"
-format = " [$branch]($style)"
+format = "[$branch]($style)"
 
 # Character module (shows $ or #)
 [character]
