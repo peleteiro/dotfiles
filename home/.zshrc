@@ -57,6 +57,11 @@ if command -v docker-compose > /dev/null; then
   fi
 fi
 
+# Mise
+if command -v mise > /dev/null; then
+  eval "$(mise completion zsh)"
+fi
+
 # Pipenv
 if command -v pipenv > /dev/null; then
   eval "$(pipenv --completion 2> /dev/null)"
