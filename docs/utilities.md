@@ -69,17 +69,67 @@ for git commit/tag signing — see [`git.md`](./git.md).
 | **eza** / **exa** | `ls` | Modern `ls`. Aliased as `l` (`-la --git`) and `ll` (`-l --git`) in zsh. |
 | **delta** | `diff` / `git diff` | Beautiful unified diff. Wired into git as the pager via `.gitconfig-*`. |
 | **sd** | `sed` | Modern regex replacement with intuitive syntax. |
-| **ouch** | `tar` / `unzip` | Universal `(de)compress` for any archive format. |
+| **ouch** | `tar` / `unzip` / `7z` / … | Universal `(de)compress` for any archive format — see [examples below](#ouch--universal-archive-tool). Used internally by `apply-install` as the preferred extractor. |
 
 ### System monitoring
 
 | Tool | Replaces | Notes |
 |------|----------|-------|
-| **dust** | `du` | Interactive disk-usage with bars. |
+| **dust** | `du` | Tree-style disk usage with colored bars, sorted by size — see [examples below](#dust--modern-du-replacement). |
 | **procs** | `ps` | Colored, tree-aware process listing. |
 | **bottom** (`btm`) | `top` / `htop` | Cross-platform system monitor with graphs. |
 | **htop** | `top` | Classic interactive process viewer (Linux only here). |
 | **tree** | — | Directory tree visualization. |
+
+### `dust` — modern `du` replacement
+
+Drop-in mental model for `du -sh *`, but with a tree view and visual bars
+that make hotspots obvious at a glance.
+
+```bash
+dust                    # current directory, sorted biggest first
+dust ~/Downloads        # specific path
+dust -d 3               # limit depth
+dust -n 30              # show top 30 entries (default: 20)
+dust -r                 # reverse sort (smallest first)
+dust --no-percent-bars  # numbers only, no bars
+```
+
+Example output:
+```
+ 6.4M ┌── node_modules/typescript/lib
+ 8.1M ├── node_modules/typescript            │ ██░░░░░░░░░░ 12%
+12.3M ├── node_modules                       │ ██████░░░░░░ 18%
+67.2M └── .                                  │ ████████████ 100%
+```
+
+Crate is `du-dust` (the binary is `dust`). Installed via apt
+(`du-dust` on Debian 13+/Ubuntu 24.04+) when available, otherwise
+`cargo install --locked du-dust`.
+
+### `ouch` — universal archive tool
+
+One command for any archive format. Stops the muscle-memory thrash of
+remembering `tar xzf` vs `tar xjf` vs `unzip` vs `7z x`.
+
+```bash
+ouch compress dir/ backup.tar.gz       # any extension determines the format
+ouch compress files... archive.tar.zst # zstandard works too
+ouch decompress archive.zip            # auto-detects format
+ouch decompress arch.tar.bz2 --dir /tmp/foo
+ouch list backup.tar                   # peek inside without extracting
+```
+
+Supported formats: `.tar`, `.zip`, `.7z`, `.rar` (extract only), and the
+compressors `.gz`, `.bz2`, `.xz`, `.zst`, `.lz4`, `.sz`, alone or
+combined (e.g. `.tar.zst`).
+
+Not yet in Debian 13 stable apt, so installed via
+`cargo install --locked ouch`. Build needs `clang` + `libclang-dev`
+(for `bindgen` in the `libbzip3-sys` dependency); `apply-install-linux`
+pre-installs both. The `apply-install-linux` script also **uses** ouch
+internally as the preferred extractor when downloading binary releases
+(Zellij, 1Password CLI, Android SDK).
 
 ### Git and dev
 
