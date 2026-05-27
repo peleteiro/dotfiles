@@ -55,16 +55,15 @@ brew upgrade
 # install mas
 brew install mas
 
-# Install bash first to ensure it's available
-echo "📦 Installing bash..."
-brew install bash
+# Install bash and zsh first (bash for dotfiles scripts, zsh as default user shell)
+echo "📦 Installing bash and zsh..."
+brew install bash zsh
 
 # install essentials
 brew install \
 aria2 \
 autoconf \
 automake \
-atuin \
 awscli \
 bash-completion \
 bat \
@@ -75,7 +74,6 @@ docker-completion \
 docker-compose \
 dust \
 exiftool \
-fzf \
 gitui \
 hub \
 gnu-sed \
@@ -86,7 +84,6 @@ imagemagick \
 jpegoptim \
 jq \
 moreutils \
-navi \
 neovim \
 openssl \
 ouch \
@@ -101,23 +98,44 @@ ssh-copy-id \
 starship \
 tealdeer \
 tigervnc \
-tmux \
 tree \
+zellij \
 wget \
 zlib \
 exa \
 fd \
-zoxide \
+zsh-autosuggestions \
+zsh-syntax-highlighting \
 
-# Add Homebrew bash to /etc/shells if not already present
+# Register Homebrew bash and zsh in /etc/shells
 BREW_BASH=$(brew --prefix)/bin/bash
-if ! grep -q "$BREW_BASH" /etc/shells; then
-  echo "Adding Homebrew bash to /etc/shells..."
-  echo "$BREW_BASH" | sudo tee -a /etc/shells
+BREW_ZSH=$(brew --prefix)/bin/zsh
+for shell in "$BREW_BASH" "$BREW_ZSH"; do
+  if [ -x "$shell" ] && ! grep -q "^${shell}$" /etc/shells; then
+    echo "Adding $shell to /etc/shells..."
+    echo "$shell" | sudo tee -a /etc/shells > /dev/null
+  fi
+done
+echo "✅ Homebrew bash installed at $BREW_BASH (used by dotfiles scripts)"
+echo "✅ Homebrew zsh installed at $BREW_ZSH"
+
+# Set zsh as the default login shell
+if [ -x "$BREW_ZSH" ]; then
+  ZSH_PATH="$BREW_ZSH"
+else
+  ZSH_PATH=$(command -v zsh)
 fi
-echo "✅ Homebrew bash installed at $BREW_BASH"
-echo "   Current bash: $(which bash) ($(bash --version | head -1))"
-echo "   To set as default shell, run: chsh -s $BREW_BASH"
+CURRENT_SHELL=$(dscl . -read "/Users/$USER" UserShell 2>/dev/null | awk '{print $2}')
+if [ "$CURRENT_SHELL" != "$ZSH_PATH" ]; then
+  echo "🔄 Changing default shell to zsh..."
+  if chsh -s "$ZSH_PATH"; then
+    echo "✅ Default shell changed to zsh (takes effect on next login)"
+  else
+    echo "⚠️  Could not change shell automatically. Run: chsh -s $ZSH_PATH"
+  fi
+else
+  echo "✅ zsh is already the default shell"
+fi
 
 # mise
 # Note: mise.run doesn't support HEAD requests, so we skip validation and try directly
@@ -297,15 +315,3 @@ if ! command -v rustup > /dev/null 2>&1; then
   fi
 fi
 
-# Node.js (required for Gemini CLI)
-if ! command -v node > /dev/null 2>&1; then
-  echo "Installing Node.js..."
-  brew install node
-fi
-
-# Gemini CLI
-if ! command -v gemini > /dev/null 2>&1; then
-  echo "Installing Gemini CLI..."
-  npm install -g @google/gemini-cli
-  echo "💡 Run 'gemini auth login' to authenticate with Google"
-fi

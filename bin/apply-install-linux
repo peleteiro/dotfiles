@@ -37,9 +37,28 @@ if uname -a | grep -q Ubuntu; then
 
   # Essentials (always install)
   sudo apt install -y build-essential pkg-config dh-autoreconf nasm curl \
-                      bash-completion tmux git \
+                      bash-completion git zsh \
                       automake autoconf libreadline-dev libncurses-dev libcurl3-dev zlib1g-dev libssl-dev libyaml-dev \
                       libxslt-dev libffi-dev libtool unixodbc-dev gfortran
+
+  # Set zsh as the default login shell
+  if command -v zsh > /dev/null 2>&1; then
+    ZSH_PATH=$(command -v zsh)
+    if ! grep -q "^${ZSH_PATH}$" /etc/shells; then
+      echo "$ZSH_PATH" | sudo tee -a /etc/shells > /dev/null
+    fi
+    CURRENT_SHELL=$(getent passwd "$USER" | cut -d: -f7)
+    if [ "$CURRENT_SHELL" != "$ZSH_PATH" ]; then
+      echo "🔄 Changing default shell to zsh (may prompt for password)..."
+      if chsh -s "$ZSH_PATH"; then
+        echo "✅ Default shell changed to zsh (takes effect on next login)"
+      else
+        echo "⚠️  Could not change shell automatically. Run: chsh -s $ZSH_PATH"
+      fi
+    else
+      echo "✅ zsh is already the default shell"
+    fi
+  fi
 
   # Docker (repositório oficial)
   if ! command -v docker > /dev/null 2>&1; then
@@ -122,7 +141,6 @@ if uname -a | grep -q Ubuntu; then
                       bat \
                       entr \
                       exiftool \
-                      fzf \
                       hashdeep \
                       hub \
                       htop \
@@ -136,7 +154,39 @@ if uname -a | grep -q Ubuntu; then
                       tree \
                       exa \
                       fd-find \
-                      zoxide
+                      zsh-autosuggestions \
+                      zsh-syntax-highlighting
+
+  # Zellij (terminal multiplexer)
+  if ! command -v zellij > /dev/null 2>&1; then
+    echo "📥 Installing Zellij..."
+    if sudo apt install -y zellij 2>/dev/null; then
+      echo "✅ Zellij installed via apt"
+    else
+      # Fallback: download binary release from GitHub
+      ZELLIJ_VERSION="0.42.2"
+      ZELLIJ_URL="https://github.com/zellij-org/zellij/releases/download/v${ZELLIJ_VERSION}/zellij-x86_64-unknown-linux-musl.tar.gz"
+      if validate_url "$ZELLIJ_URL" "Zellij"; then
+        if safe_download "$ZELLIJ_URL" /tmp/zellij.tar.gz "Zellij"; then
+          if command -v ouch > /dev/null 2>&1; then
+            ouch decompress /tmp/zellij.tar.gz --dir /tmp
+          else
+            tar -xzf /tmp/zellij.tar.gz -C /tmp
+          fi
+          sudo mv /tmp/zellij /usr/local/bin/zellij
+          sudo chmod +x /usr/local/bin/zellij
+          rm -f /tmp/zellij.tar.gz
+          echo "✅ Zellij installed from GitHub release"
+        else
+          echo "⚠️  Could not download Zellij"
+        fi
+      else
+        echo "⚠️  Could not validate Zellij URL"
+      fi
+    fi
+  else
+    echo "✅ Zellij already installed"
+  fi
 
   # 1Password CLI (always install - works without GUI)
   # Setup 1Password repository for CLI (same repo as GUI)
@@ -348,7 +398,7 @@ if command -v cargo > /dev/null 2>&1; then
   echo "📦 Installing Rust utilities..."
   
   # Install utilities that might not be in apt
-  for util in dust procs bottom ouch tealdeer hyperfine gitui atuin navi; do
+  for util in dust procs bottom ouch tealdeer hyperfine gitui; do
     if ! command -v "$util" > /dev/null 2>&1; then
       echo "  Installing $util..."
       cargo install "$util" 2>/dev/null || echo "  ⚠️  Failed to install $util"
@@ -361,22 +411,3 @@ else
   echo "   Run 'curl --proto \"=https\" --tlsv1.2 -sSf https://sh.rustup.rs | sh' first"
 fi
 
-# Node.js (required for Gemini CLI)
-if ! command -v node > /dev/null 2>&1; then
-  echo "Installing Node.js..."
-  # Try to install from NodeSource repository (more recent versions)
-  NODESOURCE_URL="https://deb.nodesource.com/setup_20.x"
-  if validate_url "$NODESOURCE_URL" "NodeSource installer"; then
-    curl -fsSL "$NODESOURCE_URL" | sudo -E bash -
-  else
-    echo "⚠️  Could not download NodeSource installer"
-  fi
-  sudo apt install -y nodejs
-fi
-
-# Gemini CLI
-if ! command -v gemini > /dev/null 2>&1; then
-  echo "Installing Gemini CLI..."
-  sudo npm install -g @google/gemini-cli
-  echo "💡 Run 'gemini auth login' to authenticate with Google"
-fi
