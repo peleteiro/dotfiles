@@ -6,6 +6,14 @@
 
 set -e
 
+if ! command -v zellij > /dev/null 2>&1; then
+  echo "Error: zellij is not installed on this machine." >&2
+  echo "Install via apt (Debian 13+/Ubuntu 24.04+): sudo apt install zellij" >&2
+  echo "Or via cargo: cargo install --locked zellij" >&2
+  echo "Or run from your dotfiles dir: ./dotfiles apply:install" >&2
+  exit 127
+fi
+
 if [ -n "$1" ]; then
   exec zellij attach --create "$1"
 fi
