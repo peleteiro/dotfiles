@@ -1,5 +1,0 @@
-#!/bin/bash
-# Git prepare-commit-msg hook to use AI for commit message suggestions
-# Set GIT_COMMIT_AI=claude or GIT_COMMIT_AI=gemini to choose provider
-~/.bin/git-commit-msg-ai "$1" "$2" "$3"
-

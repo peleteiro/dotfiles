@@ -5,6 +5,9 @@
 [tools]
 shellcheck = "latest"
 
+'aqua:anthropics/claude-code' = '2'
+gh = '2'
+
 # Environment variables
 [env]
 # Android SDK Command Line Tools version
