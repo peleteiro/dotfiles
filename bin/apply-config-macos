@@ -1,6 +1,5 @@
 #!/bin/bash
 # macOS system configuration script
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 
 # Authenticate once for all sudo commands
 # This will prompt for password/Touch ID once and cache it for subsequent sudo commands
@@ -183,11 +182,6 @@ defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
 
 # Show the ~/Library folder
 chflags nohidden ~/Library
-
-# Setup GPG key from 1Password
-if [ -f "$DIR/bin/apply-config-gpg" ]; then
-  "$DIR/bin/apply-config-gpg"
-fi
 
 # Show absolute path in finder's title bar.
 defaults write com.apple.finder _FXShowPosixPathInTitle -bool YES

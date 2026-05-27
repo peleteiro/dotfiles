@@ -1,6 +1,5 @@
 #!/bin/bash
 # Linux system configuration script
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 
 # Authenticate once for all sudo commands
 echo "🔐 Authenticating for system configuration..."
@@ -70,11 +69,6 @@ if [ "$HAS_GUI" = true ] && (dpkg -l ubuntu-desktop 2> /dev/null || dpkg -l gnom
   if command -v gnome-extensions > /dev/null; then
     gnome-extensions enable peleteiro@dotfiles 2>/dev/null || true
   fi
-fi
-
-# Setup GPG key from 1Password (works for both GUI and non-GUI)
-if [ -f "$DIR/bin/apply-config-gpg" ]; then
-  "$DIR/bin/apply-config-gpg"
 fi
 
 echo "✅ Linux system configuration complete!"

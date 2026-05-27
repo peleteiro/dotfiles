@@ -134,10 +134,6 @@ echo "  Copying directories..."
 find "$DIR/home" -maxdepth 1 -type d -name ".*" -print0 | while IFS= read -r -d '' dir; do
   dirname=$(basename "$dir")
   if [ "$dirname" != "." ] && [ "$dirname" != ".." ]; then
-    # Skip .my-git-hooks - it's handled separately in the Git hooks setup section
-    if [ "$dirname" = ".my-git-hooks" ]; then
-      continue
-    fi
     echo "    → $dirname/"
     copy_dir_recursive "$dir" "$HOME/$dirname"
     
@@ -156,19 +152,6 @@ find "$DIR/home" -maxdepth 1 -type d -name ".*" -print0 | while IFS= read -r -d 
       fi
     fi
     
-    # Set correct permissions for .gnupg directory
-    if [ "$dirname" = ".gnupg" ]; then
-      chmod 700 "$HOME/.gnupg"
-      if [ -f "$HOME/.gnupg/gpg-agent.conf" ]; then
-        chmod 600 "$HOME/.gnupg/gpg-agent.conf"
-        # Replace ~/.bin/pinentry-1password with absolute path
-        if grep -q "pinentry-program ~/.bin/pinentry-1password" "$HOME/.gnupg/gpg-agent.conf"; then
-          sed -i.bak "s|pinentry-program ~/.bin/pinentry-1password|pinentry-program $HOME/.bin/pinentry-1password|g" "$HOME/.gnupg/gpg-agent.conf"
-          rm -f "$HOME/.gnupg/gpg-agent.conf.bak"
-        fi
-      fi
-    fi
-    
     # Set correct permissions for .bin directory (make scripts executable)
     if [ "$dirname" = ".bin" ]; then
       chmod 755 "$HOME/.bin"
@@ -178,42 +161,23 @@ find "$DIR/home" -maxdepth 1 -type d -name ".*" -print0 | while IFS= read -r -d 
   fi
 done
 
-# Setup Git hooks directory and prepare-commit-msg hook (global for all repos)
-echo "  Setting up Git hooks..."
-GIT_HOOKS_DIR="$HOME/.my-git-hooks"
-mkdir -p "$GIT_HOOKS_DIR"
-
-# Source directory for git hooks
-GIT_HOOKS_SOURCE="$DIR/home/.my-git-hooks"
-
-if [ -f "$HOME/.bin/git-commit-msg-gemini" ] && [ -d "$GIT_HOOKS_SOURCE" ]; then
-  # Copy git hooks from source directory
-  if [ -f "$GIT_HOOKS_SOURCE/prepare-commit-msg" ]; then
-    cp "$GIT_HOOKS_SOURCE/prepare-commit-msg" "$GIT_HOOKS_DIR/prepare-commit-msg"
-    chmod +x "$GIT_HOOKS_DIR/prepare-commit-msg"
-    echo "    → Git prepare-commit-msg hook copied from $GIT_HOOKS_SOURCE"
-  fi
-  
-  if [ -f "$GIT_HOOKS_SOURCE/commit-msg" ]; then
-    cp "$GIT_HOOKS_SOURCE/commit-msg" "$GIT_HOOKS_DIR/commit-msg"
-    chmod +x "$GIT_HOOKS_DIR/commit-msg"
-    echo "    → Git commit-msg hook copied from $GIT_HOOKS_SOURCE"
-  fi
-  
-  # Configure Git to use the global hooks directory for ALL repositories
-  git config --global core.hooksPath "$GIT_HOOKS_DIR"
-  echo "    → Git global hooks path configured (applies to all repositories)"
-  
-  # Also keep the template directory for backwards compatibility
-  mkdir -p "$HOME/.git_template/hooks"
-  if [ -f "$GIT_HOOKS_DIR/prepare-commit-msg" ]; then
-    cp "$GIT_HOOKS_DIR/prepare-commit-msg" "$HOME/.git_template/hooks/prepare-commit-msg"
-  fi
-  if [ -f "$GIT_HOOKS_DIR/commit-msg" ]; then
-    cp "$GIT_HOOKS_DIR/commit-msg" "$HOME/.git_template/hooks/commit-msg"
-  fi
-  git config --global init.templateDir "$HOME/.git_template" 2>/dev/null || true
-  echo "    → Git template directory also configured for new repositories"
+# Enable git commit/tag signing only if an SSH agent is reachable.
+# The signingkey itself is hardcoded in .gitconfig-base (it's a public key);
+# what's conditional is whether `git commit` is required to sign at all.
+echo "  Configuring commit signing..."
+if command -v ssh-add > /dev/null 2>&1 && ssh-add -L > /dev/null 2>&1; then
+  {
+    echo ""
+    echo "# Activated by apply-files because an SSH agent is reachable"
+    echo "[commit]"
+    echo "  gpgsign = true"
+    echo "[tag]"
+    echo "  gpgsign = true"
+  } >> "$HOME/.gitconfig"
+  echo "    → Commit signing enabled (SSH agent detected)"
+else
+  echo "    ⚠ No SSH agent detected; commit signing left disabled."
+  echo "      Install/start 1Password Desktop (or any ssh-agent), then re-apply."
 fi
 
 echo "✅ Dotfiles copied successfully!"

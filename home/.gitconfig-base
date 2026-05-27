@@ -45,13 +45,14 @@
 # Always use SSH for authentication (not HTTPS)
 [url "git@github.com:"]
   insteadOf = https://github.com/
-# Always sign commits with GPG
-# The signing key will be configured automatically when copying dotfiles (if 1Password is authenticated)
-[commit]
-  gpgsign = true
-
-# Use Gemini CLI for commit message suggestions
-# The prepare-commit-msg hook will be configured automatically by copy-home script
+# Sign commits and tags with SSH key (signing happens via the 1Password SSH agent).
+# `commit.gpgsign` / `tag.gpgsign` are NOT enabled here — apply-files turns them on
+# only when an SSH agent that responds is detected, so clones on headless boxes
+# without 1Password Desktop still allow `git commit` to succeed.
+[gpg]
+  format = ssh
+[user]
+  signingkey = key::ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAElRssKJxkwEFC/eQLwyF/qldy4dOAFIUrzCJ8x5sl2
 
 # SOPS (Secrets Operations) integration
 [diff "sops"]

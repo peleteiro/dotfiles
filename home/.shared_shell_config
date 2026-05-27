@@ -123,11 +123,6 @@ if [ -f ~/.shared_shell_config-${OS} ]; then
   source ~/.shared_shell_config-${OS}
 fi
 
-# GPG helper functions
-if [ -f ~/.gnupg_functions ]; then
-  source ~/.gnupg_functions
-fi
-
 # Load private configurations (if exists)
 if [ -f ~/.shared_shell_config_private ]; then
   source ~/.shared_shell_config_private
