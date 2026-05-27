@@ -195,23 +195,8 @@ if uname -a | grep -q Ubuntu; then
     sudo apt-get update
     sudo apt-get install -y sublime-text sublime-merge
   else
-    # CLI-only environment: use Neovim and delta
+    # CLI-only environment: Neovim is enough (delta installed below for any Linux)
     sudo apt install -y neovim
-    # Install delta (better git diff viewer) via apt repository
-    # Note: package name is git-delta but executable is delta
-    if ! command -v delta > /dev/null; then
-      # Add WakeMeOps repository for git-delta
-      curl -sSL https://raw.githubusercontent.com/upciti/wakemeops/main/assets/install_repository | sudo bash
-      sudo apt update
-      # Try to install from repository
-      if ! sudo apt install -y git-delta 2>/dev/null; then
-        # Fallback to .deb download if repository installation fails
-        DELTA_VERSION="0.16.5"
-        curl -sSfLo /tmp/delta.deb "https://github.com/dandavison/delta/releases/download/${DELTA_VERSION}/git-delta_${DELTA_VERSION}_amd64.deb"
-        sudo dpkg -i /tmp/delta.deb || sudo apt-get install -f -y
-        rm -f /tmp/delta.deb
-      fi
-    fi
   fi
 
   # GUI-specific packages
@@ -359,6 +344,33 @@ if ! command -v rustup > /dev/null 2>&1; then
   else
     echo "⚠️  Could not download Rustup installer"
   fi
+fi
+
+# Delta (git diff pager) — installed on any Linux, not gated on Ubuntu, since
+# both .gitconfig-gui and .gitconfig-nogui set `pager = delta`. Note: the apt
+# package is named git-delta but the executable is `delta`.
+if ! command -v delta > /dev/null 2>&1; then
+  echo "📥 Installing delta..."
+  if command -v apt > /dev/null 2>&1 && sudo apt install -y git-delta 2>/dev/null; then
+    echo "✅ delta installed via apt"
+  else
+    # Fallback: download .deb release from GitHub
+    DELTA_VERSION="0.18.2"
+    DELTA_URL="https://github.com/dandavison/delta/releases/download/${DELTA_VERSION}/git-delta_${DELTA_VERSION}_amd64.deb"
+    if validate_url "$DELTA_URL" "delta"; then
+      if safe_download "$DELTA_URL" /tmp/delta.deb "delta"; then
+        sudo dpkg -i /tmp/delta.deb || sudo apt-get install -f -y
+        rm -f /tmp/delta.deb
+        echo "✅ delta installed from GitHub release"
+      else
+        echo "⚠️  Could not download delta"
+      fi
+    else
+      echo "⚠️  Could not validate delta URL"
+    fi
+  fi
+else
+  echo "✅ delta already installed"
 fi
 
 # Zellij (terminal multiplexer) — installed on any Linux, not gated on Ubuntu,
