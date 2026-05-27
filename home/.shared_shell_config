@@ -65,9 +65,6 @@ if [ -f "$HOME/.cargo/env" ]; then
   . "$HOME/.cargo/env"
 fi
 
-# Tmux
-alias tmux="TERM=xterm-256color tmux"
-
 # Cores
 export TERM=xterm-256color
 export CLICOLOR=1

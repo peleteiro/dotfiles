@@ -1,0 +1,21 @@
+#!/bin/bash
+# Zellij session helper
+# Usage:
+#   zj            -> attach to the most recently used session (or create "default" if none exist)
+#   zj <name>     -> attach to <name>, creating it if it does not exist
+
+set -e
+
+if [ -n "$1" ]; then
+  exec zellij attach --create "$1"
+fi
+
+# No argument: pick the most recent session
+LAST_SESSION=$(zellij list-sessions --short --no-formatting 2>/dev/null | head -n 1)
+
+if [ -n "$LAST_SESSION" ]; then
+  exec zellij attach "$LAST_SESSION"
+fi
+
+# No existing sessions: bootstrap with "default"
+exec zellij attach --create default

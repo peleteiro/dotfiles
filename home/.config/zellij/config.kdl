@@ -1,0 +1,51 @@
+// Zellij configuration
+// Docs: https://zellij.dev/documentation/
+
+// === Aparência ===
+// Layout "compact": uma única barra de status fina embaixo
+default_layout "compact"
+
+// Esconde frames dos painéis (pane ativo fica destacado por cor)
+pane_frames false
+
+// Tema custom: paleta pastel Catppuccin Mocha + fundo preto suave
+theme "mocha-black"
+
+// Sublinhados modernos (curly/dotted) em terminais que suportam
+styled_underlines true
+
+// === Comportamento ===
+mouse_mode true
+copy_on_select true
+
+// Scrollback — equivalente ao history-limit 10000 que tinha no tmux
+scroll_buffer_size 10000
+
+// Editor para abrir o scrollback (Alt+e no modo scroll)
+scrollback_editor "/usr/bin/env nvim"
+
+// === Sessões persistentes (Zellij 0.40+) ===
+session_serialization true
+pane_viewport_serialization true
+
+// === Menos ruído no startup ===
+show_startup_tips false
+show_release_notes false
+
+// === Tema custom ===
+// Catppuccin Mocha (cores pastel) com fundo preto suave em vez do #1e1e2e original
+themes {
+    mocha-black {
+        fg      "#cdd6f4"   // texto: branco-lavanda suave
+        bg      "#1a1a1a"   // fundo: quase-preto
+        black   "#45475a"   // bright black: cinza neutro
+        red     "#f38ba8"   // rosa pastel
+        green   "#a6e3a1"   // verde menta
+        yellow  "#f9e2af"   // creme
+        blue    "#89b4fa"   // azul céu
+        magenta "#f5c2e7"   // rosa-claro
+        cyan    "#94e2d5"   // turquesa suave
+        white   "#bac2de"   // off-white acinzentado
+        orange  "#fab387"   // pêssego
+    }
+}

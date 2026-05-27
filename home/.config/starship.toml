@@ -1,5 +1,5 @@
 # Starship prompt configuration
-# Simple prompt: directory (green) + git branch (blue) + $
+# Catppuccin Mocha pastel palette (matches Zellij theme)
 
 format = """
 $directory\
@@ -7,19 +7,19 @@ $git_branch\
 $character
 """
 
-# Directory module (green, shows current directory)
+# Directory module — Mocha green (mint pastel)
 [directory]
-style = "bold green"
+style = "bold #a6e3a1"
 truncation_length = 0  # Show full path (like \w in bash)
 truncate_to_repo = false
 
-# Git branch module (blue, shows current branch)
+# Git branch module — Mocha blue (sky pastel)
 [git_branch]
 symbol = ""
-style = "bold blue"
+style = "bold #89b4fa"
 format = "[$branch]($style)"
 
-# Character module (shows $ or #)
+# Character module — Mocha text on success, rose pastel on error
 [character]
-success_symbol = '[\$](bold)'
-error_symbol = '[\$](bold red)'
+success_symbol = '[\$](bold #cdd6f4)'
+error_symbol = '[\$](bold #f38ba8)'

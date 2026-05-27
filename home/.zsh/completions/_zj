@@ -1,0 +1,9 @@
+#compdef zj
+# Zsh completion for the `zj` helper — completes with existing Zellij sessions
+
+local -a sessions
+sessions=("${(@f)$(zellij list-sessions --short --no-formatting 2>/dev/null)}")
+
+if (( ${#sessions[@]} > 0 )); then
+  _describe 'zellij session' sessions
+fi
