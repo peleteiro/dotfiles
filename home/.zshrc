@@ -21,12 +21,25 @@ setopt autocd                 # cd by typing directory name
 setopt extended_glob          # Extended glob patterns
 setopt no_beep                # Disable beep
 
+# Directory stack — every `cd` pushes to stack, use `cd -<N>` or `cd +<N>` to jump
+setopt auto_pushd             # Make cd push the old directory onto the stack
+setopt pushd_ignore_dups      # Don't push duplicates onto the stack
+setopt pushd_silent           # Don't print the stack after pushd/popd
+alias d='dirs -v | head -20'  # Show numbered directory stack
+
 # Key bindings (emacs mode)
 bindkey -e
 bindkey '^R' history-incremental-search-backward
 bindkey '^S' history-incremental-search-forward
 
+# Edit current command line in $EDITOR (Ctrl-X Ctrl-E)
+autoload -Uz edit-command-line
+zle -N edit-command-line
+bindkey '^X^E' edit-command-line
+
 # Completions
+# Add personal completions directory to fpath (must come before compinit)
+fpath=(~/.zsh/completions $fpath)
 autoload -Uz compinit
 if [[ -n ${HOME}/.zcompdump(#qN.mh+24) ]]; then
   compinit
@@ -79,6 +92,11 @@ setopt PROMPT_SUBST
 PROMPT='%F{green}%~%f%F{blue}${vcs_info_msg_0_}%f$ '
 fi
 
+# Personal aliases (zsh-only)
+if [ -f ~/.zsh/aliases.zsh ]; then
+  source ~/.zsh/aliases.zsh
+fi
+
 # Zsh functions
 if [ -f ~/.zsh_functions ]; then
   source ~/.zsh_functions
@@ -88,4 +106,25 @@ fi
 if [ -f ~/.zshrc_private ]; then
   source ~/.zshrc_private
 fi
+
+# === Plugins ===
+# Plugin directory: brew on macOS, /usr/share on Linux
+if [[ "$OS" == "macos" ]]; then
+  _ZSH_PLUGIN_DIR="${HOMEBREW_PREFIX:-/opt/homebrew}/share"
+else
+  _ZSH_PLUGIN_DIR="/usr/share"
+fi
+
+# zsh-autosuggestions — fish-like inline suggestions (accept with → or End)
+if [ -f "$_ZSH_PLUGIN_DIR/zsh-autosuggestions/zsh-autosuggestions.zsh" ]; then
+  source "$_ZSH_PLUGIN_DIR/zsh-autosuggestions/zsh-autosuggestions.zsh"
+  ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+fi
+
+# zsh-syntax-highlighting — colors commands as you type (MUST be sourced last)
+if [ -f "$_ZSH_PLUGIN_DIR/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]; then
+  source "$_ZSH_PLUGIN_DIR/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+fi
+
+unset _ZSH_PLUGIN_DIR
 
