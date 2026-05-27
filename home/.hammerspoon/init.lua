@@ -1,63 +1,63 @@
-hs.hotkey.bind({"ctrl", "alt", "cmd"}, "M", function()
-  local win = hs.window.focusedWindow()
-  local f = win:frame()
-  local max = win:screen():frame()
+-- Hammerspoon configuration (macOS only)
+-- Window management + monitor focus, using hs.grid for clean geometry.
 
-  win:setFrame(max)
+-- Snap instantly instead of animating
+hs.window.animationDuration = 0
+
+-- 10×10 grid: exact 60/40 splits, no margins
+hs.grid.setGrid("10x10")
+hs.grid.setMargins({0, 0})
+
+local mash = {"ctrl", "alt", "cmd"}
+
+-- Helper: bind `chord` to placing the focused window at a grid `geom`
+local function bindGrid(chord, geom)
+  hs.hotkey.bind(mash, chord, function()
+    local win = hs.window.focusedWindow()
+    if win then hs.grid.set(win, geom) end
+  end)
+end
+
+-- Maximize
+hs.hotkey.bind(mash, "M", function()
+  local win = hs.window.focusedWindow()
+  if win then hs.grid.maximizeWindow(win) end
 end)
 
-hs.hotkey.bind({"ctrl", "alt", "cmd"}, "Left", function()
-  local win = hs.window.focusedWindow()
-  local f = win:frame()
-  local max = win:screen():frame()
+-- 60% left / 40% right (asymmetric — matches original config)
+bindGrid("Left",  {x = 0, y = 0, w = 6, h = 10})
+bindGrid("Right", {x = 6, y = 0, w = 4, h = 10})
 
-  max.w = max.w * 0.6
-  win:setFrame(max)
-end)
+-- 40% wide × 70% tall at top-right
+bindGrid("Up",    {x = 6, y = 0, w = 4, h = 7})
 
-hs.hotkey.bind({"ctrl", "alt", "cmd"}, "Right", function()
-  local win = hs.window.focusedWindow()
-  local f = win:frame()
-  local max = win:screen():frame()
+-- 40% wide × 30% tall at bottom-right
+bindGrid("Down",  {x = 6, y = 7, w = 4, h = 3})
 
-  max.x = max.w - (max.w * 0.4)
-  max.w = max.w * 0.4
-  win:setFrame(max)
-end)
-
-hs.hotkey.bind({"ctrl", "alt", "cmd"}, "Up", function()
-  local win = hs.window.focusedWindow()
-  local f = win:frame()
-  local max = win:screen():frame()
-
-  max.x = max.w - (max.w * 0.4)
-  max.w = max.w * 0.4
-  max.h = max.h * 0.7
-  win:setFrame(max)
-end)
-
-hs.hotkey.bind({"ctrl", "alt", "cmd"}, "Down", function()
-  local win = hs.window.focusedWindow()
-  local f = win:frame()
-  local max = win:screen():frame()
-
-  max.x = max.w - (max.w * 0.4)
-  max.w = max.w * 0.4
-  max.y = max.y + (max.h - (max.h * 0.3))
-  max.h = max.h * 0.3
-  win:setFrame(max)
-end)
-
+-- Move focused window to adjacent monitor
 hs.hotkey.bind({"ctrl", "alt"}, "Left", function()
-  hs.alert.show("Prev Monitor")
   local win = hs.window.focusedWindow()
-  local nextScreen = win:screen():previous()
-  win:moveToScreen(nextScreen)
+  if win then
+    hs.alert.show("← Prev Monitor", 0.5)
+    win:moveToScreen(win:screen():previous())
+  end
+end)
+hs.hotkey.bind({"ctrl", "alt"}, "Right", function()
+  local win = hs.window.focusedWindow()
+  if win then
+    hs.alert.show("Next Monitor →", 0.5)
+    win:moveToScreen(win:screen():next())
+  end
 end)
 
-hs.hotkey.bind({"ctrl", "alt"}, "Right", function()
-  hs.alert.show("Next Monitor")
-  local win = hs.window.focusedWindow()
-  local nextScreen = win:screen():next()
-  win:moveToScreen(nextScreen)
-end)
+-- Auto-reload config when any .lua under ~/.hammerspoon/ is saved
+hs.pathwatcher.new(os.getenv("HOME") .. "/.hammerspoon/", function(files)
+  for _, file in ipairs(files) do
+    if file:sub(-4) == ".lua" then
+      hs.reload()
+      return
+    end
+  end
+end):start()
+
+hs.alert.show("Hammerspoon loaded", 1)
