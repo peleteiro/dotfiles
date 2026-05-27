@@ -157,37 +157,6 @@ if uname -a | grep -q Ubuntu; then
                       zsh-autosuggestions \
                       zsh-syntax-highlighting
 
-  # Zellij (terminal multiplexer)
-  if ! command -v zellij > /dev/null 2>&1; then
-    echo "📥 Installing Zellij..."
-    if sudo apt install -y zellij 2>/dev/null; then
-      echo "✅ Zellij installed via apt"
-    else
-      # Fallback: download binary release from GitHub
-      ZELLIJ_VERSION="0.42.2"
-      ZELLIJ_URL="https://github.com/zellij-org/zellij/releases/download/v${ZELLIJ_VERSION}/zellij-x86_64-unknown-linux-musl.tar.gz"
-      if validate_url "$ZELLIJ_URL" "Zellij"; then
-        if safe_download "$ZELLIJ_URL" /tmp/zellij.tar.gz "Zellij"; then
-          if command -v ouch > /dev/null 2>&1; then
-            ouch decompress /tmp/zellij.tar.gz --dir /tmp
-          else
-            tar -xzf /tmp/zellij.tar.gz -C /tmp
-          fi
-          sudo mv /tmp/zellij /usr/local/bin/zellij
-          sudo chmod +x /usr/local/bin/zellij
-          rm -f /tmp/zellij.tar.gz
-          echo "✅ Zellij installed from GitHub release"
-        else
-          echo "⚠️  Could not download Zellij"
-        fi
-      else
-        echo "⚠️  Could not validate Zellij URL"
-      fi
-    fi
-  else
-    echo "✅ Zellij already installed"
-  fi
-
   # 1Password CLI (always install - works without GUI)
   # Setup 1Password repository for CLI (same repo as GUI)
   if ! command -v op > /dev/null; then
@@ -392,22 +361,89 @@ if ! command -v rustup > /dev/null 2>&1; then
   fi
 fi
 
-# Rust utilities (install via cargo if not available in apt)
-# These are Rust-based CLI tools that may not be in apt repositories
-if command -v cargo > /dev/null 2>&1; then
-  echo "📦 Installing Rust utilities..."
-  
-  # Install utilities that might not be in apt
-  for util in dust procs bottom ouch tealdeer hyperfine gitui; do
-    if ! command -v "$util" > /dev/null 2>&1; then
-      echo "  Installing $util..."
-      cargo install "$util" 2>/dev/null || echo "  ⚠️  Failed to install $util"
+# Zellij (terminal multiplexer) — installed on any Linux, not gated on Ubuntu,
+# so headless Debian servers also get it when they run apply:install.
+if ! command -v zellij > /dev/null 2>&1; then
+  echo "📥 Installing Zellij..."
+  if command -v apt > /dev/null 2>&1 && sudo apt install -y zellij 2>/dev/null; then
+    echo "✅ Zellij installed via apt"
+  else
+    # Fallback: download binary release from GitHub
+    ZELLIJ_VERSION="0.42.2"
+    ZELLIJ_URL="https://github.com/zellij-org/zellij/releases/download/v${ZELLIJ_VERSION}/zellij-x86_64-unknown-linux-musl.tar.gz"
+    if validate_url "$ZELLIJ_URL" "Zellij"; then
+      if safe_download "$ZELLIJ_URL" /tmp/zellij.tar.gz "Zellij"; then
+        if command -v ouch > /dev/null 2>&1; then
+          ouch decompress /tmp/zellij.tar.gz --dir /tmp
+        else
+          tar -xzf /tmp/zellij.tar.gz -C /tmp
+        fi
+        sudo mv /tmp/zellij /usr/local/bin/zellij
+        sudo chmod +x /usr/local/bin/zellij
+        rm -f /tmp/zellij.tar.gz
+        echo "✅ Zellij installed from GitHub release"
+      else
+        echo "⚠️  Could not download Zellij"
+      fi
     else
-      echo "  ✅ $util already installed"
+      echo "⚠️  Could not validate Zellij URL"
     fi
-  done
+  fi
 else
-  echo "⚠️  Rust/Cargo not found. Some utilities may not be installed."
-  echo "   Run 'curl --proto \"=https\" --tlsv1.2 -sSf https://sh.rustup.rs | sh' first"
+  echo "✅ Zellij already installed"
 fi
+
+# Modern CLI utilities (Rust). Prefer apt when the package is available
+# in the system's repositories; fall back to `cargo install --locked` for
+# the rest. Each entry maps:  binary-name:apt-package-name:cargo-crate-name
+echo "📦 Installing CLI utilities (apt-first, cargo fallback)..."
+
+# Build deps some cargo crates need:
+#   - libssl-dev + pkg-config: gitui (openssl headers)
+#   - clang + libclang-dev: ouch (libbzip3-sys uses bindgen → libclang)
+#   - cmake: occasionally needed by Rust crates with C++ deps
+if command -v apt > /dev/null 2>&1 && command -v sudo > /dev/null 2>&1; then
+  sudo apt install -y libssl-dev pkg-config build-essential clang libclang-dev cmake > /dev/null 2>&1 || true
+fi
+
+tool_specs=(
+  "dust:du-dust:du-dust"
+  "procs:procs:procs"
+  "btm:bottom:bottom"
+  "ouch:ouch:ouch"
+  "tldr:tealdeer:tealdeer"
+  "hyperfine:hyperfine:hyperfine"
+  "gitui:gitui:gitui"
+)
+
+for spec in "${tool_specs[@]}"; do
+  IFS=':' read -r binary apt_pkg cargo_crate <<< "$spec"
+
+  if command -v "$binary" > /dev/null 2>&1; then
+    echo "  ✅ $binary already installed"
+    continue
+  fi
+
+  installed=false
+
+  # Try apt first
+  if command -v apt > /dev/null 2>&1 && apt-cache show "$apt_pkg" > /dev/null 2>&1; then
+    echo "  📦 Installing $binary via apt ($apt_pkg)..."
+    if sudo apt install -y "$apt_pkg"; then
+      installed=true
+    fi
+  fi
+
+  # Fall back to `cargo install --locked` (errors are visible — no 2>/dev/null)
+  if [ "$installed" = false ] && command -v cargo > /dev/null 2>&1; then
+    echo "  📦 Installing $binary via cargo install --locked $cargo_crate..."
+    if cargo install --locked "$cargo_crate"; then
+      installed=true
+    fi
+  fi
+
+  if [ "$installed" = false ]; then
+    echo "  ⚠️  Failed to install $binary (no apt package available and cargo unavailable or failed)"
+  fi
+done
 
