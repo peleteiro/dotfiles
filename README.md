@@ -26,6 +26,18 @@ That's it! This will:
 - `./dotfiles apply:install` - Install packages only
 - `./dotfiles apply:files` - Copy dotfiles only
 
+### 📚 Detailed Documentation
+
+In-depth guides for the main components live in [`docs/`](./docs):
+
+- **[Neovim](./docs/nvim.md)** — single-file `init.lua`, keymaps, autocmds, extension path
+- **[Zsh](./docs/zsh.md)** — plugin loading, completions, directory stack, key bindings, prompt
+- **[Zellij](./docs/zellij.md)** — config options, the `mocha-black` theme, modal keybindings, `zj` helper
+- **[Git](./docs/git.md)** — how `.gitconfig` is assembled (base + gui/nogui), aliases, SSH signing
+- **[Secrets & 1Password](./docs/secrets.md)** — SSH agent integration, commit signing flow, troubleshooting
+- **[Hammerspoon](./docs/hammerspoon.md)** — macOS-only window management with `hs.grid` and auto-reload
+- **[Utilities](./docs/utilities.md)** — every custom script in `~/.bin/` plus the modern CLI toolset
+
 ### Development Tools (Optional)
 
 For development tasks (linting, testing, debugging), install `mise`:
@@ -60,8 +72,7 @@ mise run debug:linux:nogui # Debug environment without GUI
   - Installation: [mise.jdx.dev/getting-started.html](https://mise.jdx.dev/getting-started.html)
 
 ### Accounts & Services
-- **1Password account** - Required for SSH/GPG key management
-- **Google account** - Optional, for Gemini CLI (AI-powered commit messages)
+- **1Password account** - Required for SSH key management (auth + commit signing)
 
 ---
 
@@ -95,8 +106,11 @@ These commands require `mise` to be installed:
 ## ✨ Features
 
 ### 🐚 Shell Support
-- **Bash** and **Zsh** with shared configurations
+- **Zsh** as default login shell (configured automatically via `chsh`)
+- **Bash** also fully supported, with shared configurations
 - OS-specific configurations (`-macos` and `-linux` variants)
+- Zsh plugins auto-loaded: **zsh-autosuggestions** (Fish-like inline suggestions) and **zsh-syntax-highlighting** (live command coloring)
+- Personal completions in `home/.zsh/completions/` and aliases in `home/.zsh/aliases.zsh`
 - Private configuration files support
 
 ### 🖥️ Operating Systems
@@ -105,32 +119,32 @@ These commands require `mise` to be installed:
 - Automatic OS detection and configuration
 
 ### 🔧 Development Tools
-- **Git** - Configured with SSH, GPG signing, and delta pager
-- **1Password** - Integrated SSH agent and GPG key management
-- **Editors** - Sublime Text (GUI) or Neovim (CLI), auto-detected
-- **AI Commit Messages** - Gemini AI-powered commit message generation
+- **Git** - Configured with SSH-key signing for commits/tags and delta pager
+- **1Password** - SSH agent for both authentication and git commit signing
+- **Editors** - Neovim is the official terminal editor (minimal `init.lua` in `~/.config/nvim/`); Sublime Text used on GUI environments
 
 ### 🛠️ Modern CLI Tools
-- **Rust utilities**: dust, procs, bottom, ouch, tealdeer, hyperfine, gitui, atuin, navi
-- **Text processing**: bat, ripgrep, fzf, delta, sd
-- **System tools**: zoxide, exa, fd, tree, htop
+- **Rust utilities**: dust, procs, bottom, ouch, tealdeer, hyperfine, gitui
+- **Text processing**: bat, ripgrep, delta, sd
+- **System tools**: exa, fd, tree, htop
 
 ---
 
 ## 📦 Installed Packages
 
 ### Core Development Tools
-- **bash** (updated via Homebrew on macOS)
+- **zsh** (default login shell) + **zsh-autosuggestions** + **zsh-syntax-highlighting**
+- **bash** (updated via Homebrew on macOS, used by dotfiles scripts)
 - **bash-completion** - Programmable completion
-- **neovim** - Hyperextensible Vim-based editor
-- **tmux** - Terminal multiplexer
+- **neovim** - Hyperextensible Vim-based editor (set as `$EDITOR`)
+- **zellij** - Terminal multiplexer (with `zj` helper and Catppuccin Mocha theme)
+- **starship** - Cross-shell prompt (Catppuccin Mocha colors)
 - **git** + **hub** - Version control with GitHub integration
-- **gpg** + **openssl** - Encryption and signing
+- **openssl** - Encryption library
 
 ### Text Processing & Search
 - **bat** - Modern `cat` with syntax highlighting
 - **ripgrep** (rg) - Fast text search
-- **fzf** - Fuzzy finder
 - **delta** - Beautiful `git diff` viewer
 - **sd** - Modern `sed` replacement
 
@@ -142,14 +156,11 @@ These commands require `mise` to be installed:
 - **tealdeer** (tldr) - Simplified man pages
 - **hyperfine** - Command benchmarking
 - **gitui** - Terminal UI for Git
-- **atuin** - Enhanced shell history
-- **navi** - Interactive cheatsheets
 
 ### System & Process Management
 - **htop** (Linux) - Interactive process viewer
 - **tree** - Directory tree viewer
-- **zoxide** - Smart directory jumper
-- **exa** - Modern `ls` replacement
+- **exa** - Modern `ls` replacement (aliased as `l`/`ll` in zsh)
 - **fd** - Fast `find` alternative
 
 ### Cloud & DevOps
@@ -162,7 +173,6 @@ These commands require `mise` to be installed:
 - **node** - Node.js runtime
 - **OpenJDK** - Java Development Kit
 - **Android SDK** - Android development tools
-- **gemini** - Google Gemini CLI
 
 ---
 
@@ -245,7 +255,7 @@ These commands require `mise` to be installed:
 ### Git Configuration
 The `.gitconfig` is automatically assembled based on your environment:
 
-- **Base**: Common settings (SSH, GPG signing, aliases)
+- **Base**: Common settings (SSH-key commit signing, aliases, GitHub-over-SSH)
 - **GUI mode** (macOS or Linux with GUI):
   - Sublime Merge for merge conflicts
   - Sublime Text as editor
@@ -254,58 +264,10 @@ The `.gitconfig` is automatically assembled based on your environment:
   - Neovim as editor
   - Delta pager for diffs
 
-### Git Hooks with AI
-
-Automatic commit message generation using **Google Gemini AI**:
-
-**Features:**
-- **Hybrid Generation**: Combines your intent (via interactive input) with AI technical analysis for semantic commit messages.
-- **Interactive Mode**: Opens your editor before generation, allowing you to explain the *why* behind your changes.
-- **Auto-detected Language**: Supports multiple languages (set `GIT_COMMIT_LANG` environment variable).
-- Verifies message file was saved before committing.
-
-**Language Configuration:**
-```bash
-# Set in ~/.bash_profile or ~/.zshrc
-export GIT_COMMIT_LANG=pt-BR  # Portuguese (Brazilian)
-export GIT_COMMIT_LANG=en      # English (default)
-export GIT_COMMIT_LANG=es      # Spanish
-# ... any language supported by Gemini
-```
-
-**Hooks:**
-- `prepare-commit-msg` - Generates AI commit message suggestions
-- `commit-msg` - Verifies message file was saved
-
-### Installing Git Hooks in Other Projects
-
-You can easily install these AI-powered git hooks in any of your projects using the provided script. The script automatically detects if the project uses `lefthook` and configures it accordingly, or installs standard git hooks.
-
-```bash
-# From your project directory, run:
-my-git-hook install
-
-# Or specify the path:
-my-git-hook install --path /path/to/project
-
-# Force Lefthook configuration (even if lefthook.yml is missing):
-my-git-hook install --force-lefthook
-```
-
-To see available commands:
-```bash
-my-git-hook help
-```
-
-**Features:**
-- **Lefthook Support**: Automatically adds hooks to `lefthook-local.yml` if `lefthook.yml` is present.
-- **Standard Hooks**: Installs symlinks to `.git/hooks` if no hook manager is detected.
-- **Local Config**: Configures `git config core.hooksPath .git/hooks` to ensure local hooks are used without conflicting with global configurations.
-
 ### Other Configurations
-- **tmux** - Terminal multiplexer configuration
-- **SSH** - OS-specific SSH config
-- **GPG** - 1Password integration for key management
+- **zellij** - Terminal multiplexer configuration (`~/.config/zellij/config.kdl`)
+- **SSH** - OS-specific SSH config; 1Password agent socket exported via `$SSH_AUTH_SOCK`
+- **Commit signing** - SSH-key based via 1Password agent (see [docs/secrets.md](./docs/secrets.md))
 
 ---
 
@@ -327,9 +289,8 @@ dotfiles/
 │   ├── apply-files          # Copy dotfiles to home
 │   └── validate-url         # URL validation utility
 ├── home/                    # Configuration files (→ ~/)
-│   ├── .my-git-hooks/       # My Git Hooks (subproject)
 │   ├── .bin/                # Custom scripts
-│   └── .*                    # Dotfiles (bash, zsh, git, tmux, etc.)
+│   └── .*                    # Dotfiles (bash, zsh, git, zellij, etc.)
 ├── macos/                   # macOS-specific configs
 │   └── DefaultKeyBinding.dict
 ├── mise.toml                # mise configuration
@@ -394,7 +355,7 @@ source ~/.zshrc           # Reload shell (Zsh)
 
 ### Commands Not Found?
 
-**Symptoms:** Commands like `bat`, `rg`, `fzf`, etc. are not recognized.
+**Symptoms:** Commands like `bat`, `rg`, `eza`, etc. are not recognized.
 
 **Solutions:**
 1. Verify packages are installed: `./dotfiles apply:install`
@@ -403,69 +364,58 @@ source ~/.zshrc           # Reload shell (Zsh)
 4. Reload shell: `source ~/.bash_profile` or `source ~/.zshrc`
 5. Check if the package manager (Homebrew/apt) is working correctly
 
-### GPG/1Password Setup Issues?
+### Commit Signing Issues?
 
-**Symptoms:** GPG key not imported, Git commits not signed, or 1Password integration not working.
+**Symptoms:** `git commit` fails with `gpg failed to sign the data`, or commits show as unverified on GitHub.
 
-**Common Causes:**
-- 1Password CLI not installed or not signed in
-- GPG key import failed during initial setup
-- GPG agent not configured correctly
+**Setup (one-time per machine):**
 
-**Solution - Use the GPG Setup Script:**
-
-We provide a dedicated script to fix GPG setup issues:
+Commit signing uses the SSH key stored in 1Password, via the 1Password SSH
+agent. `./dotfiles apply:files` fetches the public key from 1Password and
+writes it to `~/.ssh/id_signing.pub`, which `~/.gitconfig` references.
 
 ```bash
-# From the dotfiles directory
-./bin/setup-gpg-with-1password
+op signin                   # Authenticate 1Password CLI
+./dotfiles apply:files      # Will fetch the SSH pubkey and write ~/.ssh/id_signing.pub
 ```
 
-This script will:
-- ✅ Verify 1Password CLI is installed and authenticated
-- ✅ Retrieve the PGP key from 1Password
-- ✅ Import or reimport the GPG key
-- ✅ Configure Git signing automatically
-- ✅ Verify GPG agent configuration
+**Troubleshooting checklist:**
 
-**Force Reimport:**
-If you need to reimport the key even if it already exists:
-
-```bash
-./bin/setup-gpg-with-1password --force
-```
-
-**Manual Troubleshooting Steps:**
-
-1. **Verify 1Password CLI:**
+1. **1Password CLI authenticated:**
    ```bash
-   op --version           # Check if installed
-   op account list        # Check if signed in
-   op signin              # Sign in if needed
+   op account list
+   op signin               # if the above is empty
    ```
 
-2. **Verify GPG Key in 1Password:**
+2. **SSH signing key file exists:**
    ```bash
-   op document get b2lpibkkqfqtp5lvvp25ugx3kq | head -20
+   cat ~/.ssh/id_signing.pub
+   # Should start with `ssh-ed25519 ...` or `ssh-rsa ...`
+   ```
+   If missing or empty, run `./dotfiles apply:files` after `op signin`.
+
+3. **Git is configured for SSH signing:**
+   ```bash
+   git config --global gpg.format         # should print: ssh
+   git config --global user.signingkey    # should print: ~/.ssh/id_signing.pub
+   git config --global commit.gpgsign     # should print: true
    ```
 
-3. **Check Current GPG Keys:**
+4. **1Password SSH agent socket is reachable:**
    ```bash
-   gpg --list-secret-keys
+   echo $SSH_AUTH_SOCK
+   ssh-add -L              # Should list the key from 1Password
    ```
 
-4. **Verify Git Configuration:**
+5. **Test signing:**
    ```bash
-   git config --global user.signingkey
-   git config --global commit.gpgsign
+   echo "test" | ssh-keygen -Y sign -n git -f ~/.ssh/id_signing.pub
+   # Should output an SSH signature, prompting for approval in 1Password
    ```
 
-5. **Re-run Setup:**
-   ```bash
-   ./bin/setup-gpg-with-1password  # Use the setup script
-   # or
-   ./bin/apply-config-gpg          # Original config script
-   ```
+In 1Password Desktop, also enable: **Settings → Developer → Use the SSH agent**
+and **Sign Git commits with 1Password** (the latter is optional — our setup
+works without it because we configure git ourselves).
 
 ### SSH Issues?
 
@@ -614,4 +564,3 @@ See [LICENSE](LICENSE) file for details.
 
 - [mise documentation](https://mise.jdx.dev/)
 - [1Password CLI documentation](https://developer.1password.com/docs/cli)
-- [Gemini AI documentation](https://ai.google.dev/)

@@ -19,7 +19,7 @@
 5. **Continue**: Only use `continue` in loops
 6. **Grep**: Use `grep -q` instead of `[ -n "$(grep ...)" ]`
 7. **Redirects**: Group multiple redirects: `{ cmd1; cmd2; } >> file`
-8. **Project utilities**: Scripts in `home/.bin/` can use any utility installed by the project (e.g., `sd`, `bat`, `rg`, `fzf`, etc.) - they are installed in the environment before scripts are copied
+8. **Project utilities**: Scripts in `home/.bin/` can use any utility installed by the project (e.g., `sd`, `bat`, `rg`, `fd`, etc.) - they are installed in the environment before scripts are copied
 
 ### Git Config Files
 
