@@ -1,0 +1,26 @@
+{
+  "includeCoAuthoredBy": false,
+  "gitAttribution": false,
+  "preferredShell": "zsh",
+  "permissions": {
+    "allow": ["Bash(*)", "Edit(*)", "EditFiles(*)", "Read(*)", "ReadFiles(*)", "WebFetch(*)", "WebSearch(*)", "Skill(*)"],
+    "deny": ["Bash(rm -rf /)", "Bash(rm -rf .git)", "Bash(git push*)", "Bash(docker system prune)"]
+  },
+  "preferredShell": "zsh",
+  "ignorePatterns": [
+    "**/node_modules/**",
+    "**/.pnpm-store/**",
+    "**/pnpm-lock.yaml",
+    "**/.git/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/coverage/**",
+    "**/.env*",
+    "**/*.log"
+  ],
+  "autoApprove": {
+    "read": true,
+    "edit": true
+  },
+  "customInstructions": "Use exclusivamente pnpm. Para manipulação de arquivos e busca, NÃO USE sed, find ou grep. Use as alternativas modernas em Rust: 'fd' (em vez de find), 'rg' (ripgrep, em vez de grep) e 'sd' (em vez de sed). Se precisar listar arquivos respeitando o .gitignore, use 'fd'. Para buscas rápidas no conteúdo, use 'rg'."
+}
