@@ -11,6 +11,95 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # shellcheck disable=SC1091
 source "$DIR/validate-url" 2>/dev/null || true
 
+# Install an Antigravity GUI component (the "antigravity" hub app or the
+# "antigravity-ide" editor) from Google's official tarball updater. There is no
+# current apt package for these — the antigravity-debian repo only ships the
+# legacy 1.x build — so we query the same JSON update manifest the apps use,
+# verify the SHA-256, and unpack into /opt with a launcher symlink + .desktop.
+# Idempotent: skips when the /usr/local/bin launcher already exists.
+# Args: 1=label  2=updater base URL  3=/opt target dir  4=binary path within
+#       the extracted tree  5=/usr/local/bin launcher name
+install_antigravity_tarball() {
+  local label="$1" updater="$2" optdir="$3" binrel="$4" linkname="$5"
+
+  if command -v "$linkname" > /dev/null 2>&1; then
+    echo "✅ $label already installed"
+    return 0
+  fi
+
+  echo "📥 Installing $label..."
+
+  local plat
+  case "$(uname -m)" in
+    x86_64 | amd64) plat="linux-x64" ;;
+    arm64 | aarch64) plat="linux-arm64" ;;
+    *) echo "⚠️  Unsupported architecture for $label: $(uname -m)"; return 1 ;;
+  esac
+
+  local manifest
+  manifest=$(curl -fsSL "$updater/api/update/$plat/stable/latest" 2>/dev/null || true)
+  if [ -z "$manifest" ]; then
+    echo "⚠️  Could not fetch $label update manifest"
+    return 1
+  fi
+
+  # Single-line JSON; pull out the tarball URL, checksum and version.
+  local url sha256 version
+  url=$(printf '%s' "$manifest" | sed -n 's/.*"url"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p')
+  sha256=$(printf '%s' "$manifest" | sed -n 's/.*"sha256hash"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p')
+  version=$(printf '%s' "$manifest" | sed -n 's/.*"productVersion"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p')
+  if [ -z "$url" ] || [ -z "$sha256" ]; then
+    echo "⚠️  Could not parse $label update manifest"
+    return 1
+  fi
+
+  local tmp
+  tmp=$(mktemp -d)
+  trap 'rm -rf "$tmp"' RETURN
+
+  echo "  ⬇️  Downloading $label ${version:-latest}..."
+  # The IDE tarball filename contains a space, so URL-encode it for curl.
+  if ! curl -fsSL --retry 3 --retry-delay 2 -o "$tmp/pkg.tar.gz" "${url// /%20}"; then
+    echo "⚠️  Failed to download $label"
+    return 1
+  fi
+
+  local actual
+  actual=$(sha256sum "$tmp/pkg.tar.gz" | cut -d' ' -f1)
+  if [ "$actual" != "$sha256" ]; then
+    echo "⚠️  Checksum mismatch for $label (expected $sha256, got $actual) — aborting"
+    return 1
+  fi
+  echo "  ✓ Checksum verified"
+
+  sudo rm -rf "$optdir"
+  sudo mkdir -p "$optdir"
+  sudo tar -xzf "$tmp/pkg.tar.gz" -C "$optdir" --strip-components=1
+
+  # Electron's sandbox helper must be root-owned and setuid or the app won't launch.
+  if [ -f "$optdir/chrome-sandbox" ]; then
+    sudo chown root:root "$optdir/chrome-sandbox"
+    sudo chmod 4755 "$optdir/chrome-sandbox"
+  fi
+
+  sudo ln -sfn "$optdir/$binrel" "/usr/local/bin/$linkname"
+
+  # Desktop launcher entry (icon discovery is best-effort).
+  local icon
+  icon=$(sudo find "$optdir/resources/app/resources/linux" -name '*.png' 2>/dev/null | head -n1)
+  sudo tee "/usr/share/applications/$linkname.desktop" > /dev/null <<EOF
+[Desktop Entry]
+Name=$label
+Exec=/usr/local/bin/$linkname %F
+Icon=${icon:-applications-development}
+Type=Application
+Categories=Development;IDE;
+Terminal=false
+EOF
+
+  echo "✅ $label installed (${version:-unknown})"
+}
+
 # Ubuntu
 if uname -a | grep -q Ubuntu; then
   echo "Installing packages for Ubuntu..."
@@ -291,24 +380,14 @@ if uname -a | grep -q Ubuntu; then
       sudo apt install -y intellij-idea-ultimate
     fi
 
-    # Antigravity (Google IDE - repositório oficial)
-    if ! command -v antigravity > /dev/null 2>&1; then
-      echo "📥 Installing Antigravity..."
-      # Adicionar chave GPG do repositório
-      if [ ! -f /etc/apt/keyrings/antigravity-repo-key.gpg ]; then
-        sudo mkdir -p /etc/apt/keyrings
-        curl -fsSL https://us-central1-apt.pkg.dev/doc/repo-signing-key.gpg | sudo gpg --dearmor -o /etc/apt/keyrings/antigravity-repo-key.gpg
-      fi
-      # Adicionar repositório
-      if [ ! -f /etc/apt/sources.list.d/antigravity.list ]; then
-        echo "deb [signed-by=/etc/apt/keyrings/antigravity-repo-key.gpg] https://us-central1-apt.pkg.dev/projects/antigravity-auto-updater-dev/ antigravity-debian main" | sudo tee /etc/apt/sources.list.d/antigravity.list > /dev/null
-      fi
-      sudo apt update
-      sudo apt install -y antigravity
-      echo "✅ Antigravity installed"
-    else
-      echo "✅ Antigravity already installed"
-    fi
+    # Antigravity hub app + IDE (Google), from the official tarball updater.
+    # The antigravity-cli (agy) is installed separately for ALL environments below.
+    install_antigravity_tarball "Antigravity" \
+      "https://antigravity-auto-updater-974169037036.us-central1.run.app" \
+      /opt/antigravity antigravity antigravity
+    install_antigravity_tarball "Antigravity IDE" \
+      "https://antigravity-ide-auto-updater-974169037036.us-central1.run.app" \
+      /opt/antigravity-ide bin/antigravity-ide antigravity-ide
 
     # Platformio
     PLATFORMIO_URL="https://raw.githubusercontent.com/platformio/platformio/develop/scripts/get-platformio.py"
@@ -458,4 +537,24 @@ for spec in "${tool_specs[@]}"; do
     echo "  ⚠️  Failed to install $binary (no apt package available and cargo unavailable or failed)"
   fi
 done
+
+# Antigravity CLI (agy) — Google's terminal AI agent. Installed in ALL Linux
+# environments (GUI and headless) via the official cross-platform installer,
+# which drops the self-updating `agy` binary into ~/.local/bin (no sudo needed;
+# ~/.local/bin is already on PATH via .shared_shell_config-linux).
+if [ -x "$HOME/.local/bin/agy" ] || command -v agy > /dev/null 2>&1; then
+  echo "✅ Antigravity CLI already installed"
+else
+  echo "📥 Installing Antigravity CLI (agy)..."
+  AGY_INSTALL_URL="https://antigravity.google/cli/install.sh"
+  if validate_url "$AGY_INSTALL_URL" "Antigravity CLI installer"; then
+    if curl -fsSL "$AGY_INSTALL_URL" | bash; then
+      echo "✅ Antigravity CLI installed"
+    else
+      echo "⚠️  Could not install Antigravity CLI"
+    fi
+  else
+    echo "⚠️  Could not validate Antigravity CLI installer URL"
+  fi
+fi
 

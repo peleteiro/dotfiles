@@ -163,6 +163,8 @@ install_cask_if_missing() {
       "1password") app_name="1Password.app" ;;
       "1password-cli") app_name="" ;;  # CLI tool, no app
       "antigravity") app_name="Antigravity.app" ;;
+      "antigravity-cli") app_name="" ;;  # CLI tool (agy), no app
+      "antigravity-ide") app_name="Antigravity IDE.app" ;;
       "cursor") app_name="Cursor.app" ;;
       "docker") app_name="Docker.app" ;;
       "droplr") app_name="Droplr.app" ;;
@@ -204,7 +206,9 @@ install_cask_if_missing() {
 # install "out of appstore" apps
 install_cask_if_missing 1password
 install_cask_if_missing 1password-cli
+install_cask_if_missing antigravity-cli
 install_cask_if_missing antigravity
+install_cask_if_missing antigravity-ide
 install_cask_if_missing cursor
 install_cask_if_missing docker
 install_cask_if_missing droplr
