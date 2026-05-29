@@ -174,6 +174,9 @@ These commands require `mise` to be installed:
 - **OpenJDK** - Java Development Kit
 - **Android SDK** - Android development tools
 
+### AI Tools
+- **Antigravity CLI** (`agy`) - Google's terminal AI agent, installed in **all environments** (macOS via Homebrew cask, Linux via the official installer into `~/.local/bin`)
+
 ---
 
 ## 💻 Installed Applications
@@ -182,7 +185,9 @@ These commands require `mise` to be installed:
 
 #### Homebrew Cask
 - **1Password** + CLI - Password manager
-- **Antigravity** - Google AI-powered IDE
+- **Antigravity** - Google AI agent orchestration platform
+- **Antigravity CLI** (`agy`) - Terminal interface for Antigravity agents
+- **Antigravity IDE** - Google AI coding agent IDE
 - **Cursor** - AI-powered code editor
 - **Docker Desktop** - Container platform
 - **Droplr** - File sharing and screenshots
@@ -226,7 +231,8 @@ These commands require `mise` to be installed:
 
 #### Desktop Applications
 - **1Password** (GUI) - Password manager
-- **Antigravity** - Google AI-powered IDE
+- **Antigravity** - Google AI agent orchestration platform (official tarball)
+- **Antigravity IDE** - Google AI coding agent IDE (official tarball)
 - **Caffeine Indicator** - Keep system awake
 - **Chrome** (Google Chrome) - Web browser
 - **Insomnia** - API client and testing

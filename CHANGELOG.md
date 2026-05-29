@@ -15,7 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Multiple Rust utilities (dust, procs, bottom, ouch, tealdeer, hyperfine, gitui, atuin, navi)
 - Docker installation for both macOS and Linux
 - Android SDK installation
-- Multiple IDEs: Neovim, Sublime Text, IntelliJ IDEA, Antigravity, Cursor, VS Code
+- Multiple IDEs: Neovim, Sublime Text, IntelliJ IDEA, Antigravity IDE, Cursor, VS Code
+- Antigravity CLI (`agy`) installed in all environments (macOS + Linux)
 - Comprehensive application installation for macOS and Linux
 - fzf (fuzzy finder) for enhanced command-line experience
 - `update` command to easily update dotfiles from repository
@@ -30,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Optimized PGP signing with 1Password pinentry wrapper
 - Replaced git-extras with hub (GitHub CLI)
 - Migrated from Snap to apt/Flatpak for Linux applications
+- Install the Antigravity hub app and Antigravity IDE from Google's official tarball updater on Linux (replacing the deprecated `antigravity-debian` apt package); macOS now uses the `antigravity`, `antigravity-cli` and `antigravity-ide` Homebrew casks
 - Enhanced README with Requirements section and better documentation
 
 ### Fixed
