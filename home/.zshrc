@@ -38,8 +38,15 @@ zle -N edit-command-line
 bindkey '^X^E' edit-command-line
 
 # Completions
-# Add personal completions directory to fpath (must come before compinit)
+# Add personal completions directory to fpath (must come before compinit).
+# Also pin Homebrew's version-independent functions symlink so a stale inherited
+# FPATH (e.g. left over from a zsh upgrade in an older session) can't hide
+# compinit and break completion. Prune any fpath entries that no longer exist.
 fpath=(~/.zsh/completions $fpath)
+if [[ -d /opt/homebrew/share/zsh/functions ]]; then
+  fpath=($fpath /opt/homebrew/share/zsh/functions)
+fi
+fpath=(${^fpath}(N-/))
 autoload -Uz compinit
 if [[ -n ${HOME}/.zcompdump(#qN.mh+24) ]]; then
   compinit
