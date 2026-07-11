@@ -389,6 +389,11 @@ if uname -a | grep -q Ubuntu; then
       "https://antigravity-ide-auto-updater-974169037036.us-central1.run.app" \
       /opt/antigravity-ide bin/antigravity-ide antigravity-ide
 
+    # agy-ide alias for the IDE CLI, matching the Homebrew cask's second shim.
+    if [ -x /opt/antigravity-ide/bin/antigravity-ide ] && ! command -v agy-ide > /dev/null 2>&1; then
+      sudo ln -sfn /opt/antigravity-ide/bin/antigravity-ide /usr/local/bin/agy-ide
+    fi
+
     # Platformio
     PLATFORMIO_URL="https://raw.githubusercontent.com/platformio/platformio/develop/scripts/get-platformio.py"
     if validate_url "$PLATFORMIO_URL" "PlatformIO installer"; then

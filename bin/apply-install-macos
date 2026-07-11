@@ -227,6 +227,23 @@ install_cask_if_missing transmit
 install_cask_if_missing visual-studio-code
 install_cask_if_missing vlc
 
+# Antigravity IDE CLI launcher. The cask ships two binary shims (antigravity-ide
+# and the agy-ide alias), but when the app was installed outside Homebrew the
+# cask is skipped and the shims are never created — link them ourselves.
+ANTIGRAVITY_IDE_CLI="/Applications/Antigravity IDE.app/Contents/Resources/app/bin/antigravity-ide"
+if [ -x "$ANTIGRAVITY_IDE_CLI" ]; then
+  for link_name in antigravity-ide agy-ide; do
+    if ! command -v "$link_name" > /dev/null 2>&1; then
+      ln -sfn "$ANTIGRAVITY_IDE_CLI" "$BREW_PATH/bin/$link_name"
+      echo "✅ Antigravity IDE CLI linked ($link_name)"
+    else
+      echo "✅ Antigravity IDE CLI already available ($link_name)"
+    fi
+  done
+else
+  echo "⚠️  Antigravity IDE CLI launcher not found (is the app installed?)"
+fi
+
 # install appstore apps
 echo "💿 Amphetamine" && mas install 937984704
 echo "💿 Audio Lock" && mas install 1460671099
