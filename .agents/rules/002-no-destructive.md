@@ -18,11 +18,12 @@ cuidado redobrado com escrita fora do repositório.
 
 ## Git
 
-- `git push` (o repositório é pessoal — o push é sempre manual do usuário)
-- `git push --force` / `git push -f`
+- `git push --force` / `git push -f` / `git push --force-with-lease` (reescreve histórico)
 - `git reset --hard`
 - `git clean -fd`
 - `git commit --no-verify` (os hooks de validação devem sempre rodar)
+
+> `git push` normal é permitido, mas só quando o usuário pedir — ver [[005-git-push]].
 
 ## Docker (usado só nos testes de Linux)
 

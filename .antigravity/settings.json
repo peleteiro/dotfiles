@@ -6,9 +6,9 @@
   "permissions": {
     "allow": ["command(*)", "command(git)", "read_url(*)", "execute_url(*)"],
     "deny": [
-      "command(git push)",
       "command(git push --force)",
       "command(git push -f)",
+      "command(git push --force-with-lease)",
       "command(git commit --no-verify)",
       "command(rm -rf /)",
       "command(rm -rf .git)",

@@ -6,18 +6,31 @@
 # Teste com: codex execpolicy check --rules .codex/rules/default.rules -- <comando>
 
 # ── Git ──────────────────────────────────────────────────────────────────────
-# Git de leitura/escrita local é liberado; o PUSH é bloqueado (repo pessoal — o push
-# é sempre manual do usuário), espelhando o `Bash(git push*)` do deny do Claude.
+# Git (inclusive `push` normal) é liberado; só o FORCE PUSH e o `--no-verify` são
+# bloqueados (reescrevem histórico / burlam hooks). Regra de comportamento: o push só
+# deve ser feito quando o usuário pedir — ver .agents/rules/005-git-push.md.
 prefix_rule(
     pattern = ["git"],
     decision = "allow",
-    justification = "Comandos Git locais são autorizados neste projeto.",
+    justification = "Comandos Git (inclusive push normal) são autorizados neste projeto.",
 )
 
 prefix_rule(
-    pattern = ["git", "push"],
+    pattern = ["git", "push", "--force"],
     decision = "forbidden",
-    justification = "O push deste repositório pessoal é sempre manual do usuário.",
+    justification = "Force push reescreve o histórico remoto.",
+)
+
+prefix_rule(
+    pattern = ["git", "push", "-f"],
+    decision = "forbidden",
+    justification = "Force push reescreve o histórico remoto.",
+)
+
+prefix_rule(
+    pattern = ["git", "push", "--force-with-lease"],
+    decision = "forbidden",
+    justification = "Force push reescreve o histórico remoto.",
 )
 
 prefix_rule(

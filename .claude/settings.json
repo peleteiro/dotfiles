@@ -4,7 +4,7 @@
   "preferredShell": "zsh",
   "permissions": {
     "allow": ["Bash(*)", "Edit(*)", "EditFiles(*)", "Read(*)", "ReadFiles(*)", "WebFetch(*)", "WebSearch(*)", "Skill(*)"],
-    "deny": ["Bash(rm -rf /)", "Bash(rm -rf .git)", "Bash(git push*)", "Bash(docker system prune)"]
+    "deny": ["Bash(rm -rf /)", "Bash(rm -rf .git)", "Bash(git push --force*)", "Bash(git push -f*)", "Bash(git push --force-with-lease*)", "Bash(git commit --no-verify*)", "Bash(docker system prune)"]
   },
   "hooks": {
     "PostToolUse": [

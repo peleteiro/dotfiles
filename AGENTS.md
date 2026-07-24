@@ -120,9 +120,10 @@ Regras `always_on` lidas pelos assistentes. São a fonte comum de comportamento:
 | Rule | Propósito |
 |------|-----------|
 | `001-golden-rule.md`   | Sempre ler o `AGENTS.md` |
-| `002-no-destructive.md`| Bloqueia comandos destrutivos (rm -rf, git push, chmod -R) |
+| `002-no-destructive.md`| Bloqueia comandos destrutivos (rm -rf, force push, chmod -R) |
 | `003-portuguese.md`    | Respostas e docs internos em pt-BR |
 | `004-dotfiles-mise.md` | Instalação via `./dotfiles`, dev via `mise` (tasks file-based) |
+| `005-git-push.md`      | `git push` só quando o usuário pedir explicitamente |
 
 ### Configuração por ferramenta
 
@@ -135,8 +136,10 @@ O **Claude é a referência**; Codex e Antigravity espelham.
 | **Codex CLI**   | `.codex/config.toml` + `.codex/rules/*.rules` | `sandbox_mode="workspace-write"` + `approval_policy="on-request"` | execpolicy `prefix_rule(decision="forbidden")` |
 | **Antigravity** | `.antigravity/settings.json` | `toolPermission="proceed-in-sandbox"` + `permissions.allow` | `permissions.deny` (`command(...)`) |
 
-**Deny comum aos três:** `git push`, `git commit --no-verify`, `rm -rf /`,
-`rm -rf .git`, `docker system prune`. No Codex, teste as regras com:
+**Deny comum aos três:** `git push --force`/`-f`/`--force-with-lease`,
+`git commit --no-verify`, `rm -rf /`, `rm -rf .git`, `docker system prune`. O `git push`
+normal é permitido, mas por **regra** (`005-git-push.md`) só quando o usuário pedir. No
+Codex, teste as regras com:
 
 ```bash
 codex execpolicy check --rules .codex/rules/default.rules -- <comando>
