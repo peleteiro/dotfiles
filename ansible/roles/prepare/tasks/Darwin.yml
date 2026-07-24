@@ -1,0 +1,8 @@
+---
+# Homebrew recusa rodar como root → sem become. bash 5 do brew fica em
+# {prefix}/bin/bash; os scripts o pegam via PATH (o /bin/bash do sistema segue 3.2).
+- name: Instalar ferramentas base (Homebrew)
+  community.general.homebrew:
+    name: "{{ prepare_brew_packages }}"
+    state: present
+    update_homebrew: true

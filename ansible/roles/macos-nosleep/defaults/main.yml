@@ -1,0 +1,7 @@
+---
+# Settings de energia para um macmini headless sempre ligado (aplicados via `pmset -a`).
+nosleep_pmset:
+  sleep: 0 # nunca dormir (system sleep) — o principal
+  disksleep: 0 # disco nunca dorme
+  powernap: 0 # sem Power Nap
+  womp: 1 # wake on network access (acorda por pacote de rede)

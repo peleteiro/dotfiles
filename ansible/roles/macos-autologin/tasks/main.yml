@@ -1,0 +1,51 @@
+---
+# Habilita o auto-login do macOS para o usuário de serviço, de modo que a sessão GUI (e
+# com ela o LaunchAgent do Colima) suba no boot sem ninguém digitar senha.
+#
+# ⚠️ Requer FileVault DESLIGADO: com FileVault o macOS ignora o auto-login (exige unlock
+#    no boot). Num macmini headless de servidor o FileVault normalmente fica off.
+
+- name: Definir o usuário de auto-login (com.apple.loginwindow)
+  community.general.osx_defaults:
+    domain: /Library/Preferences/com.apple.loginwindow
+    key: autoLoginUser
+    type: string
+    value: "{{ macos_autologin_user }}"
+  become: true
+
+- name: Exigir a senha de login para escrever /etc/kcpassword
+  ansible.builtin.assert:
+    that:
+      - macos_login_password | length > 0
+    fail_msg: >-
+      Preciso da senha de login de {{ macos_autologin_user }} p/ o auto-login. Defina
+      ansible_become_password (ou macos_login_password) no group_vars/all/secrets.yml.
+    quiet: true
+
+# /etc/kcpassword guarda a senha do auto-login ofuscada (XOR com uma cifra fixa do macOS).
+# Escrevemos SEMPRE o valor correto, mas de forma idempotente: decodificamos o arquivo
+# atual e só reescrevemos se diferir (evita o bug de um kcpassword antigo/errado ficar).
+- name: Garantir /etc/kcpassword com a senha correta
+  ansible.builtin.command:
+    argv:
+      - /usr/bin/python3
+      - "-c"
+      - |
+        import os, sys
+        pw = sys.argv[1]
+        key = [0x7D, 0x89, 0x52, 0x23, 0xD2, 0xBC, 0xDD, 0xEA, 0xA3, 0xB9, 0x1F]
+        b = list(pw.encode("utf-8"))
+        b += [0] * (12 - len(b) % 12)  # padding: próximo múltiplo de 12 (bloco extra se já for)
+        enc = bytes(c ^ key[i % len(key)] for i, c in enumerate(b))
+        p = "/etc/kcpassword"
+        cur = open(p, "rb").read() if os.path.exists(p) else b""
+        if cur != enc:
+            fd = os.open(p, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+            os.write(fd, enc)
+            os.close(fd)
+            print("changed")
+      - "{{ macos_login_password }}"
+  become: true
+  no_log: true
+  register: _kcpassword
+  changed_when: "'changed' in _kcpassword.stdout"

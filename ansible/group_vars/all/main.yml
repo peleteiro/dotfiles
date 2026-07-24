@@ -1,0 +1,11 @@
+---
+# Variáveis compartilhadas por TODAS as máquinas.
+# NÃO são segredos — só ponteiros op:// (o valor da chave é resolvido em runtime, no
+# controller, via `op read`). A mesma identidade SSH é depositada em todas as máquinas.
+
+# Item do 1Password com o par de chaves SSH (tipo "SSH Key").
+# Liste os seus com: `op item list --categories "SSH Key"`.
+op_ssh_item: "op://Employee/Peleteiro SSH Key"
+
+# Nome dos arquivos gerados em ~/.ssh (a chave é ed25519).
+ssh_key_filename: "id_ed25519"

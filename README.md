@@ -100,6 +100,7 @@ These commands require `mise` to be installed:
 | `mise run test:linux` | Test scripts on Linux (Docker) |
 | `mise run debug:linux:gui` | Interactive debug: Ubuntu with GUI (VNC) |
 | `mise run debug:linux:nogui` | Interactive debug: Debian slim without GUI |
+| `mise run ansible` | Provision the home machines (Mac Mini, Home Assistant) ([`ansible/`](./ansible/README.md)) |
 
 ---
 

@@ -1,0 +1,12 @@
+---
+# Pacotes Homebrew do runtime de containers headless (macOS).
+homebrew_docker_packages:
+  - colima # VM Lima + daemon do Docker, roda headless (sem GUI, ao contrário do Desktop)
+  - docker # CLI `docker` (formula, não o cask do Docker Desktop)
+  - docker-compose # plugin `docker compose`
+  - docker-buildx # plugin `docker buildx`
+
+# Specs da VM do Colima (aplicadas na 1ª criação da VM).
+colima_cpu: 2
+colima_memory: 4 # GB
+colima_disk: 60 # GB

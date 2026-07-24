@@ -1,0 +1,13 @@
+#!/bin/bash
+#MISE description="Provisiona só o Mac Mini (ansible/macmini.yml)"
+# Uso:
+#   mise run ansible:macmini             # aplica
+#   mise run ansible:macmini -- --check  # dry-run
+#
+# Valida o secret do macmini antes de rodar. Requer `op` autenticado no controller
+# (a role ssh-keys lê a chave do 1Password).
+set -euo pipefail
+
+cd "$MISE_CONFIG_ROOT/ansible"
+"$MISE_CONFIG_ROOT/.config/mise/tasks/ansible/check-secrets" macmini
+exec ansible-playbook macmini.yml "$@"

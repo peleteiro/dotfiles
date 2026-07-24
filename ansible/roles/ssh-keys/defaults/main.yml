@@ -1,0 +1,4 @@
+---
+# Defaults da role (sobrescritos por group_vars/macmini.yml quando presentes).
+op_ssh_item: "op://Employee/Peleteiro SSH Key"
+ssh_key_filename: "id_ed25519"

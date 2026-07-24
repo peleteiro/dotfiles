@@ -1,0 +1,16 @@
+---
+# Máquina: Mac Mini (roda agentes e rotinas). Importado por site.yml.
+#
+# gather_facts: true — as roles docker/macos-autologin usam facts (SO, arquitetura, HOME).
+# Algumas tasks escalam privilégio (auto-login, remover Docker Desktop): rode com `-- -K`
+# para informar a senha de sudo (que também vira a senha do auto-login).
+- name: Configuração base do Mac Mini
+  hosts: macmini
+  gather_facts: true
+
+  roles:
+    - ssh-keys # par de chaves SSH + desliga o agent do 1Password
+    - prepare # bash, curl e rust CLI tools (rg/fd/sd/bat) pros scripts
+    - macos-autologin # auto-login no boot (pré-requisito do autostart headless do Colima)
+    - macos-nosleep # nunca dormir (servidor sempre ligado e acessível por SSH)
+    - docker # Colima (Docker headless) instalado, atualizado e rodando; remove Docker Desktop

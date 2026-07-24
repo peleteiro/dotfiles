@@ -1,0 +1,8 @@
+---
+# Vars específicas de macOS (grupo [darwin]). As comuns ficam em group_vars/all.yml.
+#
+# Specs da VM do Colima — ajuste às specs REAIS do macmini (não exceda a RAM física;
+# deixe folga pro macOS). Sobrescrevem os defaults da role docker.
+colima_cpu: 2
+colima_memory: 4 # GB
+colima_disk: 60 # GB

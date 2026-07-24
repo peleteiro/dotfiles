@@ -1,0 +1,4 @@
+---
+# Dispatch por SO — bash/curl/rust-cli são instalados via Homebrew (macOS) ou apt (Linux).
+- name: Instalar ferramentas base conforme o SO
+  ansible.builtin.include_tasks: "{{ ansible_facts['os_family'] }}.yml"

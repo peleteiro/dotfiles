@@ -1,0 +1,109 @@
+---
+# Docker headless no macOS via Colima. Docker Desktop precisa de sessão GUI e não é
+# script-friendly; Colima roda como LaunchAgent na sessão auto-logada (ver role
+# macos-autologin). Homebrew recusa rodar como root → estas tasks NÃO usam become.
+
+- name: Detectar arquitetura (prefixo do brew e tipo de VM)
+  ansible.builtin.set_fact:
+    # Apple Silicon: brew em /opt/homebrew e VM via Virtualization.framework (vz, rápido).
+    # Intel: brew em /usr/local e VM via qemu.
+    _brew_prefix: "{{ '/opt/homebrew' if ansible_facts['architecture'] == 'arm64' else '/usr/local' }}"
+    _colima_vm_type: "{{ 'vz' if ansible_facts['architecture'] == 'arm64' else 'qemu' }}"
+
+# ── Remover Docker Desktop (conflita com o socket/CLI do Colima) ────────────────
+# O uninstaller nativo (roda com become) remove o app e os arquivos de sistema. Não
+# usamos `brew uninstall --cask` porque ele chama `sudo` interno sem tty e falha.
+- name: Docker Desktop está instalado?
+  ansible.builtin.stat:
+    path: /Applications/Docker.app
+  register: _docker_desktop
+
+- name: Rodar o uninstaller nativo do Docker Desktop (se presente)
+  ansible.builtin.command:
+    cmd: /Applications/Docker.app/Contents/MacOS/uninstall
+  become: true
+  when: _docker_desktop.stat.exists
+  register: _dd_uninstall
+  changed_when: _dd_uninstall.rc == 0
+  failed_when: false
+
+- name: Remover Docker.app residual
+  ansible.builtin.file:
+    path: /Applications/Docker.app
+    state: absent
+  become: true
+  when: _docker_desktop.stat.exists
+
+# ── Instalar/atualizar Colima + Docker CLI ──────────────────────────────────────
+- name: Instalar/atualizar Colima + Docker (Homebrew)
+  community.general.homebrew:
+    name: "{{ homebrew_docker_packages }}"
+    state: latest # "atualizado": faz upgrade quando há versão nova
+    update_homebrew: true
+
+# Resquício do Docker Desktop: ~/.docker/config.json aponta credsStore="desktop", cujo
+# helper (docker-credential-desktop) some com o Desktop — quebra `docker pull/run`.
+- name: Remover credsStore "desktop" órfão do ~/.docker/config.json
+  ansible.builtin.command:
+    argv:
+      - /usr/bin/python3
+      - "-c"
+      - |
+        import json, os, sys
+        p = os.path.expanduser("~/.docker/config.json")
+        if not os.path.exists(p):
+            sys.exit(0)
+        d = json.load(open(p))
+        changed = False
+        if d.get("credsStore") == "desktop":
+            d.pop("credsStore")
+            changed = True
+        for k, v in list(d.get("credHelpers", {}).items()):
+            if v == "desktop":
+                d["credHelpers"].pop(k)
+                changed = True
+        if changed:
+            json.dump(d, open(p, "w"), indent=2)
+            print("changed")
+  register: _docker_cfg
+  changed_when: "'changed' in _docker_cfg.stdout"
+
+# ── Subir a VM e garantir autostart + funcionamento ─────────────────────────────
+- name: Colima + Docker (com o brew no PATH)
+  environment:
+    PATH: "{{ _brew_prefix }}/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+  block:
+    - name: Criar a VM do Colima com as specs (só na 1ª vez)
+      ansible.builtin.command:
+        cmd: >-
+          colima start
+          --cpu {{ colima_cpu }}
+          --memory {{ colima_memory }}
+          --disk {{ colima_disk }}
+          --vm-type {{ _colima_vm_type }}
+        creates: "{{ ansible_facts['env']['HOME'] }}/.colima/default/colima.yaml"
+
+    # brew services start = `launchctl bootstrap`, que falha (erro 5) se o agent já está
+    # carregado. Checamos antes p/ ser idempotente.
+    - name: Colima já registrado no launchd (autostart)?
+      ansible.builtin.command:
+        cmd: "launchctl print gui/{{ ansible_facts['user_uid'] }}/homebrew.mxcl.colima"
+      register: _colima_agent
+      changed_when: false
+      failed_when: false
+
+    - name: Habilitar autostart do Colima no boot (LaunchAgent via brew services)
+      ansible.builtin.command:
+        cmd: brew services start colima
+      when: _colima_agent.rc != 0
+      register: _brew_services
+      changed_when: "'Successfully started' in _brew_services.stdout"
+
+    - name: Verificar se o Docker está respondendo
+      ansible.builtin.command:
+        cmd: docker info
+      register: _docker_info
+      changed_when: false
+      retries: 12
+      delay: 5
+      until: _docker_info.rc == 0

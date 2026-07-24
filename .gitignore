@@ -30,6 +30,12 @@ home/.shared_shell_config_private
 .claude/settings.local.json
 .codex/config.local.toml
 
+# Ansible
+ansible/*.retry
+ansible/**/*.retry
+# Segredos locais (senhas) — NUNCA versionar; o .example fica versionado
+ansible/**/secrets.yml
+
 # Test files
 /tmp/
 /test/

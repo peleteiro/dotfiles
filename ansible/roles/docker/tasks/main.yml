@@ -1,0 +1,6 @@
+---
+# Dispatch por SO — o mesmo papel ("docker instalado, atualizado e rodando") se realiza
+# de formas diferentes em cada plataforma. macmini = Darwin (Colima). Quando o Home
+# Assistant (Linux) precisar de docker, adicione um Debian.yml aqui.
+- name: Instalar/garantir Docker conforme o SO
+  ansible.builtin.include_tasks: "{{ ansible_facts['os_family'] }}.yml"

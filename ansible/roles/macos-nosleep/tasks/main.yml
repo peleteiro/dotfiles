@@ -1,0 +1,20 @@
+---
+# Impede o macmini de dormir (servidor headless sempre ligado). O `pmset` persiste a
+# configuração; idempotente: só aplica o setting que ainda não está no valor desejado.
+
+- name: Ler configuração de energia atual
+  ansible.builtin.command: pmset -g custom
+  register: _pmset
+  changed_when: false
+  check_mode: false # precisa rodar mesmo em --check p/ o when abaixo funcionar
+  become: true
+
+- name: Aplicar "nunca dormir" (pmset -a)
+  ansible.builtin.command: "pmset -a {{ item.key }} {{ item.value }}"
+  loop: "{{ nosleep_pmset | dict2items }}"
+  become: true
+  vars:
+    # casa a linha "<setting>   <valor>" na saída do pmset (multiline).
+    _pat: '(?m)^\s*{{ item.key }}\s+{{ item.value }}\b'
+  when: not (_pmset.stdout is search(_pat))
+  changed_when: true
