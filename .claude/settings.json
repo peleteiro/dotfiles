@@ -6,7 +6,20 @@
     "allow": ["Bash(*)", "Edit(*)", "EditFiles(*)", "Read(*)", "ReadFiles(*)", "WebFetch(*)", "WebSearch(*)", "Skill(*)"],
     "deny": ["Bash(rm -rf /)", "Bash(rm -rf .git)", "Bash(git push*)", "Bash(docker system prune)"]
   },
-  "preferredShell": "zsh",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/lint.sh\"",
+            "timeout": 60
+          }
+        ]
+      }
+    ]
+  },
   "ignorePatterns": [
     "**/node_modules/**",
     "**/.pnpm-store/**",

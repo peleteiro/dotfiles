@@ -1,0 +1,56 @@
+# Execpolicy (Starlark) — deny de comando, equivalente ao `deny` do .claude/settings.json.
+# O Codex escaneia .codex/rules/*.rules no startup (só quando o projeto é trusted).
+# decision="forbidden" bloqueia SEM prompt. Comandos compostos são avaliados por parte
+# (`git add . && rm -rf /` é barrado pelo `rm`), então não dá pra contrabandear.
+#
+# Teste com: codex execpolicy check --rules .codex/rules/default.rules -- <comando>
+
+# ── Git ──────────────────────────────────────────────────────────────────────
+# Git de leitura/escrita local é liberado; o PUSH é bloqueado (repo pessoal — o push
+# é sempre manual do usuário), espelhando o `Bash(git push*)` do deny do Claude.
+prefix_rule(
+    pattern = ["git"],
+    decision = "allow",
+    justification = "Comandos Git locais são autorizados neste projeto.",
+)
+
+prefix_rule(
+    pattern = ["git", "push"],
+    decision = "forbidden",
+    justification = "O push deste repositório pessoal é sempre manual do usuário.",
+)
+
+prefix_rule(
+    pattern = ["git", "commit", "--no-verify"],
+    decision = "forbidden",
+    justification = "Commits devem executar os hooks de validação.",
+)
+
+# ── Sistema ──────────────────────────────────────────────────────────────────
+# deny: Bash(rm -rf /)
+prefix_rule(
+    pattern = ["rm", "-rf", "/"],
+    decision = "forbidden",
+    justification = "rm -rf / apaga o sistema. Delete caminhos específicos dentro do repo.",
+    match = ["rm -rf /"],
+    not_match = ["rm -rf ./dist"],
+)
+
+# deny: Bash(rm -rf .git)
+prefix_rule(
+    pattern = ["rm", "-rf", ".git"],
+    decision = "forbidden",
+    justification = "rm -rf .git destrói o histórico do repositório.",
+    match = ["rm -rf .git"],
+    not_match = ["rm -rf ./tmp"],
+)
+
+# ── Docker (usado só nos testes de Linux) ────────────────────────────────────
+# deny: Bash(docker system prune)
+prefix_rule(
+    pattern = ["docker", "system", "prune"],
+    decision = "forbidden",
+    justification = "docker system prune apaga imagens/volumes/cache de TODO o Docker local.",
+    match = ["docker system prune", "docker system prune -a --volumes"],
+    not_match = ["docker system df"],
+)

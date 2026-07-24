@@ -1,0 +1,35 @@
+# Config project-scoped do Codex CLI — versionado no repo (como o .claude/settings.json).
+# O Codex só lê este arquivo quando o projeto é TRUSTED (ele pergunta "trust this folder?"
+# no 1º run). As skills e o AGENTS.md são lidos nativamente — não precisam de config aqui.
+#
+# Contém: permissões (sandbox + approval) e os hooks. O deny de comando fica no
+# execpolicy em .codex/rules/ (equivalente ao `deny` do Claude). Este projeto NÃO usa
+# MCP servers, então não há bloco [mcp_servers] (espelha o Claude, que também não tem .mcp.json).
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Permissões — equivalente ao `permissions` do .claude/settings.json
+# ═══════════════════════════════════════════════════════════════════════════════
+# workspace-write + on-request = o Codex lê, edita e roda comandos NO workspace sem
+# perguntar; só pede aprovação pra ESCAPAR do sandbox (escrever fora do repo — ex.: o
+# `./dotfiles` gravando no $HOME — ou rede não permitida). Análogo ao allow-list do Claude.
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+
+[sandbox_workspace_write]
+network_access = true # ≈ Bash liberado no Claude (rede sem prompt, p/ mise install etc.)
+# Sem writable_roots extras: o dotfiles é um repo standalone. Escrever no $HOME (instalação
+# real via ./dotfiles) escapa do sandbox de propósito e passa por aprovação.
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Hooks — equivalente ao PostToolUse do .claude/settings.json (lint on-edit)
+# ═══════════════════════════════════════════════════════════════════════════════
+# Roda shellcheck no arquivo editado após cada apply_patch (o tool de edição do Codex).
+# Espelha o .claude/hooks/lint.sh. O git-root path mantém o hook estável mesmo rodando de
+# subdiretório. O lint completo continua no `mise run lint`.
+[[hooks.PostToolUse]]
+matcher = "apply_patch"
+
+[[hooks.PostToolUse.hooks]]
+type = "command"
+command = 'bash "$(git rev-parse --show-toplevel)/.codex/hooks/lint.sh"'
+timeout = 60

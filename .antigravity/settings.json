@@ -1,0 +1,18 @@
+{
+  "toolPermission": "proceed-in-sandbox",
+  "artifactReviewPolicy": "always-proceed",
+  "allowNonWorkspaceAccess": false,
+  "enableTerminalSandbox": true,
+  "permissions": {
+    "allow": ["command(*)", "command(git)", "read_url(*)", "execute_url(*)"],
+    "deny": [
+      "command(git push)",
+      "command(git push --force)",
+      "command(git push -f)",
+      "command(git commit --no-verify)",
+      "command(rm -rf /)",
+      "command(rm -rf .git)",
+      "command(docker system prune)"
+    ]
+  }
+}

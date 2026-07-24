@@ -26,6 +26,10 @@ home/.bash_private
 home/.zshrc_private
 home/.shared_shell_config_private
 
+# AI agents — overrides locais (não versionados)
+.claude/settings.local.json
+.codex/config.local.toml
+
 # Test files
 /tmp/
 /test/

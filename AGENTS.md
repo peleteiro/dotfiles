@@ -105,3 +105,51 @@ trap cleanup EXIT INT TERM
 - Check mise tasks too (not just bin/ scripts)
 - **SC2016 with sd/rg**: When using `sd` or `rg` with single quotes for regex patterns, use `# shellcheck disable=SC2016` - this is expected and safe
 - Shellcheck configuration: `.shellcheckrc` in project root documents expected patterns
+
+## 🤖 AI Assistants (Claude, Codex, Antigravity)
+
+Este `AGENTS.md` é a **fonte única da verdade** para qualquer assistente de IA.
+`CLAUDE.md` é um ponteiro fino que aponta pra cá. **Codex CLI** (OpenAI) e
+**Antigravity** (Google) leem `AGENTS.md` nativamente (escaneando do CWD até a
+raiz do repo) — sem symlink.
+
+### Rules compartilhadas — `.agents/rules/`
+
+Regras `always_on` lidas pelos assistentes. São a fonte comum de comportamento:
+
+| Rule | Propósito |
+|------|-----------|
+| `001-golden-rule.md`   | Sempre ler o `AGENTS.md` |
+| `002-no-destructive.md`| Bloqueia comandos destrutivos (rm -rf, git push, chmod -R) |
+| `003-portuguese.md`    | Respostas e docs internos em pt-BR |
+| `004-dotfiles-mise.md` | Instalação via `./dotfiles`, dev via `mise` (tasks file-based) |
+
+### Configuração por ferramenta
+
+Cada ferramenta versiona **no repo** suas permissões e hooks (sem config global).
+O **Claude é a referência**; Codex e Antigravity espelham.
+
+| Ferramenta | Arquivo(s) | allow (roda sem prompt) | deny (bloqueia) |
+|---|---|---|---|
+| **Claude Code** | `.claude/settings.json` | `permissions.allow` | `permissions.deny` |
+| **Codex CLI**   | `.codex/config.toml` + `.codex/rules/*.rules` | `sandbox_mode="workspace-write"` + `approval_policy="on-request"` | execpolicy `prefix_rule(decision="forbidden")` |
+| **Antigravity** | `.antigravity/settings.json` | `toolPermission="proceed-in-sandbox"` + `permissions.allow` | `permissions.deny` (`command(...)`) |
+
+**Deny comum aos três:** `git push`, `git commit --no-verify`, `rm -rf /`,
+`rm -rf .git`, `docker system prune`. No Codex, teste as regras com:
+
+```bash
+codex execpolicy check --rules .codex/rules/default.rules -- <comando>
+```
+
+> O Codex só lê o `.codex/config.toml` depois que você dá **trust** na pasta (ele
+> pergunta no 1º run). Não há **MCP servers** configurados (o dotfiles é um projeto
+> shell standalone — o Claude também não tem `.mcp.json`).
+
+### Hooks (lint on-edit)
+
+O Claude roda `.claude/hooks/lint.sh` (shellcheck no arquivo editado) no
+`PostToolUse`; o **Codex** replica em `.codex/hooks/lint.sh` (matcher
+`apply_patch`, registrado no `.codex/config.toml`). O **Antigravity** (fork do
+VS Code) já faz lint nativo. Em todos, o lint completo continua no
+`mise run lint`, e o hook é só o feedback rápido a cada edição.
