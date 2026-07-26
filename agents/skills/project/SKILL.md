@@ -35,7 +35,9 @@ wrappers around this knowledge:
 ## Templates (`templates/` in this skill)
 
 Per-project skills copied by `/project-new` (per stack) and reconciled by
-`/project-update`. Each project evolves its own copy.
+`/project-update`. Each project evolves its own copy. Template files are
+named `SKILL.template.md` so no tool loads them as live skills (Codex scans
+skill dirs recursively) — rename to `SKILL.md` when copying into a project.
 
 | Template | Copy when |
 |---|---|

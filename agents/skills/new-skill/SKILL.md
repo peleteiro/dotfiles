@@ -18,7 +18,7 @@ standard.
 | Scope | Location |
 |---|---|
 | Project | `.agents/skills/<name>/SKILL.md` (with `.claude/skills` symlink → `../.agents/skills`) |
-| Personal template | `~/Projects/dotfiles/agents/skills/project/templates/<name>/` — distributed to projects via `/project-new` and `/project-update` |
+| Personal template | `~/Projects/dotfiles/agents/skills/project/templates/<name>/SKILL.template.md` — inert until `/project-new`//`/project-update` copy it into a project as `SKILL.md` |
 | Global (personal) | `~/Projects/dotfiles/agents/skills/<name>/`, then `./dotfiles apply:agents` |
 
 Global is only for meta-skills that operate **on** projects (project,

@@ -25,7 +25,7 @@ For each template in `~/Projects/dotfiles/agents/skills/project/templates/`:
 - **Deliberate local adaptation** (domain rule, different stack) →
   preserve; note it in the final report.
 - Template missing from the project and relevant to the stack → propose
-  copying it.
+  copying it (rename `SKILL.template.md` → `SKILL.md` when copying).
 - Project skill with no corresponding template → it is domain-specific; do
   not touch it.
 

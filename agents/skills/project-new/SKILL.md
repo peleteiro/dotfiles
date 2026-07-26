@@ -66,7 +66,9 @@ CLAUDE.md -> AGENTS.md         # symlink (same for GEMINI.md if used)
 .agents/
 ├── rules/                     # 001-golden-rule, 002-no-destructive,
 │                              # 003-language, 004-mise-only (trigger: always_on)
-├── skills/                    # copied from the templates per stack
+├── skills/                    # copied from the templates per stack —
+│                              # rename each SKILL.template.md → SKILL.md
+│                              # when copying (templates are inert on purpose)
 │                              # (commit/check/fix/prep/new-task always;
 │                              # typescript/bash by language; hatchet only
 │                              # if there are jobs; sysadmin only if there is infra)
