@@ -3,6 +3,20 @@
 #
 # Specs da VM do Colima — ajuste às specs REAIS do macmini (não exceda a RAM física;
 # deixe folga pro macOS). Sobrescrevem os defaults da role docker.
-colima_cpu: 2
-colima_memory: 4 # GB
-colima_disk: 60 # GB
+# macmini: 10 CPUs / 16 GB, servidor headless dedicado — TUDO roda em containers via
+# Colima. vCPUs são compartilhadas (pode dar todas); memória fica com o máximo, sobrando
+# ~2 GB pro macOS base (menos que isso arrisca swap/jetsam no host e derruba a VM junto).
+colima_cpu: 10
+colima_memory: 14 # GB
+# Disco é sparse (só ocupa o que for usado) e o Colima cresce no restart (nunca encolhe).
+# Host tem 228 GB; 100 GB de teto deixa folga mesmo com a VM cheia.
+colima_disk: 100 # GB
+
+# Containers precisam alcançar a LAN (NVR/câmeras em 192.168.1.x) — ver comentário
+# nos defaults da role docker: as DUAS flags são necessárias.
+colima_network_address: true
+colima_network_preferred_route: true
+
+# macmini é M4: Rosetta (containers amd64 rápidos) e nested virt suportados.
+colima_rosetta: true
+colima_nested_virtualization: true

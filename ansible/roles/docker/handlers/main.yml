@@ -1,0 +1,8 @@
+---
+# `colima restart` relê o ~/.colima/default/colima.yaml — cpu/memória/rede só passam
+# a valer depois dele. Disparado quando a task de reconciliação muda a config.
+- name: Reiniciar Colima
+  ansible.builtin.command:
+    cmd: colima restart
+  environment:
+    PATH: "{{ _brew_prefix }}/bin:/usr/bin:/bin:/usr/sbin:/sbin"

@@ -81,7 +81,27 @@
           --memory {{ colima_memory }}
           --disk {{ colima_disk }}
           --vm-type {{ _colima_vm_type }}
+          {{ '--network-address' if colima_network_address else '' }}
         creates: "{{ ansible_facts['env']['HOME'] }}/.colima/default/colima.yaml"
+
+    # Reconcilia a config persistente (~/.colima/default/colima.yaml) nas runs
+    # seguintes — o `creates:` acima faz o start só valer na criação. preferredRoute
+    # não tem flag de CLI, então é editado direto no yaml. As chaves aninhadas de
+    # `network:` têm indentação fixa de 2 espaços (arquivo gerado pelo Colima).
+    - name: Aplicar specs e rede na config persistente do Colima
+      ansible.builtin.lineinfile:
+        path: "{{ ansible_facts['env']['HOME'] }}/.colima/default/colima.yaml"
+        regexp: "{{ item.regexp }}"
+        line: "{{ item.line }}"
+      loop:
+        - { regexp: '^cpu:', line: "cpu: {{ colima_cpu }}" }
+        - { regexp: '^memory:', line: "memory: {{ colima_memory }}" }
+        - { regexp: '^disk:', line: "disk: {{ colima_disk }}" }
+        - { regexp: '^  address:', line: "  address: {{ colima_network_address | to_json }}" }
+        - { regexp: '^  preferredRoute:', line: "  preferredRoute: {{ colima_network_preferred_route | to_json }}" }
+        - { regexp: '^rosetta:', line: "rosetta: {{ colima_rosetta | to_json }}" }
+        - { regexp: '^nestedVirtualization:', line: "nestedVirtualization: {{ colima_nested_virtualization | to_json }}" }
+      notify: Reiniciar Colima
 
     # brew services start = `launchctl bootstrap`, que falha (erro 5) se o agent já está
     # carregado. Checamos antes p/ ser idempotente.
@@ -98,6 +118,11 @@
       when: _colima_agent.rc != 0
       register: _brew_services
       changed_when: "'Successfully started' in _brew_services.stdout"
+
+    # Handlers só rodariam no fim do play; forçamos aqui pra que a verificação abaixo
+    # já teste a VM com a config final (specs/rede aplicadas).
+    - name: Aplicar restart pendente do Colima antes de verificar
+      ansible.builtin.meta: flush_handlers
 
     - name: Verificar se o Docker está respondendo
       ansible.builtin.command:

@@ -6,7 +6,22 @@ homebrew_docker_packages:
   - docker-compose # plugin `docker compose`
   - docker-buildx # plugin `docker buildx`
 
-# Specs da VM do Colima (aplicadas na 1ª criação da VM).
+# Specs da VM do Colima. cpu/memory/disk são reconciliados a cada run (mudança reinicia
+# a VM). disk só CRESCE — o Colima não encolhe disco; reduzir o valor não tem efeito.
 colima_cpu: 2
 colima_memory: 4 # GB
 colima_disk: 60 # GB
+
+# Rede da VM. address=true dá à VM um IP próprio (vzNAT no Apple Silicon, sem sudo).
+# preferredRoute=true é obrigatório junto: sem ele o default route continua saindo pelo
+# gvproxy (192.168.5.x), que recusa tráfego para a LAN — containers não alcançam
+# aparelhos da rede (NVR, câmeras) mesmo com address ligado.
+colima_network_address: false
+colima_network_preferred_route: false
+
+# Aceleração da VM (só Apple Silicon). rosetta=true roda containers amd64 quase em
+# velocidade nativa (em vez de qemu user-mode). nested_virtualization exige M3+.
+# GPU NÃO é passável pra VM Linux (limitação do Virtualization.framework da Apple) —
+# jobs que precisem de Metal/VideoToolbox devem rodar no host, fora do container.
+colima_rosetta: false
+colima_nested_virtualization: false
