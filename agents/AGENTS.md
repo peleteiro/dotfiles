@@ -1,4 +1,4 @@
-# Global Rules — José Peleteiro
+# Global Rules — Jose Peleteiro
 
 Global instructions for AI agents (Claude Code, Codex, Antigravity and any
 tool that follows the agents.md standard). They apply in **all** projects;
