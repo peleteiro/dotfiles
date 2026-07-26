@@ -165,8 +165,9 @@ install_cask_if_missing() {
       "antigravity") app_name="Antigravity.app" ;;
       "antigravity-cli") app_name="" ;;  # CLI tool (agy), no app
       "antigravity-ide") app_name="Antigravity IDE.app" ;;
+      "codex") app_name="" ;;  # CLI tool, no app
       "cursor") app_name="Cursor.app" ;;
-      "docker") app_name="Docker.app" ;;
+      "docker-desktop") app_name="Docker.app" ;;
       "droplr") app_name="Droplr.app" ;;
       "firefox") app_name="Firefox.app" ;;
       "google-chrome") app_name="Google Chrome.app" ;;
@@ -209,8 +210,9 @@ install_cask_if_missing 1password-cli
 install_cask_if_missing antigravity-cli
 install_cask_if_missing antigravity
 install_cask_if_missing antigravity-ide
+install_cask_if_missing codex
 install_cask_if_missing cursor
-install_cask_if_missing docker
+install_cask_if_missing docker-desktop
 install_cask_if_missing droplr
 install_cask_if_missing firefox
 install_cask_if_missing google-chrome
@@ -245,13 +247,17 @@ else
 fi
 
 # install appstore apps
+echo "💿 1Password for Safari" && mas install 1569813296
 echo "💿 Amphetamine" && mas install 937984704
-echo "💿 Audio Lock" && mas install 1460671099
+echo "💿 Audio Manager" && mas install 6757486074
 echo "💿 Brother P Touch Editor" && mas install 1453365242
 echo "💿 Capto" && mas install 1078184147
+echo "💿 Color Picker" && mas install 641027709
 echo "💿 DaisyDisk" && mas install 411643860
 echo "💿 Dato" && mas install 1470584107
+echo "💿 Dipper" && mas install 6450242673
 echo "💿 HTTPBot" && mas install 1232603544
+echo "💿 iQR" && mas install 491390884
 echo "💿 KeepSolid VPN" && mas install 694633015
 echo "💿 Microsoft Remote Desktop" && mas install 1295203466
 echo "💿 Monodraw" && mas install 920404675
