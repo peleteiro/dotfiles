@@ -8,6 +8,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Global AI agent collection in `agents/`: meta-skills (`project`,
+  `project-new`, `project-update`, `project-doctor`, `new-skill`,
+  `security-check`) with 21 per-project skill templates living inside the
+  `project` skill (`SKILL.template.md`, inert until copied into a project)
+- `./dotfiles apply:agents` command symlinking the collection into Claude
+  Code, Codex, agents.md and Antigravity global dirs, plus
+  `agents/AGENTS.md` as global instructions
+- `mise run skills:check` task validating the collection structure
+- `docs/agents.md` documenting the collection, scopes and symlink targets
+- macOS apps: Audio Manager, 1Password for Safari, Color Picker, iQR,
+  Dipper (App Store); `codex` cask
 - Support for macOS and Linux (Ubuntu/Debian)
 - Bash and Zsh shell configurations with shared config
 - Git configuration with SSH, GPG signing, and delta pager
@@ -33,6 +44,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Migrated from Snap to apt/Flatpak for Linux applications
 - Install the Antigravity hub app and Antigravity IDE from Google's official tarball updater on Linux (replacing the deprecated `antigravity-debian` apt package); macOS now uses the `antigravity`, `antigravity-cli` and `antigravity-ide` Homebrew casks
 - Enhanced README with Requirements section and better documentation
+- Repository documentation, code comments and new commit messages converted
+  to English (chat replies to the user stay in pt-BR)
+- Renamed the `docker` cask to `docker-desktop` (upstream rename)
+
+### Removed
+- Audio Lock (App Store app no longer available; replaced by Audio Manager)
 
 ### Fixed
 - Fixed bash-completion nosort error by installing updated bash

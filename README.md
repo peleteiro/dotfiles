@@ -38,6 +38,7 @@ In-depth guides for the main components live in [`docs/`](./docs):
 - **[Secrets & 1Password](./docs/secrets.md)** — SSH agent integration, commit signing flow, troubleshooting
 - **[Hammerspoon](./docs/hammerspoon.md)** — macOS-only window management with `hs.grid` and auto-reload
 - **[Utilities](./docs/utilities.md)** — every custom script in `~/.bin/` plus the modern CLI toolset
+- **[AI Agents](./docs/agents.md)** — global skill collection, project templates, symlink targets for Claude Code/Codex/Antigravity
 
 ### Development Tools (Optional)
 
