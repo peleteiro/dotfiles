@@ -1,6 +1,6 @@
 ---
 name: hatchet
-description: Asynchronous jobs with self-hosted Hatchet in TypeScript projects — tasks, crons, events, durable tasks, flow control (concurrency, rate limit, priority), idempotency and transactional outbox. Use when creating, dispatching or reviewing background jobs. Exception: in biblebox the standing choice is Inngest (legacy decision — new code there stays on Inngest until the eventual migration).
+description: Asynchronous jobs with self-hosted Hatchet in TypeScript projects — tasks, crons, events, durable tasks, flow control (concurrency, rate limit, priority), idempotency and transactional outbox. Use when creating, dispatching or reviewing background jobs. Do not use in projects whose recorded standard is another job engine (standing legacy — see the project's AGENTS.md).
 ---
 
 # Hatchet — durable asynchronous jobs
@@ -28,10 +28,10 @@ repo never imports the SDK directly:
 
 ## Task and event names
 
-- **Canonical ID**: `domain:group:job` (`documents:prontuario:render`);
+- **Canonical ID**: `domain:group:job` (`documents:report:render`);
   sub-jobs with `.`; compound words with hyphens.
 - **Events in the past tense**: they describe what happened
-  (`record_entry.signed`, `consultation.approved`) — never imperative.
+  (`report.signed`, `consultation.approved`) — never imperative.
 - **Wire format**: the engine builds the action id as `workflow:task` and
   **rejects `:` inside the name** — map `:` → `.` in a single place:
 
@@ -52,19 +52,19 @@ map for generic validation at dispatch:
 
 ```typescript
 export const TaskName = {
-  documentsProntuarioRender: 'documents:prontuario:render',
+  documentsReportRender: 'documents:report:render',
   messagingEntryNotify: 'messaging:entry:notify',
 } as const
 export type TaskName = (typeof TaskName)[keyof typeof TaskName]
 
-export const RenderProntuarioPayload = z.object({
+export const RenderReportPayload = z.object({
   tenantId: z.string().min(1),
-  recordEntryId: z.string().min(1),
+  reportId: z.string().min(1),
 })
-export type RenderProntuarioPayload = z.infer<typeof RenderProntuarioPayload>
+export type RenderReportPayload = z.infer<typeof RenderReportPayload>
 
 export const TaskPayloadSchemas: Record<TaskName, z.ZodType> = {
-  [TaskName.documentsProntuarioRender]: RenderProntuarioPayload,
+  [TaskName.documentsReportRender]: RenderReportPayload,
   [TaskName.messagingEntryNotify]: EntryNotifyPayload,
 }
 ```
@@ -77,7 +77,7 @@ here):
 2. **Immutable** — never change the meaning of a field after it is published;
    add optional fields or create a new task.
 3. **Traceable** — always carry the correlation IDs (`tenantId`,
-   `recordEntryId`…); sweep crons use an empty payload and read state from
+   `reportId`…); sweep crons use an empty payload and read state from
    the database.
 
 ## Dispatch (producer)
@@ -105,9 +105,9 @@ export async function sendJob(name: TaskName, payload: Record<string, unknown>):
 
 ```typescript
 const renderTask = hatchet.task({
-  name: toEngineTaskName(TaskName.documentsProntuarioRender),
+  name: toEngineTaskName(TaskName.documentsReportRender),
   retries: 3,
-  fn: async (input: RenderProntuarioPayload) => {
+  fn: async (input: RenderReportPayload) => {
     return renderEntryPdf({db, bucket, logger}, input)
   },
 })
@@ -147,8 +147,8 @@ others, selective replay per task). Two ways:
 ```typescript
 export function tasksForOutboxEvent(eventType: string): TaskName[] {
   switch (eventType) {
-    case 'record_entry.signed':
-      return ['documents:prontuario:render', 'messaging:entry:notify']
+    case 'report.signed':
+      return ['documents:report:render', 'messaging:entry:notify']
     default:
       return []
   }
@@ -220,7 +220,7 @@ batching is solved with a sweep cron that processes the backlog.
 
 Delivery is **at-least-once** — design the consumer to receive duplicates:
 
-- **Key derived from the payload** (`tenantId + recordEntryId`), never
+- **Key derived from the payload** (`tenantId + reportId`), never
   random.
 - **Idempotent effect** in the consumer: `INSERT ... ON CONFLICT DO NOTHING`,
   check state before acting ("already rendered? return"), mark processing
@@ -266,4 +266,4 @@ retry).
 
 _Concepts of durable execution, flow control and event design adapted from
 the `inngest-*` skills (github.com/inngest/inngest-skills, Apache-2.0) for
-Hatchet; API examples as actually used in the `protocolo` repo._
+Hatchet; API examples taken from real production use._

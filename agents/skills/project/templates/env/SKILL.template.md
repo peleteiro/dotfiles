@@ -50,7 +50,7 @@ user — never put a token/connection string under these prefixes.
 
 ## Naming
 
-- Domain variables carry the project prefix (`BIBLEBOX_`, `PROTOCOLO_`…).
+- Domain variables carry the project prefix (`FOO_`, `FOOBAR_`…).
 - Integrations keep their canonical prefix (`AWS_`, `NODE_ENV`,
   `CLOUDFLARE_`).
 

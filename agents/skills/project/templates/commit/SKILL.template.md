@@ -68,7 +68,7 @@ it** (personal default: it does); otherwise, plain type.
 - **Description**: concise, focused on the *why*, no trailing period.
 
 Examples (from Portuguese-language projects):
-- `✨ feat(engine): publicar e sincronizar metadados junto com .bbox`
+- `✨ feat(api): exigir tenant do contexto, nunca do body`
 - `🔧 fix(api): exigir tenant do contexto, nunca do body`
 - `⬆️ chore: atualizar dependências do monorepo`
 

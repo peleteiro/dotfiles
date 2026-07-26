@@ -23,8 +23,9 @@ the VM/network, ansible installs and configures what runs on it).
 ## Where it lives
 
 - **Workspace/large project**: its own `sysadmin/` repo alongside the
-  siblings (biblebox pattern), with AGENTS.md and full agent scaffolding.
-- **Monorepo**: `sysadmin/` folder at the root (protocolo pattern), with the
+  siblings (multi-repo workspace pattern), with AGENTS.md and full agent
+  scaffolding.
+- **Monorepo**: `sysadmin/` folder at the root, with the
   tasks in `sysadmin/.config/mise/tasks/` (`mise run //sysadmin:tofu:plan`).
 
 Typical layout:

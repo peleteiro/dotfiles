@@ -20,17 +20,22 @@ the copy-when table). Model repos to consult for structure:
 
 ## Step 0 — Decisions (ask if not in the request)
 
-1. **Type**: `workspace` (directory with several sibling git repos,
+1. **What is the project?** Before anything else, ask for a brief
+   explanation: what it is, who it is for, and how it will work. This
+   feeds the initial README.md and the AGENTS.md "what this is" section,
+   and informs every decision below — often answering several of them
+   (UI? jobs? DB?) before you ask.
+2. **Type**: `workspace` (directory with several sibling git repos,
    biblebox style) or `single` (one repo — simple or pnpm monorepo).
-2. **Docs and commits language** (pt-BR or en) — applies to the whole
+3. **Docs and commits language** (pt-BR or en) — applies to the whole
    project and is recorded in the AGENTS.md.
-3. **Stack**: default TypeScript (pnpm); everyday alternatives: Dart/
+4. **Stack**: default TypeScript (pnpm); everyday alternatives: Dart/
    Flutter, Go, Rust, Python (uv/ruff).
-4. **Formatter**: oxfmt + oxlint; **if there is Astro, Prettier** instead of
+5. **Formatter**: oxfmt + oxlint; **if there is Astro, Prettier** instead of
    oxfmt (no `.astro` support yet).
-5. **Infra?** If yes: `sysadmin` as a folder (single) or sibling repo
+6. **Infra?** If yes: `sysadmin` as a folder (single) or sibling repo
    (workspace) — `sysadmin` skill.
-6. **UI/frontend?** If yes: copy the `frontend` template and scaffold
+7. **UI/frontend?** If yes: copy the `frontend` template and scaffold
    components with the shadcn CLI on **Base UI** (its default since
    Jul 2026 — never pass `-b radix` in new projects). Then ask two
    sub-questions:
@@ -56,7 +61,21 @@ lefthook.yml         # pre-commit: lint staged; commit-msg: conventional
 - Tasks follow the `new-task` skill; `prepare` **idempotent**; `doctor`
   validates the environment (companion of the `prep` skill).
 - Node projects: `pnpm-workspace.yaml` if monorepo; **never** `scripts` in
-  `package.json`.
+  `package.json` (exception: `"prepare": "lefthook install"`).
+
+Gotchas learned in practice:
+
+- mise monorepo: use `monorepo_root = true` (the `experimental_` prefix is
+  deprecated); only list `config_roots` that already have a mise config.
+- pnpm blocks dependency build scripts: set `allowBuilds: {lefthook: true}`
+  in `pnpm-workspace.yaml` or `pnpm approve-builds` fails the hooks install.
+- Add dev deps unpinned via `pnpm add -D -w` (typescript, vitest, oxlint,
+  oxfmt, lefthook) so current versions resolve.
+- `vitest.config.ts` with `passWithNoTests: true` so `mise run test` is
+  green on a fresh scaffold.
+- When copying agent configs from a model repo, remember not every repo has
+  all three (`.codex`/`.antigravity` may need another source) and strip
+  `additionalDirectories`/DB URLs pointing at the model project.
 
 ## Step 2 — Agents layer (single source + mirrors)
 
@@ -117,7 +136,7 @@ folder when there is infra.
   never `.env` (`env` skill).
 - Asynchronous jobs, if any: self-hosted Hatchet (`hatchet` skill).
 
-## Step 6 — Final verification
+## Step 6 — Final verification and initial commit
 
 - [ ] `mise run check`, `test` and `doctor` pass in the freshly created repo.
 - [ ] `prepare` run twice without error (idempotency).
@@ -125,3 +144,18 @@ folder when there is infra.
       (`CLAUDE.md` symlink ok, `.claude/skills` symlink ok).
 - [ ] No secret in a versioned file (`gitleaks` via lefthook).
 - [ ] README with installation and commands.
+
+Before committing, run a **major upgrade** so the project is born fully
+current: `mise upgrade` (toolchain), `pnpm outdated -r` must come back
+empty (fresh installs usually already resolve to the latest majors), and
+re-run check/test/doctor after. Then close the scaffold with the
+**initial commit** (this is part of /project-new — the only commit that
+does not wait for a request):
+
+```bash
+git add -A && git commit -m "🎉 Initial commit"
+```
+
+The commit-msg hook must accept the optional gitmoji prefix and the
+literal "Initial commit" (see the lefthook regex in the scaffold). Push
+still waits for the user.
