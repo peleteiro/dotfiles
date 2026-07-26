@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+#MISE description="Validate the agent skill collection (frontmatter, names, paths)"
+
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../.." && pwd)"
+AGENTS_DIR="$ROOT_DIR/agents"
+ERRORS=0
+
+fail() {
+  echo "  ❌ $1"
+  ERRORS=$((ERRORS + 1))
+}
+
+echo "🔎 Checking agent skill collection..."
+
+# Every skill dir (global and template) must have a valid SKILL.md
+while IFS= read -r -d '' skill_md; do
+  dir_name="$(basename "$(dirname "$skill_md")")"
+  rel="${skill_md#"$ROOT_DIR"/}"
+
+  # Frontmatter opens on line 1 and closes
+  if [ "$(head -n 1 "$skill_md")" != "---" ]; then
+    fail "$rel: frontmatter must start on line 1"
+    continue
+  fi
+  if ! sed -n '2,40p' "$skill_md" | grep -q '^---$'; then
+    fail "$rel: frontmatter never closes"
+    continue
+  fi
+
+  # name matches the folder
+  name_value="$(sed -n '2,40p' "$skill_md" | sed -n 's/^name:[[:space:]]*//p' | head -n 1)"
+  if [ -z "$name_value" ]; then
+    fail "$rel: missing 'name' in frontmatter"
+  elif [ "$name_value" != "$dir_name" ]; then
+    fail "$rel: name '$name_value' != folder '$dir_name'"
+  fi
+
+  # description present and non-trivial
+  desc_value="$(sed -n '2,40p' "$skill_md" | sed -n 's/^description:[[:space:]]*//p' | head -n 1)"
+  if [ "${#desc_value}" -lt 20 ]; then
+    fail "$rel: description missing or too short"
+  fi
+done < <(find "$AGENTS_DIR" -name 'SKILL.md' -print0)
+
+# Skill dirs without a SKILL.md (broken skill) — templates/ itself is a container
+while IFS= read -r -d '' dir; do
+  case "$dir" in
+    */project/templates) continue ;;
+  esac
+  if [ ! -f "$dir/SKILL.md" ] && ! find "$dir" -mindepth 1 -maxdepth 1 -type d | grep -q .; then
+    fail "${dir#"$ROOT_DIR"/}: skill directory without SKILL.md"
+  fi
+done < <(find "$AGENTS_DIR/skills" -mindepth 1 -maxdepth 1 -type d -print0; find "$AGENTS_DIR/skills/project/templates" -mindepth 1 -maxdepth 1 -type d -print0)
+
+# Collection paths referenced inside skills must exist
+while IFS= read -r ref; do
+  file="${ref%%:*}"
+  path="${ref#*:}"
+  if [ ! -e "$ROOT_DIR/$path" ]; then
+    fail "${file#"$ROOT_DIR"/}: broken reference to $path"
+  fi
+done < <(grep -rHo 'agents/skills/[a-z0-9/-]*' "$AGENTS_DIR" --include='SKILL.md' | sort -u)
+
+# Global instructions file must exist (installer links it)
+if [ ! -f "$AGENTS_DIR/AGENTS.md" ]; then
+  fail "agents/AGENTS.md is missing (apply-agents links it)"
+fi
+
+if [ "$ERRORS" -gt 0 ]; then
+  echo "❌ $ERRORS problem(s) found in the skill collection"
+  exit 1
+fi
+
+echo "✅ Skill collection is valid"

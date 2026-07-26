@@ -1,0 +1,94 @@
+#!/bin/bash
+# Symlink the global AI agent collection (agents/) into the tools' global dirs:
+# skills for Claude Code, Codex, agents.md standard and Antigravity, plus the
+# global instructions file (AGENTS.md/CLAUDE.md). Idempotent: re-running only
+# updates links and removes stale ones; real files are never overwritten.
+
+set -e
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
+
+SKILLS_SRC="$DIR/agents/skills"
+INSTRUCTIONS_SRC="$DIR/agents/AGENTS.md"
+
+# Global skill dirs read by each tool (per-skill symlinks inside each)
+SKILL_DEST_DIRS=(
+  "$HOME/.claude/skills"
+  "$HOME/.codex/skills"
+  "$HOME/.agents/skills"
+  "$HOME/.gemini/config/skills"
+)
+
+# Global instruction files read by each tool
+INSTRUCTION_DESTS=(
+  "$HOME/.claude/CLAUDE.md"
+  "$HOME/.codex/AGENTS.md"
+  "$HOME/.gemini/AGENTS.md"
+)
+
+# Create/refresh a symlink; never clobber a real (non-symlink) file or dir
+link_into() {
+  local src="$1"
+  local dest="$2"
+
+  if [ -L "$dest" ]; then
+    ln -sfn "$src" "$dest"
+    echo "    → $dest (updated)"
+  elif [ -e "$dest" ]; then
+    echo "    ⚠ $dest exists and is not a symlink; skipping (managed elsewhere)"
+  else
+    ln -s "$src" "$dest"
+    echo "    → $dest"
+  fi
+}
+
+# Remove symlinks in a dest dir that point into our skills dir but whose
+# target no longer exists (skill removed from the repo)
+prune_stale() {
+  local dest_dir="$1"
+
+  find "$dest_dir" -mindepth 1 -maxdepth 1 -type l -print0 | while IFS= read -r -d '' entry; do
+    target=$(readlink "$entry")
+    case "$target" in
+      "$SKILLS_SRC"/*)
+        if [ ! -e "$entry" ]; then
+          rm "$entry"
+          echo "    ✂ $entry (stale, removed)"
+        fi
+        ;;
+    esac
+  done
+}
+
+echo "🤖 Linking global agent collection..."
+
+echo "  Skills..."
+find "$SKILLS_SRC" -mindepth 1 -maxdepth 1 -type d -print0 | while IFS= read -r -d '' skill; do
+  skill_name=$(basename "$skill")
+  echo "    $skill_name:"
+  for dest_dir in "${SKILL_DEST_DIRS[@]}"; do
+    mkdir -p "$dest_dir"
+    link_into "$skill" "$dest_dir/$skill_name"
+  done
+done
+
+echo "  Pruning stale skill links..."
+for dest_dir in "${SKILL_DEST_DIRS[@]}"; do
+  if [ -d "$dest_dir" ]; then
+    prune_stale "$dest_dir"
+  fi
+done
+
+echo "  Global instructions..."
+for dest in "${INSTRUCTION_DESTS[@]}"; do
+  mkdir -p "$(dirname "$dest")"
+  link_into "$INSTRUCTIONS_SRC" "$dest"
+done
+
+echo "✅ Agent collection linked!"
+echo ""
+echo "Skills available in:"
+echo "  • Claude Code:  ~/.claude/skills"
+echo "  • Codex CLI:    ~/.codex/skills"
+echo "  • agents.md:    ~/.agents/skills"
+echo "  • Antigravity:  ~/.gemini/config/skills"

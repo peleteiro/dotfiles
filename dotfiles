@@ -19,17 +19,19 @@ show_help() {
 Usage: $0 <command> [options]
 
 Available commands:
-  apply            Run apply:config, apply:install and apply:files (in order)
+  apply            Run apply:config, apply:install, apply:files and apply:agents (in order)
   apply:config     Configure operating system (macOS or Linux)
   apply:install    Install packages and applications
   apply:files      Copy dotfiles to home directory
+  apply:agents     Symlink global AI agent skills and instructions
   help             Show this help message
 
 Examples:
-  $0 apply            # Run everything (config + install + files)
+  $0 apply            # Run everything (config + install + files + agents)
   $0 apply:config     # Configure macOS
   $0 apply:install   # Install packages
   $0 apply:files     # Copy only dotfiles
+  $0 apply:agents    # Link only the agent collection
 
 For more information, see README.md
 EOF
@@ -53,6 +55,11 @@ run_command() {
 # Command: apply:files
 cmd_apply_files() {
   run_command "$DIR/bin/apply-files" "Copying dotfiles"
+}
+
+# Command: apply:agents
+cmd_apply_agents() {
+  run_command "$DIR/bin/apply-agents" "Linking agent collection"
 }
 
 # Command: apply:config
@@ -86,7 +93,8 @@ cmd_apply() {
   
   cmd_apply_install
   cmd_apply_files
-  
+  cmd_apply_agents
+
   echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
   echo -e "${GREEN}✅ Complete configuration finished!${NC}"
   echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
@@ -106,6 +114,9 @@ case "${1:-help}" in
     ;;
   apply:files)
     cmd_apply_files
+    ;;
+  apply:agents)
+    cmd_apply_agents
     ;;
   help|--help|-h)
     show_help

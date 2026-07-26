@@ -25,6 +25,7 @@ That's it! This will:
 - `./dotfiles apply:config` - Configure OS settings only
 - `./dotfiles apply:install` - Install packages only
 - `./dotfiles apply:files` - Copy dotfiles only
+- `./dotfiles apply:agents` - Link the global AI agent skills/instructions only
 
 ### 📚 Detailed Documentation
 
@@ -84,10 +85,11 @@ All installation commands use the `./dotfiles` script directly (no `mise` requir
 
 | Command | Description |
 |---------|-------------|
-| `./dotfiles apply` | Complete setup: config + install + files |
+| `./dotfiles apply` | Complete setup: config + install + files + agents |
 | `./dotfiles apply:config` | Configure OS settings (macOS/Linux) |
 | `./dotfiles apply:install` | Install packages and applications |
 | `./dotfiles apply:files` | Copy dotfiles to home directory |
+| `./dotfiles apply:agents` | Symlink global AI agent skills (Claude Code, Codex, agents.md, Antigravity) and instructions |
 
 ### Development Commands
 
