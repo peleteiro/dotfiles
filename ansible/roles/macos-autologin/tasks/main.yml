@@ -1,11 +1,11 @@
 ---
-# Habilita o auto-login do macOS para o usuário de serviço, de modo que a sessão GUI (e
-# com ela o LaunchAgent do Colima) suba no boot sem ninguém digitar senha.
+# Enables macOS auto-login for the service user, so that the GUI session (and with it
+# the Colima LaunchAgent) comes up at boot without anyone typing a password.
 #
-# ⚠️ Requer FileVault DESLIGADO: com FileVault o macOS ignora o auto-login (exige unlock
-#    no boot). Num macmini headless de servidor o FileVault normalmente fica off.
+# ⚠️ Requires FileVault OFF: with FileVault, macOS ignores auto-login (requires unlock
+#    at boot). On a headless server macmini, FileVault is normally off.
 
-- name: Definir o usuário de auto-login (com.apple.loginwindow)
+- name: Set the auto-login user (com.apple.loginwindow)
   community.general.osx_defaults:
     domain: /Library/Preferences/com.apple.loginwindow
     key: autoLoginUser
@@ -13,19 +13,19 @@
     value: "{{ macos_autologin_user }}"
   become: true
 
-- name: Exigir a senha de login para escrever /etc/kcpassword
+- name: Require the login password to write /etc/kcpassword
   ansible.builtin.assert:
     that:
       - macos_login_password | length > 0
     fail_msg: >-
-      Preciso da senha de login de {{ macos_autologin_user }} p/ o auto-login. Defina
-      ansible_become_password (ou macos_login_password) no group_vars/all/secrets.yml.
+      I need {{ macos_autologin_user }}'s login password for auto-login. Set
+      ansible_become_password (or macos_login_password) in group_vars/all/secrets.yml.
     quiet: true
 
-# /etc/kcpassword guarda a senha do auto-login ofuscada (XOR com uma cifra fixa do macOS).
-# Escrevemos SEMPRE o valor correto, mas de forma idempotente: decodificamos o arquivo
-# atual e só reescrevemos se diferir (evita o bug de um kcpassword antigo/errado ficar).
-- name: Garantir /etc/kcpassword com a senha correta
+# /etc/kcpassword stores the auto-login password obfuscated (XOR with a fixed macOS cipher).
+# We ALWAYS write the correct value, but idempotently: we decode the current file
+# and only rewrite it if it differs (avoids the bug of an old/wrong kcpassword lingering).
+- name: Ensure /etc/kcpassword has the correct password
   ansible.builtin.command:
     argv:
       - /usr/bin/python3
@@ -35,7 +35,7 @@
         pw = sys.argv[1]
         key = [0x7D, 0x89, 0x52, 0x23, 0xD2, 0xBC, 0xDD, 0xEA, 0xA3, 0xB9, 0x1F]
         b = list(pw.encode("utf-8"))
-        b += [0] * (12 - len(b) % 12)  # padding: próximo múltiplo de 12 (bloco extra se já for)
+        b += [0] * (12 - len(b) % 12)  # padding: next multiple of 12 (extra block if already one)
         enc = bytes(c ^ key[i % len(key)] for i, c in enumerate(b))
         p = "/etc/kcpassword"
         cur = open(p, "rb").read() if os.path.exists(p) else b""

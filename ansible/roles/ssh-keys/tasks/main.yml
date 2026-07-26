@@ -1,52 +1,52 @@
 ---
-# Provisiona o par de chaves SSH (identidade do usuário) no Mac Mini e faz o macmini
-# usar o ARQUIVO de chave em vez do agent do 1Password.
+# Provisions the SSH key pair (the user's identity) on the Mac Mini and makes the macmini
+# use the key FILE instead of the 1Password agent.
 #
-# A chave é lida do 1Password NO CONTROLLER (laptop) em runtime, via `op` (lookup pipe):
-# nada de chave em texto puro no repo. Pré-requisitos:
-#   - controller: `op` (1Password CLI) autenticado (`op signin`) e o item op:// acessível
-#   - macmini: python3 (Command Line Tools) — necessário pros módulos do Ansible
+# The key is read from 1Password ON THE CONTROLLER (laptop) at runtime, via `op` (pipe lookup):
+# no plaintext key in the repo. Prerequisites:
+#   - controller: `op` (1Password CLI) authenticated (`op signin`) and the op:// item accessible
+#   - macmini: python3 (Command Line Tools) — required for the Ansible modules
 
-- name: Ler o par de chaves do 1Password (no controller)
+- name: Read the key pair from 1Password (on the controller)
   ansible.builtin.set_fact:
     _ssh_private_key: "{{ lookup('pipe', 'op read ' ~ ((op_ssh_item ~ '/private key?ssh-format=openssh') | quote)) }}"
     _ssh_public_key: "{{ lookup('pipe', 'op read ' ~ ((op_ssh_item ~ '/public key') | quote)) }}"
-  no_log: true # a private key nunca aparece no output
+  no_log: true # the private key never appears in the output
 
-- name: Validar leitura das chaves do 1Password
+- name: Validate reading the keys from 1Password
   ansible.builtin.assert:
     that:
       - _ssh_private_key | length > 100
       - _ssh_public_key.startswith('ssh-')
     fail_msg: >-
-      Não consegui ler a chave do 1Password ({{ op_ssh_item }}). Confira se o `op`
-      está autenticado (op signin) e se o item está acessível no controller.
-    quiet: true # não imprime as condições (evita vazar valor)
+      Could not read the key from 1Password ({{ op_ssh_item }}). Check that `op`
+      is authenticated (op signin) and the item is accessible on the controller.
+    quiet: true # doesn't print the conditions (avoids leaking the value)
 
-- name: Garantir diretório ~/.ssh (0700)
+- name: Ensure ~/.ssh directory (0700)
   ansible.builtin.file:
     path: "~/.ssh"
     state: directory
     mode: "0700"
 
-- name: Instalar a private key (0600)
+- name: Install the private key (0600)
   ansible.builtin.copy:
     dest: "~/.ssh/{{ ssh_key_filename }}"
     content: "{{ _ssh_private_key }}\n"
     mode: "0600"
   no_log: true
 
-- name: Instalar a public key (0644)
+- name: Install the public key (0644)
   ansible.builtin.copy:
     dest: "~/.ssh/{{ ssh_key_filename }}.pub"
     content: "{{ _ssh_public_key }}\n"
     mode: "0644"
 
-# O dotfiles instala ~/.ssh/config com `Host * → IdentityAgent <1Password>` (headless,
-# sem GUI, o agent não fica disponível). Prependamos um bloco `Host *` que desliga o
-# agent e força o arquivo de chave. No ssh_config vale o PRIMEIRO valor de cada opção,
-# então `IdentityAgent none` (aqui, no topo) vence o IdentityAgent do dotfiles abaixo.
-- name: Sobrepor ~/.ssh/config — usar arquivo de chave, não o agent do 1Password
+# The dotfiles install ~/.ssh/config with `Host * → IdentityAgent <1Password>` (headless,
+# no GUI, the agent isn't available). We prepend a `Host *` block that turns off the
+# agent and forces the key file. In ssh_config the FIRST value of each option wins,
+# so `IdentityAgent none` (here, at the top) beats the dotfiles' IdentityAgent below.
+- name: Override ~/.ssh/config — use the key file, not the 1Password agent
   ansible.builtin.blockinfile:
     path: "~/.ssh/config"
     create: true

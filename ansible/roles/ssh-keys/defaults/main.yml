@@ -1,4 +1,4 @@
 ---
-# Defaults da role (sobrescritos por group_vars/macmini.yml quando presentes).
+# Role defaults (overridden by group_vars/macmini.yml when present).
 op_ssh_item: "op://Employee/Peleteiro SSH Key"
 ssh_key_filename: "id_ed25519"

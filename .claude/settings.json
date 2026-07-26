@@ -35,5 +35,5 @@
     "read": true,
     "edit": true
   },
-  "customInstructions": "Use exclusivamente pnpm. Para manipulação de arquivos e busca, NÃO USE sed, find ou grep. Use as alternativas modernas em Rust: 'fd' (em vez de find), 'rg' (ripgrep, em vez de grep) e 'sd' (em vez de sed). Se precisar listar arquivos respeitando o .gitignore, use 'fd'. Para buscas rápidas no conteúdo, use 'rg'."
+  "customInstructions": "Use pnpm exclusively. For file manipulation and search, DO NOT USE sed, find or grep. Use the modern Rust alternatives: 'fd' (instead of find), 'rg' (ripgrep, instead of grep) and 'sd' (instead of sed). If you need to list files respecting the .gitignore, use 'fd'. For fast content searches, use 'rg'."
 }

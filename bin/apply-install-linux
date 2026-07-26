@@ -149,7 +149,7 @@ if uname -a | grep -q Ubuntu; then
     fi
   fi
 
-  # Docker (repositório oficial)
+  # Docker (official repository)
   if ! command -v docker > /dev/null 2>&1; then
     curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
@@ -163,13 +163,13 @@ if uname -a | grep -q Ubuntu; then
     echo "✅ Docker already installed"
   fi
   
-  # Docker completions (Bash e Zsh)
+  # Docker completions (Bash and Zsh)
   if command -v docker > /dev/null 2>&1; then
     # Bash completion
     if [ ! -f /etc/bash_completion.d/docker ]; then
       sudo curl -L https://raw.githubusercontent.com/docker/cli/master/contrib/completion/bash/docker -o /etc/bash_completion.d/docker
     fi
-    # Zsh completion (será carregado automaticamente se docker completion zsh estiver disponível)
+    # Zsh completion (will be loaded automatically if docker completion zsh is available)
     if [ -f ~/.zshrc ] && ! grep -q "docker completion zsh" ~/.zshrc; then
       {
         echo ""
@@ -181,22 +181,22 @@ if uname -a | grep -q Ubuntu; then
     fi
   fi
 
-  # Android-SDK (só instala se não estiver instalado)
+  # Android-SDK (only installs if not already installed)
   ANDROID_SDK_DIR="$HOME/.local/share/android"
   if [ ! -d "$ANDROID_SDK_DIR/cmdline-tools" ] || [ ! -f "$ANDROID_SDK_DIR/cmdline-tools/latest/bin/sdkmanager" ]; then
     echo "📱 Installing Android SDK..."
     
-    # Instalar OpenJDK se não estiver instalado
+    # Install OpenJDK if not already installed
     if ! dpkg -l | grep -q "^ii.*openjdk-8-jdk"; then
       sudo apt install -y openjdk-8-jdk
     fi
     
-    # Configurar asdf se estiver instalado
+    # Configure asdf if installed
     if command -v asdf > /dev/null 2>&1; then
       asdf global java system
     fi
     
-    # Baixar e instalar command line tools
+    # Download and install command line tools
     ANDROID_TOOLS_URL="https://dl.google.com/android/repository/commandlinetools-linux-${ANDROID_CMD_TOOLS_VERSION}_latest.zip"
     if validate_url "$ANDROID_TOOLS_URL" "Android command line tools"; then
       if safe_download "$ANDROID_TOOLS_URL" /tmp/commandlinetools.zip "Android command line tools"; then
@@ -334,7 +334,7 @@ if uname -a | grep -q Ubuntu; then
       fi
     fi
 
-    # Visual Studio Code (repositório oficial Microsoft)
+    # Visual Studio Code (official Microsoft repository)
     if ! command -v code > /dev/null 2>&1; then
       curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | sudo gpg --dearmor -o /usr/share/keyrings/microsoft-archive-keyring.gpg
       echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/microsoft-archive-keyring.gpg] https://packages.microsoft.com/repos/code stable main" | sudo tee /etc/apt/sources.list.d/vscode.list > /dev/null
@@ -342,7 +342,7 @@ if uname -a | grep -q Ubuntu; then
       sudo apt install -y code
     fi
 
-    # Insomnia (repositório oficial)
+    # Insomnia (official repository)
     if ! command -v insomnia > /dev/null 2>&1; then
       echo "deb https://download.konghq.com/insomnia-ubuntu/ default all" | sudo tee /etc/apt/sources.list.d/insomnia.list > /dev/null
       curl -sSL https://download.konghq.com/insomnia-ubuntu/KEY.gpg | sudo apt-key add -
@@ -350,12 +350,12 @@ if uname -a | grep -q Ubuntu; then
       sudo apt install -y insomnia
     fi
 
-    # Flatpak (para Slack e outras aplicações)
+    # Flatpak (for Slack and other applications)
     if ! command -v flatpak > /dev/null 2>&1; then
       sudo apt install -y flatpak
     fi
     
-    # Adicionar repositório Flathub se não existir
+    # Add the Flathub repository if it doesn't exist
     if ! flatpak remote-list | grep -q flathub; then
       sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
     fi
@@ -365,15 +365,15 @@ if uname -a | grep -q Ubuntu; then
       sudo flatpak install -y flathub com.slack.Slack
     fi
 
-    # VLC (via apt - já está nos repositórios)
+    # VLC (via apt - already in the repositories)
     sudo apt install -y vlc
 
     # Caffeine Indicator (via apt)
     sudo apt install -y caffeine-indicator
 
-    # IntelliJ IDEA Ultimate (repositório JetBrains)
+    # IntelliJ IDEA Ultimate (JetBrains repository)
     if ! command -v idea > /dev/null 2>&1; then
-      # Adicionar repositório JetBrains
+      # Add the JetBrains repository
       wget -qO - https://jetbrains-ppa.s3-website.eu-central-1.amazonaws.com/jetbrains-archive.key | sudo apt-key add -
       echo "deb https://jetbrains-ppa.s3-website.eu-central-1.amazonaws.com any main" | sudo tee /etc/apt/sources.list.d/jetbrains-ppa.list > /dev/null
       sudo apt update

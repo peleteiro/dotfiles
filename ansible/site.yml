@@ -1,10 +1,10 @@
 ---
-# Playbook mestre — provisiona TODAS as máquinas.
+# Master playbook — provisions ALL machines.
 #
-#   mise run ansible                      # todas as máquinas
-#   mise run ansible -- --limit macmini   # só uma máquina (ou --limit homeassistant)
+#   mise run ansible                      # all machines
+#   mise run ansible -- --limit macmini   # a single machine (or --limit homeassistant)
 #   mise run ansible -- --check           # dry-run
 #
-# Cada máquina tem seu próprio playbook (targeta o próprio grupo e lista suas roles).
-# Adicionar uma máquina = criar o playbook, importá-lo aqui e cadastrá-la no inventory.
+# Each machine has its own playbook (targets its own group and lists its roles).
+# Adding a machine = create the playbook, import it here and register it in the inventory.
 - import_playbook: macmini.yml

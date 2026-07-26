@@ -1,8 +1,8 @@
 ---
-# Ferramentas base para os scripts do projeto (dotfiles home/.bin), via Homebrew.
-# (Para um host Linux, adicione um tasks/Debian.yml com a lista apt equivalente.)
+# Base tools for the project's scripts (dotfiles home/.bin), via Homebrew.
+# (For a Linux host, add a tasks/Debian.yml with the equivalent apt list.)
 prepare_brew_packages:
-  - bash # macOS traz bash 3.2 (2007); os scripts usam recursos do bash 4+/5
+  - bash # macOS ships bash 3.2 (2007); the scripts use bash 4+/5 features
   - curl
   - ripgrep # rg
   - fd # fd

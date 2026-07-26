@@ -1,27 +1,27 @@
 ---
-# Pacotes Homebrew do runtime de containers headless (macOS).
+# Homebrew packages for the headless container runtime (macOS).
 homebrew_docker_packages:
-  - colima # VM Lima + daemon do Docker, roda headless (sem GUI, ao contrário do Desktop)
-  - docker # CLI `docker` (formula, não o cask do Docker Desktop)
-  - docker-compose # plugin `docker compose`
-  - docker-buildx # plugin `docker buildx`
+  - colima # Lima VM + Docker daemon, runs headless (no GUI, unlike Desktop)
+  - docker # `docker` CLI (formula, not the Docker Desktop cask)
+  - docker-compose # `docker compose` plugin
+  - docker-buildx # `docker buildx` plugin
 
-# Specs da VM do Colima. cpu/memory/disk são reconciliados a cada run (mudança reinicia
-# a VM). disk só CRESCE — o Colima não encolhe disco; reduzir o valor não tem efeito.
+# Colima VM specs. cpu/memory/disk are reconciled on every run (a change restarts
+# the VM). disk only GROWS — Colima doesn't shrink disks; lowering the value has no effect.
 colima_cpu: 2
 colima_memory: 4 # GB
 colima_disk: 60 # GB
 
-# Rede da VM. address=true dá à VM um IP próprio (vzNAT no Apple Silicon, sem sudo).
-# preferredRoute=true é obrigatório junto: sem ele o default route continua saindo pelo
-# gvproxy (192.168.5.x), que recusa tráfego para a LAN — containers não alcançam
-# aparelhos da rede (NVR, câmeras) mesmo com address ligado.
+# VM networking. address=true gives the VM its own IP (vzNAT on Apple Silicon, no sudo).
+# preferredRoute=true is mandatory alongside it: without it the default route keeps going
+# through gvproxy (192.168.5.x), which refuses LAN traffic — containers can't reach
+# devices on the network (NVR, cameras) even with address enabled.
 colima_network_address: false
 colima_network_preferred_route: false
 
-# Aceleração da VM (só Apple Silicon). rosetta=true roda containers amd64 quase em
-# velocidade nativa (em vez de qemu user-mode). nested_virtualization exige M3+.
-# GPU NÃO é passável pra VM Linux (limitação do Virtualization.framework da Apple) —
-# jobs que precisem de Metal/VideoToolbox devem rodar no host, fora do container.
+# VM acceleration (Apple Silicon only). rosetta=true runs amd64 containers at near-native
+# speed (instead of qemu user-mode). nested_virtualization requires M3+.
+# The GPU is NOT passthrough-able to the Linux VM (Apple Virtualization.framework
+# limitation) — jobs needing Metal/VideoToolbox must run on the host, outside the container.
 colima_rosetta: false
 colima_nested_virtualization: false

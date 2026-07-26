@@ -1,7 +1,7 @@
 ---
-# `colima restart` relê o ~/.colima/default/colima.yaml — cpu/memória/rede só passam
-# a valer depois dele. Disparado quando a task de reconciliação muda a config.
-- name: Reiniciar Colima
+# `colima restart` re-reads ~/.colima/default/colima.yaml — cpu/memory/network only take
+# effect after it. Triggered when the reconciliation task changes the config.
+- name: Restart Colima
   ansible.builtin.command:
     cmd: colima restart
   environment:

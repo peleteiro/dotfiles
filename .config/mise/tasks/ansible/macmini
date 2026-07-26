@@ -1,11 +1,11 @@
 #!/bin/bash
-#MISE description="Provisiona só o Mac Mini (ansible/macmini.yml)"
-# Uso:
-#   mise run ansible:macmini             # aplica
+#MISE description="Provisions only the Mac Mini (ansible/macmini.yml)"
+# Usage:
+#   mise run ansible:macmini             # applies
 #   mise run ansible:macmini -- --check  # dry-run
 #
-# Valida o secret do macmini antes de rodar. Requer `op` autenticado no controller
-# (a role ssh-keys lê a chave do 1Password).
+# Validates the macmini secret before running. Requires an authenticated `op` on the
+# controller (the ssh-keys role reads the key from 1Password).
 set -euo pipefail
 
 cd "$MISE_CONFIG_ROOT/ansible"

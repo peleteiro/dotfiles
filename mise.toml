@@ -8,9 +8,9 @@ shellcheck = "latest"
 'aqua:anthropics/claude-code' = '2'
 gh = '2'
 
-# Provisionamento do Mac Mini (ansible/) — só ansible-core: os playbooks usam módulos
-# builtin, então não precisa do bundle completo de collections. O `uv` é o backend que
-# o mise usa pra instalar o pacote pipx (evita depender de pipx no sistema).
+# Mac Mini provisioning (ansible/) — ansible-core only: the playbooks use builtin
+# modules, so the full collections bundle isn't needed. `uv` is the backend that
+# mise uses to install the pipx package (avoids depending on a system pipx).
 uv = 'latest'
 'pipx:ansible-core' = 'latest'
 

@@ -1,22 +1,22 @@
 #!/usr/bin/env bash
-# PostToolUse hook: roda shellcheck SOMENTE no arquivo editado.
-# Espelha a etapa de shellcheck do `mise run lint`, mas por-arquivo — feedback
-# rápido a cada edição. O lint completo continua rodando via `mise run lint`.
+# PostToolUse hook: runs shellcheck ONLY on the edited file.
+# Mirrors the shellcheck step of `mise run lint`, but per-file — fast feedback
+# on every edit. The full lint still runs via `mise run lint`.
 #
-# Recebe o JSON do PostToolUse no stdin. Em falha do shellcheck, sai com 2 para
-# devolver o erro ao modelo (que corrige na mesma volta). O shellcheck não tem
-# auto-fix, então aqui só apontamos os problemas.
+# Receives the PostToolUse JSON on stdin. On a shellcheck failure, exits with 2 to
+# return the error to the model (which fixes it in the same turn). shellcheck has no
+# auto-fix, so here we only point out the problems.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-cd "$ROOT" # para o shellcheck achar o .shellcheckrc
+cd "$ROOT" # so shellcheck finds the .shellcheckrc
 
 file=$(jq -r '.tool_input.file_path // empty' 2>/dev/null || true)
 [ -n "$file" ] || exit 0
 [ -f "$file" ] || exit 0
 
-# Detecta shell script: por extensão OU pelo `file` (muitos scripts do repo,
-# como `dotfiles` e as tasks do mise, não têm extensão).
+# Detects shell scripts: by extension OR via `file` (many scripts in the repo,
+# like `dotfiles` and the mise tasks, have no extension).
 is_shell=false
 case "$file" in
   *.sh | *.bash | *.zsh) is_shell=true ;;
@@ -31,7 +31,7 @@ esac
 command -v shellcheck >/dev/null 2>&1 || exit 0
 
 if ! out=$(shellcheck "$file" 2>&1); then
-  echo "shellcheck encontrou problemas em $file:" >&2
+  echo "shellcheck found problems in $file:" >&2
   echo "$out" >&2
   exit 2
 fi

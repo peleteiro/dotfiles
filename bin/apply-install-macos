@@ -266,12 +266,12 @@ echo "💿 XCode" && mas install 497799835
 echo "💿 xScope 4" && mas install 889428659
 echo "💿 Yubico Authenticator" && mas install 1497506650
 
-# Android-SDK (só instala se não estiver instalado)
+# Android-SDK (only installs if not already installed)
 ANDROID_SDK_DIR="$HOME/.local/share/android"
 if [ ! -d "$ANDROID_SDK_DIR/cmdline-tools" ] || [ ! -f "$ANDROID_SDK_DIR/cmdline-tools/latest/bin/sdkmanager" ]; then
   echo "📱 Installing Android SDK..."
   
-  # Instalar OpenJDK se não estiver instalado
+  # Install OpenJDK if not already installed
   if ! brew list openjdk > /dev/null 2>&1; then
     brew install openjdk
   fi
@@ -281,7 +281,7 @@ if [ ! -d "$ANDROID_SDK_DIR/cmdline-tools" ] || [ ! -f "$ANDROID_SDK_DIR/cmdline
     sudo ln -sfn "$BREW_PREFIX/opt/openjdk/libexec/openjdk.jdk" /Library/Java/JavaVirtualMachines/openjdk.jdk
   fi
   
-  # Baixar e instalar command line tools
+  # Download and install command line tools
   ANDROID_TOOLS_URL="https://dl.google.com/android/repository/commandlinetools-mac-${ANDROID_CMD_TOOLS_VERSION}_latest.zip"
   if validate_url "$ANDROID_TOOLS_URL" "Android command line tools"; then
     if safe_download "$ANDROID_TOOLS_URL" /tmp/commandlinetools.zip "Android command line tools"; then

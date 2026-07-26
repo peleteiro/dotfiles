@@ -26,14 +26,14 @@ home/.bash_private
 home/.zshrc_private
 home/.shared_shell_config_private
 
-# AI agents — overrides locais (não versionados)
+# AI agents — local overrides (not versioned)
 .claude/settings.local.json
 .codex/config.local.toml
 
 # Ansible
 ansible/*.retry
 ansible/**/*.retry
-# Segredos locais (senhas) — NUNCA versionar; o .example fica versionado
+# Local secrets (passwords) — NEVER version; the .example stays versioned
 ansible/**/secrets.yml
 
 # Test files

@@ -1,50 +1,50 @@
-# Execpolicy (Starlark) — deny de comando, equivalente ao `deny` do .claude/settings.json.
-# O Codex escaneia .codex/rules/*.rules no startup (só quando o projeto é trusted).
-# decision="forbidden" bloqueia SEM prompt. Comandos compostos são avaliados por parte
-# (`git add . && rm -rf /` é barrado pelo `rm`), então não dá pra contrabandear.
+# Execpolicy (Starlark) — command denies, equivalent to the `deny` in .claude/settings.json.
+# Codex scans .codex/rules/*.rules at startup (only when the project is trusted).
+# decision="forbidden" blocks WITHOUT a prompt. Compound commands are evaluated part by
+# part (`git add . && rm -rf /` is stopped by the `rm`), so nothing can be smuggled in.
 #
-# Teste com: codex execpolicy check --rules .codex/rules/default.rules -- <comando>
+# Test with: codex execpolicy check --rules .codex/rules/default.rules -- <command>
 
 # ── Git ──────────────────────────────────────────────────────────────────────
-# Git (inclusive `push` normal) é liberado; só o FORCE PUSH e o `--no-verify` são
-# bloqueados (reescrevem histórico / burlam hooks). Regra de comportamento: o push só
-# deve ser feito quando o usuário pedir — ver .agents/rules/005-git-push.md.
+# Git (including normal `push`) is allowed; only FORCE PUSH and `--no-verify` are
+# blocked (they rewrite history / bypass hooks). Behavioral rule: pushing should only
+# happen when the user asks — see .agents/rules/005-git-push.md.
 prefix_rule(
     pattern = ["git"],
     decision = "allow",
-    justification = "Comandos Git (inclusive push normal) são autorizados neste projeto.",
+    justification = "Git commands (including normal push) are authorized in this project.",
 )
 
 prefix_rule(
     pattern = ["git", "push", "--force"],
     decision = "forbidden",
-    justification = "Force push reescreve o histórico remoto.",
+    justification = "Force push rewrites the remote history.",
 )
 
 prefix_rule(
     pattern = ["git", "push", "-f"],
     decision = "forbidden",
-    justification = "Force push reescreve o histórico remoto.",
+    justification = "Force push rewrites the remote history.",
 )
 
 prefix_rule(
     pattern = ["git", "push", "--force-with-lease"],
     decision = "forbidden",
-    justification = "Force push reescreve o histórico remoto.",
+    justification = "Force push rewrites the remote history.",
 )
 
 prefix_rule(
     pattern = ["git", "commit", "--no-verify"],
     decision = "forbidden",
-    justification = "Commits devem executar os hooks de validação.",
+    justification = "Commits must run the validation hooks.",
 )
 
-# ── Sistema ──────────────────────────────────────────────────────────────────
+# ── System ───────────────────────────────────────────────────────────────────
 # deny: Bash(rm -rf /)
 prefix_rule(
     pattern = ["rm", "-rf", "/"],
     decision = "forbidden",
-    justification = "rm -rf / apaga o sistema. Delete caminhos específicos dentro do repo.",
+    justification = "rm -rf / wipes the system. Delete specific paths inside the repo.",
     match = ["rm -rf /"],
     not_match = ["rm -rf ./dist"],
 )
@@ -53,17 +53,17 @@ prefix_rule(
 prefix_rule(
     pattern = ["rm", "-rf", ".git"],
     decision = "forbidden",
-    justification = "rm -rf .git destrói o histórico do repositório.",
+    justification = "rm -rf .git destroys the repository history.",
     match = ["rm -rf .git"],
     not_match = ["rm -rf ./tmp"],
 )
 
-# ── Docker (usado só nos testes de Linux) ────────────────────────────────────
+# ── Docker (used only in the Linux tests) ────────────────────────────────────
 # deny: Bash(docker system prune)
 prefix_rule(
     pattern = ["docker", "system", "prune"],
     decision = "forbidden",
-    justification = "docker system prune apaga imagens/volumes/cache de TODO o Docker local.",
+    justification = "docker system prune wipes images/volumes/cache of the ENTIRE local Docker.",
     match = ["docker system prune", "docker system prune -a --volumes"],
     not_match = ["docker system df"],
 )

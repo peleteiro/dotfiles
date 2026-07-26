@@ -1,25 +1,25 @@
 #!/usr/bin/env bash
-# PostToolUse hook do Codex — espelha o .claude/hooks/lint.sh: roda shellcheck
-# nos arquivos que o apply_patch tocou. Feedback rápido por-arquivo; o lint
-# completo continua no `mise run lint`.
+# Codex PostToolUse hook — mirrors .claude/hooks/lint.sh: runs shellcheck
+# on the files apply_patch touched. Fast per-file feedback; the full lint
+# stays in `mise run lint`.
 #
-# Registrado em .codex/config.toml: [[hooks.PostToolUse]] matcher = "apply_patch".
-# Recebe o JSON do PostToolUse no stdin. O apply_patch expõe o patch em
-# `.tool_input.command` (envelope com linhas `*** Update/Add/Move File: <path>`);
-# extraímos os paths dali. Em erro de lint, sai com 2 e escreve no stderr (o
-# Codex devolve isso ao modelo, que corrige na mesma volta).
+# Registered in .codex/config.toml: [[hooks.PostToolUse]] matcher = "apply_patch".
+# Receives the PostToolUse JSON on stdin. apply_patch exposes the patch in
+# `.tool_input.command` (an envelope with `*** Update/Add/Move File: <path>` lines);
+# we extract the paths from there. On a lint error, exits with 2 and writes to stderr
+# (Codex returns that to the model, which fixes it in the same turn).
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-cd "$ROOT" # para o shellcheck achar o .shellcheckrc
+cd "$ROOT" # so shellcheck finds the .shellcheckrc
 
 input="$(cat)"
-# `|| true`: input malformado (jq falha) nunca derruba o hook — apenas não linta.
+# `|| true`: malformed input (jq fails) never takes the hook down — it just doesn't lint.
 command_str="$(printf '%s' "$input" | jq -r '.tool_input.command // empty' 2>/dev/null || true)"
 [ -n "$command_str" ] || exit 0
 
-# Paths tocados pelo patch (Update/Add/Move File). Move usa "File: origem -> destino";
-# pegamos o destino (após " -> ") quando houver.
+# Paths touched by the patch (Update/Add/Move File). Move uses "File: source -> destination";
+# we take the destination (after " -> ") when present.
 mapfile -t files < <(printf '%s\n' "$command_str" \
   | grep -oE '^\*\*\* (Update|Add|Move) File: .+$' \
   | sed -E 's/^\*\*\* (Update|Add|Move) File: //; s/^.* -> //')
@@ -30,8 +30,8 @@ status=0
 for file in "${files[@]}"; do
   [ -f "$file" ] || continue
 
-  # Detecta shell script: por extensão OU pelo `file` (muitos scripts do repo
-  # não têm extensão — `dotfiles`, tasks do mise).
+  # Detects shell scripts: by extension OR via `file` (many scripts in the repo
+  # have no extension — `dotfiles`, mise tasks).
   is_shell=false
   case "$file" in
     *.sh | *.bash | *.zsh) is_shell=true ;;
@@ -44,7 +44,7 @@ for file in "${files[@]}"; do
   [ "$is_shell" = true ] || continue
 
   if ! out=$(shellcheck "$file" 2>&1); then
-    echo "shellcheck encontrou problemas em $file:" >&2
+    echo "shellcheck found problems in $file:" >&2
     echo "$out" >&2
     status=2
   fi

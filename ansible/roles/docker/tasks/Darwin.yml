@@ -1,24 +1,24 @@
 ---
-# Docker headless no macOS via Colima. Docker Desktop precisa de sessão GUI e não é
-# script-friendly; Colima roda como LaunchAgent na sessão auto-logada (ver role
-# macos-autologin). Homebrew recusa rodar como root → estas tasks NÃO usam become.
+# Headless Docker on macOS via Colima. Docker Desktop needs a GUI session and isn't
+# script-friendly; Colima runs as a LaunchAgent in the auto-logged-in session (see the
+# macos-autologin role). Homebrew refuses to run as root → these tasks do NOT use become.
 
-- name: Detectar arquitetura (prefixo do brew e tipo de VM)
+- name: Detect architecture (brew prefix and VM type)
   ansible.builtin.set_fact:
-    # Apple Silicon: brew em /opt/homebrew e VM via Virtualization.framework (vz, rápido).
-    # Intel: brew em /usr/local e VM via qemu.
+    # Apple Silicon: brew in /opt/homebrew and VM via Virtualization.framework (vz, fast).
+    # Intel: brew in /usr/local and VM via qemu.
     _brew_prefix: "{{ '/opt/homebrew' if ansible_facts['architecture'] == 'arm64' else '/usr/local' }}"
     _colima_vm_type: "{{ 'vz' if ansible_facts['architecture'] == 'arm64' else 'qemu' }}"
 
-# ── Remover Docker Desktop (conflita com o socket/CLI do Colima) ────────────────
-# O uninstaller nativo (roda com become) remove o app e os arquivos de sistema. Não
-# usamos `brew uninstall --cask` porque ele chama `sudo` interno sem tty e falha.
-- name: Docker Desktop está instalado?
+# ── Remove Docker Desktop (conflicts with Colima's socket/CLI) ──────────────────
+# The native uninstaller (runs with become) removes the app and the system files. We
+# don't use `brew uninstall --cask` because it calls an internal `sudo` without a tty and fails.
+- name: Is Docker Desktop installed?
   ansible.builtin.stat:
     path: /Applications/Docker.app
   register: _docker_desktop
 
-- name: Rodar o uninstaller nativo do Docker Desktop (se presente)
+- name: Run the native Docker Desktop uninstaller (if present)
   ansible.builtin.command:
     cmd: /Applications/Docker.app/Contents/MacOS/uninstall
   become: true
@@ -27,23 +27,23 @@
   changed_when: _dd_uninstall.rc == 0
   failed_when: false
 
-- name: Remover Docker.app residual
+- name: Remove leftover Docker.app
   ansible.builtin.file:
     path: /Applications/Docker.app
     state: absent
   become: true
   when: _docker_desktop.stat.exists
 
-# ── Instalar/atualizar Colima + Docker CLI ──────────────────────────────────────
-- name: Instalar/atualizar Colima + Docker (Homebrew)
+# ── Install/update Colima + Docker CLI ──────────────────────────────────────────
+- name: Install/update Colima + Docker (Homebrew)
   community.general.homebrew:
     name: "{{ homebrew_docker_packages }}"
-    state: latest # "atualizado": faz upgrade quando há versão nova
+    state: latest # "updated": upgrades when there's a new version
     update_homebrew: true
 
-# Resquício do Docker Desktop: ~/.docker/config.json aponta credsStore="desktop", cujo
-# helper (docker-credential-desktop) some com o Desktop — quebra `docker pull/run`.
-- name: Remover credsStore "desktop" órfão do ~/.docker/config.json
+# Docker Desktop leftover: ~/.docker/config.json points credsStore="desktop", whose
+# helper (docker-credential-desktop) disappears with Desktop — breaks `docker pull/run`.
+- name: Remove orphaned "desktop" credsStore from ~/.docker/config.json
   ansible.builtin.command:
     argv:
       - /usr/bin/python3
@@ -68,12 +68,12 @@
   register: _docker_cfg
   changed_when: "'changed' in _docker_cfg.stdout"
 
-# ── Subir a VM e garantir autostart + funcionamento ─────────────────────────────
-- name: Colima + Docker (com o brew no PATH)
+# ── Bring up the VM and ensure autostart + health ───────────────────────────────
+- name: Colima + Docker (with brew on the PATH)
   environment:
     PATH: "{{ _brew_prefix }}/bin:/usr/bin:/bin:/usr/sbin:/sbin"
   block:
-    - name: Criar a VM do Colima com as specs (só na 1ª vez)
+    - name: Create the Colima VM with the specs (first time only)
       ansible.builtin.command:
         cmd: >-
           colima start
@@ -84,11 +84,11 @@
           {{ '--network-address' if colima_network_address else '' }}
         creates: "{{ ansible_facts['env']['HOME'] }}/.colima/default/colima.yaml"
 
-    # Reconcilia a config persistente (~/.colima/default/colima.yaml) nas runs
-    # seguintes — o `creates:` acima faz o start só valer na criação. preferredRoute
-    # não tem flag de CLI, então é editado direto no yaml. As chaves aninhadas de
-    # `network:` têm indentação fixa de 2 espaços (arquivo gerado pelo Colima).
-    - name: Aplicar specs e rede na config persistente do Colima
+    # Reconciles the persistent config (~/.colima/default/colima.yaml) on subsequent
+    # runs — the `creates:` above makes the start apply only at creation. preferredRoute
+    # has no CLI flag, so it's edited directly in the yaml. The nested keys under
+    # `network:` have a fixed 2-space indentation (file generated by Colima).
+    - name: Apply specs and network to Colima's persistent config
       ansible.builtin.lineinfile:
         path: "{{ ansible_facts['env']['HOME'] }}/.colima/default/colima.yaml"
         regexp: "{{ item.regexp }}"
@@ -101,30 +101,30 @@
         - { regexp: '^  preferredRoute:', line: "  preferredRoute: {{ colima_network_preferred_route | to_json }}" }
         - { regexp: '^rosetta:', line: "rosetta: {{ colima_rosetta | to_json }}" }
         - { regexp: '^nestedVirtualization:', line: "nestedVirtualization: {{ colima_nested_virtualization | to_json }}" }
-      notify: Reiniciar Colima
+      notify: Restart Colima
 
-    # brew services start = `launchctl bootstrap`, que falha (erro 5) se o agent já está
-    # carregado. Checamos antes p/ ser idempotente.
-    - name: Colima já registrado no launchd (autostart)?
+    # brew services start = `launchctl bootstrap`, which fails (error 5) if the agent is
+    # already loaded. We check first to be idempotent.
+    - name: Is Colima already registered in launchd (autostart)?
       ansible.builtin.command:
         cmd: "launchctl print gui/{{ ansible_facts['user_uid'] }}/homebrew.mxcl.colima"
       register: _colima_agent
       changed_when: false
       failed_when: false
 
-    - name: Habilitar autostart do Colima no boot (LaunchAgent via brew services)
+    - name: Enable Colima autostart at boot (LaunchAgent via brew services)
       ansible.builtin.command:
         cmd: brew services start colima
       when: _colima_agent.rc != 0
       register: _brew_services
       changed_when: "'Successfully started' in _brew_services.stdout"
 
-    # Handlers só rodariam no fim do play; forçamos aqui pra que a verificação abaixo
-    # já teste a VM com a config final (specs/rede aplicadas).
-    - name: Aplicar restart pendente do Colima antes de verificar
+    # Handlers would only run at the end of the play; we force them here so the check
+    # below already tests the VM with the final config (specs/network applied).
+    - name: Apply pending Colima restart before verifying
       ansible.builtin.meta: flush_handlers
 
-    - name: Verificar se o Docker está respondendo
+    - name: Verify that Docker is responding
       ansible.builtin.command:
         cmd: docker info
       register: _docker_info

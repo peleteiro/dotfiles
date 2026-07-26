@@ -1,22 +1,22 @@
 ---
-# Vars específicas de macOS (grupo [darwin]). As comuns ficam em group_vars/all.yml.
+# macOS-specific vars ([darwin] group). Shared ones live in group_vars/all.yml.
 #
-# Specs da VM do Colima — ajuste às specs REAIS do macmini (não exceda a RAM física;
-# deixe folga pro macOS). Sobrescrevem os defaults da role docker.
-# macmini: 10 CPUs / 16 GB, servidor headless dedicado — TUDO roda em containers via
-# Colima. vCPUs são compartilhadas (pode dar todas); memória fica com o máximo, sobrando
-# ~2 GB pro macOS base (menos que isso arrisca swap/jetsam no host e derruba a VM junto).
+# Colima VM specs — adjust to the macmini's REAL specs (don't exceed physical RAM;
+# leave headroom for macOS). They override the docker role defaults.
+# macmini: 10 CPUs / 16 GB, dedicated headless server — EVERYTHING runs in containers via
+# Colima. vCPUs are shared (all of them can be given); memory gets the maximum, leaving
+# ~2 GB for base macOS (less than that risks swap/jetsam on the host and takes the VM down with it).
 colima_cpu: 10
 colima_memory: 14 # GB
-# Disco é sparse (só ocupa o que for usado) e o Colima cresce no restart (nunca encolhe).
-# Host tem 228 GB; 100 GB de teto deixa folga mesmo com a VM cheia.
+# Disk is sparse (only uses what's consumed) and Colima grows it on restart (never shrinks).
+# Host has 228 GB; a 100 GB cap leaves headroom even with the VM full.
 colima_disk: 100 # GB
 
-# Containers precisam alcançar a LAN (NVR/câmeras em 192.168.1.x) — ver comentário
-# nos defaults da role docker: as DUAS flags são necessárias.
+# Containers need to reach the LAN (NVR/cameras on 192.168.1.x) — see the comment
+# in the docker role defaults: BOTH flags are required.
 colima_network_address: true
 colima_network_preferred_route: true
 
-# macmini é M4: Rosetta (containers amd64 rápidos) e nested virt suportados.
+# macmini is an M4: Rosetta (fast amd64 containers) and nested virt are supported.
 colima_rosetta: true
 colima_nested_virtualization: true

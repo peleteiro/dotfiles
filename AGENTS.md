@@ -117,13 +117,13 @@ raiz do repo) — sem symlink.
 
 Regras `always_on` lidas pelos assistentes. São a fonte comum de comportamento:
 
-| Rule | Propósito |
-|------|-----------|
-| `001-golden-rule.md`   | Sempre ler o `AGENTS.md` |
-| `002-no-destructive.md`| Bloqueia comandos destrutivos (rm -rf, force push, chmod -R) |
-| `003-portuguese.md`    | Respostas e docs internos em pt-BR |
-| `004-dotfiles-mise.md` | Instalação via `./dotfiles`, dev via `mise` (tasks file-based) |
-| `005-git-push.md`      | `git push` só quando o usuário pedir explicitamente |
+| Rule | Purpose |
+|------|---------|
+| `001-golden-rule.md`   | Always read `AGENTS.md` |
+| `002-no-destructive.md`| Blocks destructive commands (rm -rf, force push, chmod -R) |
+| `003-language.md`      | Reply in pt-BR; repo docs/comments/commits in English |
+| `004-dotfiles-mise.md` | Install via `./dotfiles`, dev via `mise` (file-based tasks) |
+| `005-git-push.md`      | `git push` only when the user explicitly asks |
 
 ### Configuração por ferramenta
 

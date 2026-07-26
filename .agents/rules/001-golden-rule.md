@@ -2,4 +2,4 @@
 trigger: always_on
 ---
 
-Sempre leia o arquivo AGENTS.md na raiz do repositório e siga as regras dele.
+Always read the AGENTS.md file at the repository root and follow its rules.

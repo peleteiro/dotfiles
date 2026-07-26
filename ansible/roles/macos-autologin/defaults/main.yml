@@ -1,7 +1,7 @@
 ---
-# Usuário que loga automaticamente no boot (para o LaunchAgent do Colima subir).
+# User that logs in automatically at boot (so the Colima LaunchAgent comes up).
 macos_autologin_user: "{{ ansible_user }}"
 
-# Senha de login usada para escrever /etc/kcpassword. Por padrão reaproveita a senha de
-# sudo (ansible_become_password), definida no group_vars/all/secrets.yml (gitignored).
+# Login password used to write /etc/kcpassword. By default reuses the sudo password
+# (ansible_become_password), defined in group_vars/all/secrets.yml (gitignored).
 macos_login_password: "{{ ansible_become_password | default('') }}"

@@ -1,51 +1,51 @@
 // Zellij configuration
 // Docs: https://zellij.dev/documentation/
 
-// === Aparência ===
-// Layout "compact": uma única barra de status fina embaixo
+// === Appearance ===
+// "compact" layout: a single thin status bar at the bottom
 default_layout "compact"
 
-// Esconde frames dos painéis (pane ativo fica destacado por cor)
+// Hides pane frames (the active pane is highlighted by color)
 pane_frames false
 
-// Tema custom: paleta pastel Catppuccin Mocha + fundo preto suave
+// Custom theme: Catppuccin Mocha pastel palette + soft black background
 theme "mocha-black"
 
-// Sublinhados modernos (curly/dotted) em terminais que suportam
+// Modern underlines (curly/dotted) in terminals that support them
 styled_underlines true
 
-// === Comportamento ===
+// === Behavior ===
 mouse_mode true
 copy_on_select true
 
-// Scrollback — equivalente ao history-limit 10000 que tinha no tmux
+// Scrollback — equivalent to the history-limit 10000 I had in tmux
 scroll_buffer_size 10000
 
-// Editor para abrir o scrollback (Alt+e no modo scroll)
+// Editor to open the scrollback (Alt+e in scroll mode)
 scrollback_editor "/usr/bin/env nvim"
 
-// === Sessões persistentes (Zellij 0.40+) ===
+// === Persistent sessions (Zellij 0.40+) ===
 session_serialization true
 pane_viewport_serialization true
 
-// === Menos ruído no startup ===
+// === Less noise at startup ===
 show_startup_tips false
 show_release_notes false
 
-// === Tema custom ===
-// Catppuccin Mocha (cores pastel) com fundo preto suave em vez do #1e1e2e original
+// === Custom theme ===
+// Catppuccin Mocha (pastel colors) with a soft black background instead of the original #1e1e2e
 themes {
     mocha-black {
-        fg      "#cdd6f4"   // texto: branco-lavanda suave
-        bg      "#1a1a1a"   // fundo: quase-preto
-        black   "#45475a"   // bright black: cinza neutro
-        red     "#f38ba8"   // rosa pastel
-        green   "#a6e3a1"   // verde menta
-        yellow  "#f9e2af"   // creme
-        blue    "#89b4fa"   // azul céu
-        magenta "#f5c2e7"   // rosa-claro
-        cyan    "#94e2d5"   // turquesa suave
-        white   "#bac2de"   // off-white acinzentado
-        orange  "#fab387"   // pêssego
+        fg      "#cdd6f4"   // text: soft lavender-white
+        bg      "#1a1a1a"   // background: near-black
+        black   "#45475a"   // bright black: neutral gray
+        red     "#f38ba8"   // pastel pink
+        green   "#a6e3a1"   // mint green
+        yellow  "#f9e2af"   // cream
+        blue    "#89b4fa"   // sky blue
+        magenta "#f5c2e7"   // light pink
+        cyan    "#94e2d5"   // soft turquoise
+        white   "#bac2de"   // grayish off-white
+        orange  "#fab387"   // peach
     }
 }

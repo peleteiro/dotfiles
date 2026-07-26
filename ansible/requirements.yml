@@ -1,9 +1,9 @@
-# Collections do Ansible Galaxy.
+# Ansible Galaxy collections.
 #
-# community.general: módulos `homebrew` e `osx_defaults` (role docker + macos-autologin).
-# A role ssh-keys usa só módulos builtin.
+# community.general: `homebrew` and `osx_defaults` modules (docker + macos-autologin roles).
+# The ssh-keys role uses only builtin modules.
 #
-# Instalar: `ansible-galaxy collection install -r requirements.yml`
+# Install: `ansible-galaxy collection install -r requirements.yml`
 collections:
   - name: community.general
     version: ">=9.0.0,<12.0.0"

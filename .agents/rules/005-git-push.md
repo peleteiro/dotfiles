@@ -2,11 +2,12 @@
 trigger: always_on
 ---
 
-# Git push só quando pedido explicitamente
+# Git push only when explicitly requested
 
-Só execute `git push` quando o usuário pedir **explicitamente**. NUNCA faça push por
-iniciativa própria.
+Only run `git push` when the user **explicitly** asks. NEVER push on your own
+initiative.
 
-- Commitar localmente é ok no fluxo normal; publicar (push) não — espere o pedido.
-- `git push --force` / `-f` / `--force-with-lease` e `git commit --no-verify` seguem
-  **proibidos** (reescrevem histórico / burlam os hooks).
+- Committing locally is fine in the normal flow; publishing (push) is not —
+  wait for the request.
+- `git push --force` / `-f` / `--force-with-lease` and `git commit
+  --no-verify` remain **forbidden** (they rewrite history / bypass hooks).

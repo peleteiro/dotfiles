@@ -2,19 +2,19 @@
 trigger: always_on
 ---
 
-# Instalação via `./dotfiles`, tarefas de dev via `mise`
+# Install via `./dotfiles`, dev tasks via `mise`
 
-## Instalação (uso final)
+## Installation (end use)
 
-- Para aplicar os dotfiles use **`./dotfiles`** diretamente. Não precisa de
-  `mise` para instalar.
+- To apply the dotfiles use **`./dotfiles`** directly. No `mise` needed to
+  install.
 
-## Tarefas de desenvolvimento
+## Development tasks
 
-- Use **`mise`** para lint, testes e debug. NUNCA use npm/pnpm/yarn (este
-  projeto é shell, não Node).
+- Use **`mise`** for lint, tests and debug. NEVER use npm/pnpm/yarn (this
+  project is shell, not Node).
 
-### Correto
+### Correct
 
 ```bash
 mise run lint
@@ -23,15 +23,16 @@ mise run debug:linux:gui
 mise run debug:linux:nogui
 ```
 
-## Tasks são FILE-BASED
+## Tasks are FILE-BASED
 
-- As tasks ficam em **`.config/mise/tasks/`** (estrutura de diretórios).
-- NUNCA defina tasks dentro de `mise.toml`.
+- Tasks live in **`.config/mise/tasks/`** (directory structure).
+- NEVER define tasks inside `mise.toml`.
 
 ## Shell / Lint
 
-- Todo script deve passar em `mise run lint` (shellcheck, `shell=bash`).
-- Sempre cite variáveis: `"$VAR"`, não `$VAR`.
-- Prefira as alternativas modernas em Rust: `fd` (não `find`), `rg` (não
-  `grep`), `sd` (não `sed`), `bat` (não `cat`) nos scripts de `home/.bin/`.
-- Ao usar `sd`/`rg` com aspas simples, anote `# shellcheck disable=SC2016`.
+- Every script must pass `mise run lint` (shellcheck, `shell=bash`).
+- Always quote variables: `"$VAR"`, not `$VAR`.
+- Prefer the modern Rust alternatives: `fd` (not `find`), `rg` (not
+  `grep`), `sd` (not `sed`), `bat` (not `cat`) in `home/.bin/` scripts.
+- When using `sd`/`rg` with single quotes, annotate
+  `# shellcheck disable=SC2016`.

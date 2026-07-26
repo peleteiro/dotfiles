@@ -1,17 +1,17 @@
 #!/bin/bash
-#MISE description="Provisiona TODAS as máquinas via Ansible (ansible/site.yml)"
-# Uso:
-#   mise run ansible                     # todas as máquinas ativas
+#MISE description="Provisions ALL machines via Ansible (ansible/site.yml)"
+# Usage:
+#   mise run ansible                     # all active machines
 #   mise run ansible -- --check          # dry-run
 #
-# Valida o secret de cada máquina ATIVA (playbook não-comentado no site.yml) antes de
-# rodar. Requer `op` autenticado no controller (a role ssh-keys lê a chave do 1Password).
+# Validates the secret of each ACTIVE machine (non-commented playbook in site.yml) before
+# running. Requires an authenticated `op` on the controller (the ssh-keys role reads the key from 1Password).
 set -euo pipefail
 
 cd "$MISE_CONFIG_ROOT/ansible"
 
-# Máquinas ativas = playbooks importados (não-comentados) no site.yml.
-# Loop while-read (não `mapfile`) p/ compatibilidade com o bash 3.2 do macOS.
+# Active machines = imported (non-commented) playbooks in site.yml.
+# while-read loop (not `mapfile`) for compatibility with macOS's bash 3.2.
 machines=()
 while IFS= read -r m; do
   [ -n "$m" ] && machines+=("$m")
